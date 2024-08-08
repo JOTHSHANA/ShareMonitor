@@ -1,22 +1,22 @@
-
 .container {
     display: flex;
     flex-wrap: wrap;
 }
 
 .card {
-    flex: 1 1 calc(25% - 10px); 
+    flex: 1 1 calc(25% - 10px);
     max-width: calc(25% - 10px);
-    height: 120px;
+    height: 100px;
     border-radius: 5px;
     background-color: var(--background-1);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     margin: 5px;
     box-sizing: border-box;
     cursor: pointer;
-} 
+}
 
 @media (max-width: 1124px) {
     .card {
@@ -58,24 +58,29 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 }
 
-.add-button{
+.add-button {
     margin: 5px;
-    background-color: rgb(38, 212, 99);
+    background-color: rgb(19, 162, 69);
     border: none;
-    padding: 7px 10px;
+    padding: 5px 7px;
     border-radius: 5px;
     color: white;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
+.sticky-add-button{
+    position: sticky;
+    top: 0;
+}
 
-.subject-name{
+.subject-name {
     display: inline-block;
-    margin: 0;
+    margin: 5px;
     align-items: center;
     justify-content: center;
     font-size: 14px;
@@ -83,7 +88,7 @@
 
 }
 
-.card1{   
+.card1 {
     border-radius: 5px;
     background-color: var(--background-1);
     padding: 10px;
@@ -92,25 +97,25 @@
     cursor: pointer;
 }
 
-.level-num{
+.level-num {
     font-size: small;
     font-weight: 700;
     color: rgb(92, 92, 92);
 }
 
-.levels-with-documents{
+.levels-with-documents {
     width: 100%;
     display: flex;
     gap: 5px;
 }
 
-.container1{
+.container1 {
     flex: 2;
     display: flex;
     flex-direction: column;
 }
 
-.container2{
+.container2 {
     flex: 1.3;
     width: auto;
     height: 100%;
@@ -120,16 +125,16 @@
     padding: 10px;
 }
 
-.level-name{
+.level-name {
     width: 100%;
-    
+
 }
 
-hr{
+hr {
     border-color: #5c5c5c;
 }
 
-.each-tab{
+.each-tab {
     list-style: none;
     flex: 1;
     display: flex;
@@ -140,34 +145,98 @@ hr{
     font-weight: 700
 }
 
-.tabs-list{
+.tabs-list {
     padding: 0px;
     display: flex;
     margin: 0px;
 }
 
-/* Style for each tab */
 .each-tab {
     padding: 10px 20px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 5px 5px 0px 0px;
 }
 
-/* Hover effect */
 .each-tab:hover {
-    background-color: var(--background); /* Light gray background on hover */
+    background-color: var(--document);
 }
 
-/* Active tab style */
-.each-tab.active { 
-    border-bottom: 3px solid #007bff;
-    color: white; /* White text color for active tab */
+.each-tab.active {
+    background-color: var(--document);
 }
 
-/* Ensure the tab list looks nice */
 .tabs-list {
     display: flex;
-    gap: 10px; /* Spacing between tabs */
+    gap: 10px;
     list-style: none;
     padding: 0;
     margin: 0;
+
 }
+
+.all-documents{
+    background-color: var(--document);
+    padding: 10px;
+    border-radius: 0px 0px 5px 5px;
+}
+
+
+.drop-container {
+    margin-top: 20px;
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #2469b3;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s ease-in-out, border .2s ease-in-out;
+  }
+  
+  .drop-container:hover,
+  .drop-container.drag-active {
+    background: var(--background);
+    border-color: #111;
+  }
+  
+  .drop-container:hover .drop-title,
+  .drop-container.drag-active .drop-title {
+    color: var(--upload-hover);
+  }
+  
+  .drop-title {
+    color: var(--text);
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    transition: color .2s ease-in-out;
+  }
+  
+  input[type=file] {
+    width: 350px;
+    max-width: 100%;
+    color: #444;
+    padding: 5px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #555;
+  }
+  
+  input[type=file]::file-selector-button {
+    margin-right: 20px;
+    border: none;
+    background: #084cdf;
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: background .2s ease-in-out;
+  }
+  
+  input[type=file]::file-selector-button:hover {
+    background: #0d45a5;
+  }

@@ -7,10 +7,11 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import apiHost from "../components/utils/api";
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import apiHost from "../components/utils/api";
 import './styles.css';
 
 function Levels() {
@@ -24,7 +25,19 @@ function Body() {
     const [showPopup, setShowPopup] = useState(false);
     const [newLevel, setNewLevel] = useState("");
     const [selectedLevel, setSelectedLevel] = useState(null);
-    const [activeTab, setActiveTab] = useState("Class Works"); // Default active tab
+    const [activeTab, setActiveTab] = useState("Class Works");
+    const [showDocumentPopup, setShowDocumentPopup] = useState(false);
+    const [documentType, setDocumentType] = useState("");
+    const [pdf, setPdf] = useState(null);
+    const [link, setLink] = useState("");
+    const [video, setVideo] = useState(null);
+
+    const documentCategoryMapping = {
+        "Class Works": 1,
+        "Home Works": 2,
+        "Others": 3,
+        "View All": 4,
+    };
 
     useEffect(() => {
         fetchLevels();
@@ -72,6 +85,58 @@ function Body() {
 
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
+    };
+
+    const handleDocumentPopupOpen = () => {
+        setShowDocumentPopup(true);
+    };
+
+    const handleDocumentPopupClose = () => {
+        setShowDocumentPopup(false);
+        setDocumentType(""); // Reset document type when closing the popup
+        setPdf(null);
+        setLink("");
+        setVideo(null);
+    };
+
+    const handleDocumentTypeChange = (event) => {
+        setDocumentType(event.target.value);
+    };
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (documentType === "pdf") {
+            setPdf(file);
+        } else if (documentType === "video") {
+            setVideo(file);
+        }
+    };
+
+    const handleLinkChange = (event) => {
+        setLink(event.target.value);
+    };
+
+    const handleFormSubmit = async (event) => {
+        event.preventDefault();
+
+        const data = {
+            subjectId,
+            level: selectedLevel.level,
+            category: documentCategoryMapping[activeTab],
+            pdf: pdf ? pdf.name : null,
+            link: link || null,
+            video: video ? video.name : null,
+        };
+        console.log(data);
+
+        try {
+            await axios.post(`${apiHost}/api/uploadDocument`, data);
+            console.log('Document uploaded successfully');
+        } catch (error) {
+            console.error('Error uploading document:', error);
+        }
+
+        handleDocumentPopupClose();
     };
 
     return (
@@ -143,10 +208,86 @@ function Body() {
                         </ul>
                     </div>
                     <div className='all-documents'>
-                        <div></div>
+                        <div className='sticky-add-button'>
+                            <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                <AddIcon />Add Documents
+                            </button>
+                            <div className='documents-container'>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <Dialog
+                open={showDocumentPopup}
+                onClose={handleDocumentPopupClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleFormSubmit,
+                    sx: { width: '900px', backgroundColor: "var(--background-1)", color: "var(--text)" }
+                }}
+            >
+                <DialogTitle>Add Document</DialogTitle>
+                <DialogContent dividers>
+                    <DialogContentText sx={{ width: '500px', backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                        Select the type of document to upload.
+                    </DialogContentText>
+                    <TextField
+                        select
+                        value={documentType}
+                        onChange={handleDocumentTypeChange}
+                        fullWidth
+                        SelectProps={{
+                            native: true,
+                        }}
+                        variant="standard"
+                        sx={{
+                            '& option': {
+                                color: 'rgba(0, 0, 0, 0.87)',  // Default text color for options
+                            },
+                            '& option:disabled': {
+                                color: '#888',  // Custom color for the placeholder
+                            }
+                        }}
+                    >
+                        <option value="" disabled>Document type</option>
+                        <option value="pdf">PDF</option>
+                        <option value="link">Link</option>
+                        <option value="video">Video</option>
+                    </TextField>
+
+                    {documentType === "pdf" && (
+                        <label className="drop-container">
+                            <span className="drop-title">Drop files here</span>
+                            or
+                            <input type="file" accept="application/pdf" onChange={handleFileChange} required />
+                        </label>
+                    )}
+                    {documentType === "link" && (
+                        <TextField
+                            margin="dense"
+                            id="link"
+                            label="Enter Link"
+                            type="url"
+                            fullWidth
+                            variant="standard"
+                            value={link}
+                            onChange={handleLinkChange}
+                        />
+                    )}
+                    {documentType === "video" && (
+                        <label className="drop-container">
+                            <span className="drop-title">Drop files here</span>
+                            or
+                            <input type="file" accept="video/*" onChange={handleFileChange} required />
+                        </label>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDocumentPopupClose}>Cancel</Button>
+                    <Button type="submit">SAVE</Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

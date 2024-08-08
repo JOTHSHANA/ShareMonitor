@@ -12,19 +12,20 @@ function SideBar(props) {
         >
             <ul className="list-div">
                 <li
-                    className={`list-items ${location.pathname === '/dashboard' ? "active" : ""}`}
+                    className={`list-items ${location.pathname === '/subjects' || location.pathname === '/levels' ? "active" : ""}`}
                 >
                     <Link className="link" to="/subjects">
                         <DashboardIcon sx={{ marginRight: "10px", color: "#00d25b", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
                         <p className="menu-names">Subjects</p>
                     </Link>
                 </li>
+
                 <li
-                    className={`list-items ${location.pathname === '/logout' ? "active" : ""}`}
+                    className={`list-items ${location.pathname === '/history' ? "active" : ""}`}
                 >
-                    <Link className="link" to="/logout">
+                    <Link className="link" to="/history">
                         <ExitToAppIcon sx={{ marginRight: "10px", color: "#fc424a", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
-                        <p className="menu-names">Logout</p>
+                        <p className="menu-names">History</p>
                     </Link>
                 </li>
             </ul>
