@@ -14,9 +14,9 @@ function SideBar(props) {
                 <li
                     className={`list-items ${location.pathname === '/dashboard' ? "active" : ""}`}
                 >
-                    <Link className="link" to="/dashboard">
+                    <Link className="link" to="/subjects">
                         <DashboardIcon sx={{ marginRight: "10px", color: "#00d25b", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
-                        <p className="menu-names">Dashboard</p>
+                        <p className="menu-names">Subjects</p>
                     </Link>
                 </li>
                 <li

@@ -66,8 +66,108 @@
     border-radius: 5px;
     color: white;
     font-weight: 700;
+    font-size: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+
+.subject-name{
+    display: inline-block;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
     font-size: 14px;
+    font-weight: 700;
+
+}
+
+.card1{   
+    border-radius: 5px;
+    background-color: var(--background-1);
+    padding: 10px;
+    margin: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.level-num{
+    font-size: small;
+    font-weight: 700;
+    color: rgb(92, 92, 92);
+}
+
+.levels-with-documents{
+    width: 100%;
+    display: flex;
+    gap: 5px;
+}
+
+.container1{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.container2{
+    flex: 1.3;
+    width: auto;
+    height: 100%;
+    background-color: var(--background-1);
+    margin: 5px 0px;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.level-name{
+    width: 100%;
+    
+}
+
+hr{
+    border-color: #5c5c5c;
+}
+
+.each-tab{
+    list-style: none;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700
+}
+
+.tabs-list{
+    padding: 0px;
+    display: flex;
+    margin: 0px;
+}
+
+/* Style for each tab */
+.each-tab {
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect */
+.each-tab:hover {
+    background-color: var(--background); /* Light gray background on hover */
+}
+
+/* Active tab style */
+.each-tab.active { 
+    border-bottom: 3px solid #007bff;
+    color: white; /* White text color for active tab */
+}
+
+/* Ensure the tab list looks nice */
+.tabs-list {
+    display: flex;
+    gap: 10px; /* Spacing between tabs */
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }

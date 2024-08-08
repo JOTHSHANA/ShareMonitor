@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from 'axios';
 import Layout from "../components/appLayout/Layout";
 import Button from '@mui/material/Button';
@@ -6,7 +7,6 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import apiHost from "../components/utils/api";
 import AddIcon from '@mui/icons-material/Add';
@@ -20,6 +20,7 @@ function Body() {
     const [showPopup, setShowPopup] = useState(false);
     const [subjects, setSubjects] = useState([]);
     const [newSubject, setNewSubject] = useState("");
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         fetchSubjects();
@@ -56,19 +57,27 @@ function Body() {
         }
     };
 
+    const handleSubjectClick = (id, name) => {
+        console.log(name, id)
+        navigate(`/levels/${id}/${name}`); 
+    };
+
     return (
         <>
-            <div style={{width:"100%", textAlign:"end"}}>
+            <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+                <p className='subject-name'>SUBJECTS</p>
                 <button className="add-button" onClick={handleAddClick}>
                     <AddIcon />Add Subject
                 </button>
             </div>
             <div className="container">
-
                 {subjects.map((subject, index) => (
-                    <div key={index} className="card">
+                    <div 
+                        key={index} 
+                        className="card"
+                        onClick={() => handleSubjectClick(subject.id, subject.name)}
+                    >
                         {subject.name}
-                        {/* {subject.id} */}
                     </div>
                 ))}
                 <Dialog open={showPopup} onClose={handleClose}>
