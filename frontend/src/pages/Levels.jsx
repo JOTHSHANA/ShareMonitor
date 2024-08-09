@@ -12,6 +12,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import apiHost from "../components/utils/api";
+import pdf_img from '../assets/pdf_img.png';
+import video_img from '../assets/video_img.png';
+import link_img from '../assets/link_img.png';
 import './styles.css';
 
 function Levels() {
@@ -31,17 +34,24 @@ function Body() {
     const [pdf, setPdf] = useState(null);
     const [link, setLink] = useState("");
     const [video, setVideo] = useState(null);
+    const [documents, setDocuments] = useState([]); // State for documents
 
     const documentCategoryMapping = {
         "Class Works": 1,
         "Home Works": 2,
         "Others": 3,
-        "View All": 4,
+
     };
 
     useEffect(() => {
         fetchLevels();
     }, [subjectId, subjectName]);
+
+    useEffect(() => {
+        if (selectedLevel) {
+            fetchDocuments();
+        }
+    }, [selectedLevel, activeTab]);
 
     const fetchLevels = async () => {
         try {
@@ -52,8 +62,23 @@ function Body() {
                 }
             });
             setLevels(response.data);
+            console.log(response.data);
         } catch (error) {
             console.error('Error fetching levels:', error);
+        }
+    };
+
+    const fetchDocuments = async () => {
+        try {
+            const response = await axios.get(`${apiHost}/api/getDocument`, {
+                params: {
+                    work_type: documentCategoryMapping[activeTab],
+                    level: selectedLevel.id
+                }
+            });
+            setDocuments(response.data); // Store fetched documents in state
+        } catch (error) {
+            console.error('Error fetching documents:', error);
         }
     };
 
@@ -79,7 +104,8 @@ function Body() {
         }
     };
 
-    const handleLevelClick = (level) => {
+    const handleLevelClick = (id) => {
+        const level = levels.find((lvl) => lvl.id === id);
         setSelectedLevel(level);
     };
 
@@ -93,7 +119,7 @@ function Body() {
 
     const handleDocumentPopupClose = () => {
         setShowDocumentPopup(false);
-        setDocumentType(""); // Reset document type when closing the popup
+        setDocumentType("");
         setPdf(null);
         setLink("");
         setVideo(null);
@@ -119,19 +145,33 @@ function Body() {
     const handleFormSubmit = async (event) => {
         event.preventDefault();
 
-        const data = {
-            subjectId,
-            level: selectedLevel.level,
-            category: documentCategoryMapping[activeTab],
-            pdf: pdf ? pdf.name : null,
-            link: link || null,
-            video: video ? video.name : null,
-        };
-        console.log(data);
+        if (!selectedLevel) {
+            alert('Please select a level before uploading a document.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('subjectId', subjectId);
+        formData.append('level', selectedLevel.id);
+        formData.append('category', documentCategoryMapping[activeTab]);
+        formData.append('documentType', documentType);
+
+        if (documentType === 'pdf' && pdf) {
+            formData.append('file', pdf);
+        } else if (documentType === 'video' && video) {
+            formData.append('file', video);
+        } else if (documentType === 'link' && link) {
+            formData.append('link', link);
+        }
 
         try {
-            await axios.post(`${apiHost}/api/uploadDocument`, data);
-            console.log('Document uploaded successfully');
+            const response = await axios.post(`${apiHost}/api/uploadDocument`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Document uploaded successfully', response.data);
+            fetchDocuments(); // Refresh documents after upload
         } catch (error) {
             console.error('Error uploading document:', error);
         }
@@ -151,7 +191,7 @@ function Body() {
             <div className='levels-with-documents'>
                 <div className="container1">
                     {levels.map((level, index) => (
-                        <div key={index} className="card1" onClick={() => handleLevelClick(level)}>
+                        <div key={index} className="card1" onClick={() => handleLevelClick(level.id)}>
                             <div className='level-num'>Level {level.level}</div>
                             {level.lvl_name}
                         </div>
@@ -196,7 +236,7 @@ function Body() {
                     <hr />
                     <div className='tabs'>
                         <ul className='tabs-list'>
-                            {["Class Works", "Home Works", "Others", "View All"].map((tab) => (
+                            {["Class Works", "Home Works", "Others"].map((tab) => (
                                 <li
                                     key={tab}
                                     className={`each-tab ${activeTab === tab ? "active" : ""}`}
@@ -213,6 +253,17 @@ function Body() {
                                 <AddIcon />Add Documents
                             </button>
                             <div className='documents-container'>
+                                {documents.length > 0 ? (
+                                    documents.map((doc, index) => (
+                                        <div key={index} className='document-item'>
+                                            {doc.pdf && <div className='flex-align'><img src={pdf_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
+                                            {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
+                                            {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No documents found.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -243,10 +294,10 @@ function Body() {
                         variant="standard"
                         sx={{
                             '& option': {
-                                color: 'rgba(0, 0, 0, 0.87)',  // Default text color for options
+                                color: 'rgba(0, 0, 0, 0.87)',
                             },
                             '& option:disabled': {
-                                color: '#888',  // Custom color for the placeholder
+                                color: '#888',
                             }
                         }}
                     >
@@ -265,10 +316,11 @@ function Body() {
                     )}
                     {documentType === "link" && (
                         <TextField
+                            autoFocus
                             margin="dense"
                             id="link"
-                            label="Enter Link"
-                            type="url"
+                            label="Link"
+                            type="text"
                             fullWidth
                             variant="standard"
                             value={link}
@@ -285,7 +337,7 @@ function Body() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleDocumentPopupClose}>Cancel</Button>
-                    <Button type="submit">SAVE</Button>
+                    <Button type="submit" variant="contained" color="primary">Upload</Button>
                 </DialogActions>
             </Dialog>
         </>
