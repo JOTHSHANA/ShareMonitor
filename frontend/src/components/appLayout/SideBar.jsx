@@ -1,8 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-
+import HistoryIcon from '@mui/icons-material/History';
 function SideBar(props) {
     const location = useLocation();
 
@@ -32,7 +31,7 @@ function SideBar(props) {
                     className={`list-items ${location.pathname === '/history' ? "active" : ""}`}
                 >
                     <Link className="link" to="/history">
-                        <ExitToAppIcon sx={{ marginRight: "10px", color: "#fc424a", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
+                        <HistoryIcon sx={{ marginRight: "10px", color: "rgb(104, 173, 237)", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
                         <p className="menu-names">History</p>
                     </Link>
                 </li>

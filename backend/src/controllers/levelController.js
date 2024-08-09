@@ -43,3 +43,48 @@ exports.createLevels = (req, res) => {
         });
     });
 };
+
+exports.updateLevels = (req, res) => {
+    let { id } = req.params;
+    const { lvl_name, subjectId, level } = req.body;
+
+    id = parseInt(id, 10);
+    const intSubjectId = parseInt(subjectId, 10);
+    const intLevel = parseInt(level, 10);
+
+    console.log(intLevel, id, lvl_name, intSubjectId);
+
+    if (!lvl_name) {
+        return res.status(400).json({ error: 'Level name is required' });
+    }
+
+    const query = 'UPDATE levels SET lvl_name = ? WHERE level = ? AND subject = ? AND id = ?';
+    const values = [lvl_name, intLevel, intSubjectId, id];
+
+    db.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error updating level:', err);
+            return res.status(500).json({ error: 'Database update failed' });
+        }
+
+        res.json({ success: true, id: id, lvl_name: lvl_name });
+    });
+};
+
+
+exports.deleteLevels = (req, res) => {
+    const { id } = req.params;
+    const { subjectId } = req.body;
+
+    console.log(id);
+
+    db.query('UPDATE levels SET status = "0" WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error('Error updating level:', err);
+            return res.status(500).json({ error: 'Database update failed' });
+        }
+
+        res.json({ success: true, id: id });
+    });
+};
+

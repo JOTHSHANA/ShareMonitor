@@ -8,6 +8,7 @@
     /* Changed from max-width to width */
     overflow: auto;
     background-color: var(--background-1);
+    
 }
 
 .menu-names {

@@ -10,6 +10,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import apiHost from "../components/utils/api";
 import AddIcon from '@mui/icons-material/Add';
+import CreateSharpIcon from '@mui/icons-material/CreateSharp';
+import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import './styles.css'; // Import the CSS file
 
 function Subjects() {
@@ -20,6 +23,9 @@ function Body() {
     const [showPopup, setShowPopup] = useState(false);
     const [subjects, setSubjects] = useState([]);
     const [newSubject, setNewSubject] = useState("");
+    const [editSubjectId, setEditSubjectId] = useState(null);
+    const [editSubjectName, setEditSubjectName] = useState("");
+    const [showEditDelete, setShowEditDelete] = useState(false);
     const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
@@ -37,6 +43,8 @@ function Body() {
     };
 
     const handleAddClick = () => {
+        setNewSubject("");
+        setEditSubjectId(null);
         setShowPopup(true);
     };
 
@@ -47,41 +55,103 @@ function Body() {
     const handleCreateSubject = async () => {
         if (newSubject.trim() !== "") {
             try {
-                const response = await axios.post(`${apiHost}/api/subjects`, { name: newSubject });
-                setSubjects([...subjects, response.data]);
+                if (editSubjectId) {
+                    // Update existing subject
+                    await axios.put(`${apiHost}/api/subjects/${editSubjectId}`, { newName: newSubject });
+                    setSubjects(subjects.map(subject =>
+                        subject.id === editSubjectId ? { ...subject, name: newSubject } : subject
+                    ));
+                } else {
+                    // Create new subject
+                    const response = await axios.post(`${apiHost}/api/subjects`, { name: newSubject });
+                    setSubjects([...subjects, response.data]);
+                }
                 setNewSubject("");
                 setShowPopup(false);
             } catch (error) {
-                console.error('Error creating subject:', error);
+                console.error('Error saving subject:', error);
             }
         }
     };
 
+
+
     const handleSubjectClick = (id, name) => {
         console.log(name, id)
-        navigate(`/levels/${id}/${name}`); 
+        navigate(`/levels/${id}/${name}`);
+    };
+
+    const handleEdit = (subjectId, subjectName) => {
+        setEditSubjectId(subjectId);
+        setNewSubject(subjectName);
+        setShowPopup(true);
+    };
+
+    const handleDelete = async (subjectId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this subject? You will loose all the levels and documents inside it!!");
+        if (confirmDelete) {
+            try {
+                await axios.delete(`${apiHost}/api/subjects/${subjectId}`);
+                setSubjects(subjects.filter(subject => subject.id !== subjectId));
+            } catch (error) {
+                console.error('Error deleting subject:', error);
+            }
+        }
+    };
+
+
+    const handleShowEditDelete = () => {
+        setShowEditDelete(prevState => !prevState);
     };
 
     return (
         <>
-            <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+            <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <p className='subject-name'>SUBJECTS</p>
-                <button className="add-button" onClick={handleAddClick}>
-                    <AddIcon />Add Subject
-                </button>
+                <div style={{ display: "flex" }}>
+                    <button className="add-button" onClick={handleShowEditDelete}>
+                        <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                    </button>
+                    <button className="add-button" onClick={handleAddClick}>
+                        <AddIcon />Add Subject
+                    </button>
+                </div>
             </div>
             <div className="container">
                 {subjects.map((subject, index) => (
-                    <div 
-                        key={index} 
+                    <div
+                        key={index}
                         className="card"
                         onClick={() => handleSubjectClick(subject.id, subject.name)}
                     >
+                        <div
+                            className="hover-edit-delete"
+                            style={{ display: showEditDelete ? 'flex' : 'none' }} // Conditional rendering
+                        >
+                            <div
+                                className="edit-icon"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit(subject.id, subject.name);
+                                }}
+                            >
+                                <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                            </div>
+                            <div
+                                className="delete-icon"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(subject.id);
+                                }}
+                            >
+                                <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                            </div>
+                        </div>
                         {subject.name}
                     </div>
                 ))}
                 <Dialog open={showPopup} onClose={handleClose}>
-                    <DialogTitle sx={{width:"400px"}}>Enter Subject Name</DialogTitle>
+                    <DialogTitle sx={{ width: "400px" }}>{editSubjectId ? "Edit Subject Name" : "Enter Subject Name"}</DialogTitle>
                     <DialogContent>
                         <TextField
                             autoFocus
@@ -97,7 +167,7 @@ function Body() {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>Cancel</Button>
-                        <Button onClick={handleCreateSubject}>Create Subject</Button>
+                        <Button onClick={handleCreateSubject}>{editSubjectId ? "Update Subject" : "Create Subject"}</Button>
                     </DialogActions>
                 </Dialog>
             </div>

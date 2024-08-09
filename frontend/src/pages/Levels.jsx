@@ -11,6 +11,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import CreateSharpIcon from '@mui/icons-material/CreateSharp';
+import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
 import apiHost from "../components/utils/api";
 import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
@@ -31,21 +34,29 @@ function Body() {
     const [activeTab, setActiveTab] = useState("Class Works");
     const [showDocumentPopup, setShowDocumentPopup] = useState(false);
     const [documentType, setDocumentType] = useState("");
+    const [showEditDelete, setShowEditDelete] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [link, setLink] = useState("");
     const [video, setVideo] = useState(null);
-    const [documents, setDocuments] = useState([]); // State for documents
+    const [documents, setDocuments] = useState([]);
+    const [showEditPopup, setShowEditPopup] = useState(false); // State for edit popup
+    const [editLevel, setEditLevel] = useState(""); // State for the level name in edit popup
 
     const documentCategoryMapping = {
         "Class Works": 1,
         "Home Works": 2,
         "Others": 3,
-
     };
 
     useEffect(() => {
         fetchLevels();
     }, [subjectId, subjectName]);
+
+    useEffect(() => {
+        if (levels.length > 0 && !selectedLevel) {
+            setSelectedLevel(levels[0]); // Set the default level to the first one (Level 1)
+        }
+    }, [levels]);
 
     useEffect(() => {
         if (selectedLevel) {
@@ -62,7 +73,6 @@ function Body() {
                 }
             });
             setLevels(response.data);
-            console.log(response.data);
         } catch (error) {
             console.error('Error fetching levels:', error);
         }
@@ -76,7 +86,7 @@ function Body() {
                     level: selectedLevel.id
                 }
             });
-            setDocuments(response.data); // Store fetched documents in state
+            setDocuments(response.data);
         } catch (error) {
             console.error('Error fetching documents:', error);
         }
@@ -170,8 +180,7 @@ function Body() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log('Document uploaded successfully', response.data);
-            fetchDocuments(); // Refresh documents after upload
+            fetchDocuments();
         } catch (error) {
             console.error('Error uploading document:', error);
         }
@@ -179,43 +188,103 @@ function Body() {
         handleDocumentPopupClose();
     };
 
+    const handleEditClick = (level) => {
+        setEditLevel(level.lvl_name);
+        setSelectedLevel(level);
+        setShowEditPopup(true);
+    };
+
+    const handleEditClose = () => {
+        setShowEditPopup(false);
+    };
+
+    const handleEditSubmit = async () => {
+        if (editLevel.trim() !== "") {
+            try {
+                const response = await axios.put(`${apiHost}/api/levels/${selectedLevel.id}`, {
+                    lvl_name: editLevel,
+                    subjectId: subjectId,
+                    level: selectedLevel.level,
+                });
+                // console.log(selectedLevel.id, editLevel, subjectId, selectedLevel.level);
+
+                const updatedLevels = levels.map((lvl) =>
+                    lvl.id === selectedLevel.id ? { ...lvl, lvl_name: editLevel } : lvl
+                );
+                setLevels(updatedLevels);
+                setShowEditPopup(false);
+            } catch (error) {
+                console.error('Error updating level:', error);
+            }
+        }
+    };
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure, You want to delete this level? You will loose all the documents inside this level!!");
+        if (confirmDelete) {
+            try {
+                await axios.delete(`${apiHost}/api/levels/${id}`, {
+                });
+                console.log(id, subjectId)
+                setLevels(levels.filter((level) => level.id !== id));
+            } catch (error) {
+                console.error('Error deleting level:', error);
+            }
+        }
+    };
+
+
+    const handleShowEditDelete = () => {
+        setShowEditDelete(prevState => !prevState);
+    };
+
     return (
         <>
             <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
-                <button className="add-button" onClick={handleAddClick}>
-                    <AddIcon />Add Level
-                </button>
+                <div style={{ display: "flex" }}>
+                    <button className="add-button" onClick={handleShowEditDelete}>
+                        <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                    </button>
+                    <button className="add-button" onClick={handleAddClick}>
+                        <AddIcon />Add Level
+                    </button>
+                </div>
             </div>
 
             <div className='levels-with-documents'>
                 <div className="container1">
                     {levels.map((level, index) => (
                         <div key={index} className="card1" onClick={() => handleLevelClick(level.id)}>
-                            <div className='level-num'>Level {level.level}</div>
-                            {level.lvl_name}
+                            <div
+                                className="hover-edit-delete-levels"
+                                style={{ display: showEditDelete ? 'flex' : 'none' }}
+                            >
+                                <div
+                                    className="edit-icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditClick(level); // Open the edit popup
+                                    }}
+                                >
+                                    <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                </div>
+                                <div
+                                    className="delete-icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(level.id);
+                                    }}
+                                >
+                                    <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                </div>
+                            </div>
+                            <div>
+                                <div className='level-num'>Level {level.level}</div>
+                                {level.lvl_name}
+                            </div>
                         </div>
                     ))}
-                    <Dialog open={showPopup} onClose={handleClose}>
-                        <DialogTitle sx={{ width: "400px" }}>Enter Level Name</DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                id="name"
-                                label="Level Name"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                value={newLevel}
-                                onChange={(e) => setNewLevel(e.target.value)}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button onClick={handleCreateLevel}>Create Level</Button>
-                        </DialogActions>
-                    </Dialog>
                 </div>
                 <div className='container2'>
                     <div className='level-name'>
@@ -269,76 +338,117 @@ function Body() {
                     </div>
                 </div>
             </div>
-            <Dialog
-                open={showDocumentPopup}
-                onClose={handleDocumentPopupClose}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: handleFormSubmit,
-                    sx: { width: '900px', backgroundColor: "var(--background-1)", color: "var(--text)" }
-                }}
-            >
-                <DialogTitle>Add Document</DialogTitle>
-                <DialogContent dividers>
-                    <DialogContentText sx={{ width: '500px', backgroundColor: "var(--background-1)", color: "var(--text)" }}>
-                        Select the type of document to upload.
+            <Dialog open={showPopup} onClose={handleClose}>
+                <DialogTitle>Add New Level</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter the name of the new level.
                     </DialogContentText>
                     <TextField
-                        select
-                        value={documentType}
-                        onChange={handleDocumentTypeChange}
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Level Name"
+                        type="text"
                         fullWidth
-                        SelectProps={{
-                            native: true,
-                        }}
                         variant="standard"
-                        sx={{
-                            '& option': {
-                                color: 'rgba(0, 0, 0, 0.87)',
-                            },
-                            '& option:disabled': {
-                                color: '#888',
-                            }
-                        }}
-                    >
-                        <option value="" disabled>Document type</option>
-                        <option value="pdf">PDF</option>
-                        <option value="link">Link</option>
-                        <option value="video">Video</option>
-                    </TextField>
-
-                    {documentType === "pdf" && (
-                        <label className="drop-container">
-                            <span className="drop-title">Drop files here</span>
-                            or
-                            <input type="file" accept="application/pdf" onChange={handleFileChange} required />
-                        </label>
-                    )}
-                    {documentType === "link" && (
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="link"
-                            label="Link"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                            value={link}
-                            onChange={handleLinkChange}
-                        />
-                    )}
-                    {documentType === "video" && (
-                        <label className="drop-container">
-                            <span className="drop-title">Drop files here</span>
-                            or
-                            <input type="file" accept="video/*" onChange={handleFileChange} required />
-                        </label>
-                    )}
+                        value={newLevel}
+                        onChange={(e) => setNewLevel(e.target.value)}
+                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDocumentPopupClose}>Cancel</Button>
-                    <Button type="submit" variant="contained" color="primary">Upload</Button>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleCreateLevel}>Create</Button>
                 </DialogActions>
+            </Dialog>
+
+            {/* Edit Level Popup */}
+            <Dialog open={showEditPopup} onClose={handleEditClose}>
+                <DialogTitle>Edit Level Name</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="editLevel"
+                        label="Level Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={editLevel}
+                        onChange={(e) => setEditLevel(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditClose}>Cancel</Button>
+                    <Button onClick={handleEditSubmit}>Save</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Add Document Popup */}
+            <Dialog open={showDocumentPopup} onClose={handleDocumentPopupClose}>
+                <DialogTitle>Add New Document</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Select the type of document and upload it.
+                    </DialogContentText>
+                    <form onSubmit={handleFormSubmit}>
+                        <div className="document-type-select">
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="pdf"
+                                    checked={documentType === "pdf"}
+                                    onChange={handleDocumentTypeChange}
+                                />
+                                PDF
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="link"
+                                    checked={documentType === "link"}
+                                    onChange={handleDocumentTypeChange}
+                                />
+                                Link
+                            </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="video"
+                                    checked={documentType === "video"}
+                                    onChange={handleDocumentTypeChange}
+                                />
+                                Video
+                            </label>
+                        </div>
+
+                        {documentType === "pdf" && (
+                            <input type="file" onChange={handleFileChange} accept=".pdf" />
+                        )}
+
+                        {documentType === "link" && (
+                            <TextField
+                                margin="dense"
+                                id="link"
+                                label="Document Link"
+                                type="url"
+                                fullWidth
+                                variant="standard"
+                                value={link}
+                                onChange={handleLinkChange}
+                            />
+                        )}
+
+                        {documentType === "video" && (
+                            <input type="file" onChange={handleFileChange} accept="video/*" />
+                        )}
+
+                        <DialogActions>
+                            <Button onClick={handleDocumentPopupClose}>Cancel</Button>
+                            <Button type="submit">Upload</Button>
+                        </DialogActions>
+                    </form>
+                </DialogContent>
             </Dialog>
         </>
     );
