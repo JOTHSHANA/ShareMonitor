@@ -14,10 +14,13 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import CreateSharpIcon from '@mui/icons-material/CreateSharp';
 import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
+import RuleIcon from '@mui/icons-material/Rule';
+import ShareIcon from '@mui/icons-material/Share';
 import apiHost from "../components/utils/api";
 import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
+import folder_img from '../assets/folder_img.png';
 import './styles.css';
 
 function Levels() {
@@ -30,22 +33,88 @@ function Body() {
     const [levels, setLevels] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
     const [newLevel, setNewLevel] = useState("");
+    const [newFolder, NewFolder] = useState("");
     const [selectedLevel, setSelectedLevel] = useState(null);
+    const [selectedFolder, setSelectedFolder] = useState(null);
     const [activeTab, setActiveTab] = useState("Class Works");
     const [showDocumentPopup, setShowDocumentPopup] = useState(false);
     const [documentType, setDocumentType] = useState("");
     const [showEditDelete, setShowEditDelete] = useState(false);
+    const [showDocumentEditDelete, setShowDocumentEditDelete] = useState(false);
+    const [showNewFolderPopup, setShowNewFolderPopup] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [link, setLink] = useState("");
     const [video, setVideo] = useState(null);
     const [documents, setDocuments] = useState([]);
-    const [showEditPopup, setShowEditPopup] = useState(false); // State for edit popup
-    const [editLevel, setEditLevel] = useState(""); // State for the level name in edit popup
+    const [folders, setFolders] = useState([]);
+    const [showEditPopup, setShowEditPopup] = useState(false);
+    const [activeFolderId, setActiveFolderId] = useState(null);
+    const [editLevel, setEditLevel] = useState("");
+    const [showSharePopup, setShowSharePopup] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [email, setEmail] = useState("");
+    const [showCheckboxes, setShowCheckboxes] = useState(false);
+    const [selectedLevels, setSelectedLevels] = useState([]);
+
+    const [start_day, setStart_day] = useState();
+    const [end_day, setEnd_day] = useState();
+
+
+    const handleWholeShareClick = () => {
+        setShowCheckboxes(prevState => !prevState);
+        if (!showCheckboxes) setSelectedLevels([]);
+    };
+
+    const handleCheckboxChange = (levelId) => {
+        setSelectedLevels(prevSelectedLevels => {
+            if (prevSelectedLevels.includes(levelId)) {
+                return prevSelectedLevels.filter(id => id !== levelId);
+            } else {
+                return [...prevSelectedLevels, levelId];
+            }
+        });
+    };
+
+
+    const handleCheckedSubmit = () => {
+        if (selectedLevels.length === 0) {
+            console.warn("No levels selected for sharing.");
+            return;
+        }
+        console.log('Data sent to backend:', { levels: selectedLevels });
+        axios.post(`${apiHost}/api/shareLevels`, { levels: selectedLevels })
+            .then(response => console.log('Levels shared:', response.data))
+            .catch(error => console.error('Error sharing levels:', error));
+    };
+
+    const handleShareClick = (document) => {
+        setSelectedDocument(document);
+        setShowSharePopup(true);
+    };
+
+    const handleShareClose = () => {
+        setShowSharePopup(false);
+        setEmail("");
+    };
+
+    const handleShareSubmit = async () => {
+        try {
+            await axios.post(`${apiHost}/api/share`, {
+                documentId: selectedDocument.id,
+                email: email
+            });
+            handleShareClose();
+            alert('Document shared successfully!');
+        } catch (error) {
+            console.error('Error sharing document:', error);
+        }
+    };
 
     const documentCategoryMapping = {
         "Class Works": 1,
         "Home Works": 2,
         "Others": 3,
+        "Assessment": 4,
     };
 
     useEffect(() => {
@@ -54,13 +123,19 @@ function Body() {
 
     useEffect(() => {
         if (levels.length > 0 && !selectedLevel) {
-            setSelectedLevel(levels[0]); // Set the default level to the first one (Level 1)
+            setSelectedLevel(levels[0]);
         }
     }, [levels]);
 
+    // useEffect(() => {
+    //     if (selectedLevel) {
+    //         fetchDocuments();
+    //     }
+    // }, [selectedLevel, activeTab]);
+
     useEffect(() => {
         if (selectedLevel) {
-            fetchDocuments();
+            fetchFolders();
         }
     }, [selectedLevel, activeTab]);
 
@@ -78,15 +153,38 @@ function Body() {
         }
     };
 
-    const fetchDocuments = async () => {
+    useEffect(() => {
+        if (selectedFolder && selectedFolder.id !== undefined) {
+            console.log("Selected Folder ID:", selectedFolder.id); // Debugging line
+            fetchDocuments(selectedFolder.id);
+        }
+    }, [selectedFolder]);
+
+
+    const fetchDocuments = async (folderId) => {
+        // setSelectedFolder(folderId)
+        console.log("Fetching documents for folder ID:", folderId);
         try {
-            const response = await axios.get(`${apiHost}/api/getDocument`, {
+            const response = await axios.get(`${apiHost}/api/getDocument/${folderId}`, {});
+            setDocuments(response.data);
+            setActiveFolderId(folderId);
+            console.log(response.data)
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+        }
+    };
+
+
+    const fetchFolders = async () => {
+
+        try {
+            const response = await axios.get(`${apiHost}/api/getfolders`, {
                 params: {
                     work_type: documentCategoryMapping[activeTab],
                     level: selectedLevel.id
                 }
             });
-            setDocuments(response.data);
+            setFolders(response.data);
         } catch (error) {
             console.error('Error fetching documents:', error);
         }
@@ -114,10 +212,39 @@ function Body() {
         }
     };
 
+    const handleCreateFolder = async () => {
+        try {
+            const response = await axios.post(`${apiHost}/api/folders`, { s_day: start_day, e_day: end_day, level_id: selectedLevel.id, work_type: documentCategoryMapping[activeTab] });
+
+            setFolders([...folders, response.data]);
+            setStart_day("");
+            setEnd_day("");
+            setShowNewFolderPopup(false);
+            fetchFolders();
+        } catch (error) {
+            console.error('Error creating folder:', error);
+        }
+
+    }
+
     const handleLevelClick = (id) => {
         const level = levels.find((lvl) => lvl.id === id);
         setSelectedLevel(level);
     };
+
+    const handleFolderClick = (id) => {
+        console.log(id);
+        const folder = folders.find((fldr) => fldr.id === id);
+        setSelectedFolder(folder);
+
+    };
+
+    useEffect(() => {
+        if (selectedFolder) {
+            fetchDocuments();
+        }
+    }, [selectedFolder]);
+
 
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
@@ -133,6 +260,11 @@ function Body() {
         setPdf(null);
         setLink("");
         setVideo(null);
+    };
+
+
+    const handleNewFolderPopupClose = () => {
+        setShowNewFolderPopup(false);
     };
 
     const handleDocumentTypeChange = (event) => {
@@ -154,7 +286,7 @@ function Body() {
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-
+        setActiveFolderId(activeFolderId)
         if (!selectedLevel) {
             alert('Please select a level before uploading a document.');
             return;
@@ -162,8 +294,7 @@ function Body() {
 
         const formData = new FormData();
         formData.append('subjectId', subjectId);
-        formData.append('level', selectedLevel.id);
-        formData.append('category', documentCategoryMapping[activeTab]);
+        formData.append('folder', activeFolderId);
         formData.append('documentType', documentType);
 
         if (documentType === 'pdf' && pdf) {
@@ -184,7 +315,7 @@ function Body() {
         } catch (error) {
             console.error('Error uploading document:', error);
         }
-
+        
         handleDocumentPopupClose();
     };
 
@@ -193,6 +324,21 @@ function Body() {
         setSelectedLevel(level);
         setShowEditPopup(true);
     };
+
+    const handleDocumentDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure, You want to delete this document?");
+        if (confirmDelete) {
+            try {
+                await axios.delete(`${apiHost}/api/deletedocument/${id}`, {
+                });
+                console.log(id);
+            } catch (error) {
+                console.error('Error deleting level:', error);
+            }
+        }
+        fetchDocuments();
+
+    }
 
     const handleEditClose = () => {
         setShowEditPopup(false);
@@ -233,10 +379,16 @@ function Body() {
         }
     };
 
-
+    const handleShowDocumentEditDelete = () => {
+        setShowDocumentEditDelete(prevState => !prevState);
+    };
     const handleShowEditDelete = () => {
         setShowEditDelete(prevState => !prevState);
     };
+
+    const handleNewFolderPopupOpen = () => {
+        setShowNewFolderPopup(true);
+    }
 
     return (
         <>
@@ -245,6 +397,9 @@ function Body() {
                 <div style={{ display: "flex" }}>
                     <button className="add-button" onClick={handleShowEditDelete}>
                         <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                    </button>
+                    <button className="add-button" onClick={handleWholeShareClick}>
+                        <RuleIcon />Select
                     </button>
                     <button className="add-button" onClick={handleAddClick}>
                         <AddIcon />Add Level
@@ -279,13 +434,33 @@ function Body() {
                                     <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
                                 </div>
                             </div>
-                            <div>
-                                <div className='level-num'>Level {level.level}</div>
-                                {level.lvl_name}
+
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+                                <div>
+                                    <div className='level-num'>Level {level.level}</div>
+                                    {level.lvl_name}
+                                </div>
+                                {showCheckboxes && (
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => handleCheckboxChange(level.id)}
+                                        checked={selectedLevels.includes(level.id)}
+                                    />
+                                )}
                             </div>
                         </div>
                     ))}
+                    {showCheckboxes && (
+                        <div style={{ marginTop: "20px" }}>
+                            <button className="add-button" style={{ float: "right" }} onClick={handleCheckedSubmit}>
+                                <ShareIcon />Share
+                            </button>
+                        </div>
+                    )}
                 </div>
+
+
                 <div className='container2'>
                     <div className='level-name'>
                         {selectedLevel ? (
@@ -305,7 +480,7 @@ function Body() {
                     <hr />
                     <div className='tabs'>
                         <ul className='tabs-list'>
-                            {["Class Works", "Home Works", "Others"].map((tab) => (
+                            {["Class Works", "Home Works", "Assessment", "Others"].map((tab) => (
                                 <li
                                     key={tab}
                                     className={`each-tab ${activeTab === tab ? "active" : ""}`}
@@ -318,21 +493,86 @@ function Body() {
                     </div>
                     <div className='all-documents'>
                         <div className='sticky-add-button'>
-                            <button className='add-button' onClick={handleDocumentPopupOpen}>
-                                <AddIcon />Add Documents
-                            </button>
+                            <div style={{ display: "flex" }}>
+                                <button className='add-button' onClick={handleNewFolderPopupOpen}>
+                                    <AddIcon />Add Folders
+                                </button>
+                                <button className="add-button" onClick={handleShowDocumentEditDelete}>
+                                    <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                                </button>
+                            </div>
                             <div className='documents-container'>
-                                {documents.length > 0 ? (
-                                    documents.map((doc, index) => (
-                                        <div key={index} className='document-item'>
-                                            {doc.pdf && <div className='flex-align'><img src={pdf_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
-                                            {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
-                                            {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>No documents found.</p>
-                                )}
+                                <div className='folders-div'>
+                                    {folders.length > 0 ? (
+                                        folders.map((folder, index) => (
+                                            <div key={index} className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`} onClick={() => fetchDocuments(folder.id)}>
+                                                Day {folder.s_day} - Day {folder.e_day}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No folders added.</p>
+                                    )}
+                                </div>
+                                <div className='documents-div'>
+                                    {documents.length > 0 ? (
+                                        documents.map((doc, index) => (
+                                            <div key={index} className='document-item'>
+                                                {doc.pdf && <div className='flex-align'>
+                                                    <img src={pdf_img} alt="PDF" className="document-icon" />
+                                                    <a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a>
+                                                </div>}
+                                                {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
+                                                {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
+                                                <div
+                                                    className="hover-edit-delete-documents"
+                                                    style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
+                                                >
+                                                    {/* <div
+                                                        className="edit-icon"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDocumentEditClick(id);
+                                                        }}
+                                                    >
+                                                        <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                                    </div> */}
+                                                    <div
+                                                        className="delete-icon"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDocumentDelete(doc.id);
+                                                        }}
+                                                    >
+                                                        <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                                    </div>
+                                                </div>
+                                                {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
+                                                <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                                    <AddIcon />
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No documents found.</p>
+                                    )}
+                                </div>
+
+                                <Dialog open={showSharePopup} onClose={handleShareClose}>
+                                    <DialogTitle>Share Document</DialogTitle>
+                                    <DialogContent>
+                                        <TextField
+                                            label="Recipient Email"
+                                            type="email"
+                                            fullWidth
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleShareClose}>Cancel</Button>
+                                        <Button onClick={handleShareSubmit}>Share</Button>
+                                    </DialogActions>
+                                </Dialog>
                             </div>
                         </div>
                     </div>
@@ -381,6 +621,39 @@ function Body() {
                 <DialogActions>
                     <Button onClick={handleEditClose}>Cancel</Button>
                     <Button onClick={handleEditSubmit}>Save</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/*popup for adding folders */}
+            <Dialog open={showNewFolderPopup} onClose={handleNewFolderPopupClose}>
+                <DialogTitle>Add Folder</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="editLevel"
+                        label="Start"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={start_day}
+                        onChange={(e) => setStart_day(e.target.value)}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="editLevel"
+                        label="End"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={end_day}
+                        onChange={(e) => setEnd_day(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleNewFolderPopupClose}>Cancel</Button>
+                    <Button onClick={handleCreateFolder}>Create</Button>
                 </DialogActions>
             </Dialog>
 
