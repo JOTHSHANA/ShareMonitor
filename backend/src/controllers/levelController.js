@@ -11,6 +11,7 @@ exports.getLevels = (req, res) => {
         FROM levels
         INNER JOIN subjects ON levels.subject = subjects.id
         WHERE levels.status = '1' AND levels.subject = ?
+        ORDER BY levels.level ASC;
     `;
 
     db.query(query, [subjectId], (err, results) => {
@@ -23,26 +24,35 @@ exports.getLevels = (req, res) => {
 
 
 exports.createLevels = (req, res) => {
-    const { name, subjectId } = req.body;
-    if (!name || !subjectId) {
-        return res.status(400).json({ error: 'Name and subjectId are required' });
+    const { name, subjectId, levelNum } = req.body;
+    if (!name || !subjectId || !levelNum) {
+        return res.status(400).json({ error: 'Name, subjectId, and levelNum are required' });
     }
-
-    db.query('SELECT MAX(level) AS maxLevel FROM levels WHERE subject = ?', [subjectId], (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-
-        const newLevel = (result[0].maxLevel || 0) + 1;
-
-        db.query('INSERT INTO levels (lvl_name, subject, level) VALUES (?, ?, ?)', [name, subjectId, newLevel], (err, result) => {
+    console.log(levelNum)
+    // Update the levels greater than levelNum by incrementing them by 1
+    db.query(
+        'UPDATE levels SET level = level + 1 WHERE subject = ? AND level >= ?',
+        [subjectId, levelNum],
+        (err, result) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            res.json({ id: result.insertId, name, subject: subjectId, level: newLevel, status: 1 });
-        });
-    });
+
+            // Insert the new level
+            db.query(
+                'INSERT INTO levels (lvl_name, subject, level) VALUES (?, ?, ?)',
+                [name, subjectId, levelNum],
+                (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ error: err.message });
+                    }
+                    res.json({ id: result.insertId, name, subject: subjectId, level: levelNum, status: 1 });
+                }
+            );
+        }
+    );
 };
+
 
 exports.updateLevels = (req, res) => {
     let { id } = req.params;
@@ -71,20 +81,29 @@ exports.updateLevels = (req, res) => {
     });
 };
 
-
 exports.deleteLevels = (req, res) => {
     const { id } = req.params;
-    const { subjectId } = req.body;
+    const { subjectId, level } = req.body;
+    console.log(id, subjectId, level);
 
-    console.log(id);
-
-    db.query('UPDATE levels SET status = "0" WHERE id = ?', [id], (err, result) => {
+    // Mark the level as deleted by updating the status
+    const updateStatusQuery = 'UPDATE levels SET status = "0" WHERE id = ?';
+    db.query(updateStatusQuery, [id], (err, result) => {
         if (err) {
-            console.error('Error updating level:', err);
+            console.error('Error updating level status:', err);
             return res.status(500).json({ error: 'Database update failed' });
         }
 
-        res.json({ success: true, id: id });
+        // Decrement levels greater than the deleted level
+        const decrementQuery = 'UPDATE levels SET level = level - 1 WHERE subject = ? AND level > ?';
+        db.query(decrementQuery, [subjectId, level + 1], (err, result) => {
+            if (err) {
+                console.error('Error decrementing levels:', err);
+                return res.status(500).json({ error: 'Failed to decrement levels' });
+            }
+
+            res.json({ success: true, id: id });
+        });
     });
 };
 

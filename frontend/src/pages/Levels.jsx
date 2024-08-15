@@ -55,6 +55,7 @@ function Body() {
     const [email, setEmail] = useState("");
     const [showCheckboxes, setShowCheckboxes] = useState(false);
     const [selectedLevels, setSelectedLevels] = useState([]);
+    const [levelNum, setLevelNum] = useState();
 
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
@@ -192,6 +193,7 @@ function Body() {
 
     const handleAddClick = () => {
         setShowPopup(true);
+
     };
 
     const handleClose = () => {
@@ -201,7 +203,7 @@ function Body() {
     const handleCreateLevel = async () => {
         if (newLevel.trim() !== "") {
             try {
-                const response = await axios.post(`${apiHost}/api/levels`, { name: newLevel, subjectId: subjectId });
+                const response = await axios.post(`${apiHost}/api/levels`, { name: newLevel, subjectId: subjectId, levelNum: levelNum + 1 });
                 setLevels([...levels, response.data]);
                 setNewLevel("");
                 setShowPopup(false);
@@ -230,7 +232,10 @@ function Body() {
     const handleLevelClick = (id) => {
         const level = levels.find((lvl) => lvl.id === id);
         setSelectedLevel(level);
+        setLevelNum(level.level);
     };
+
+
 
     const handleFolderClick = (id) => {
         console.log(id);
@@ -315,7 +320,7 @@ function Body() {
         } catch (error) {
             console.error('Error uploading document:', error);
         }
-        
+
         handleDocumentPopupClose();
     };
 
@@ -365,19 +370,21 @@ function Body() {
         }
     };
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Are you sure, You want to delete this level? You will loose all the documents inside this level!!");
+    const handleDelete = async (id, subjectId, level) => {
+        const confirmDelete = window.confirm("Are you sure, you want to delete this level? You will lose all the documents inside this level!!");
         if (confirmDelete) {
             try {
                 await axios.delete(`${apiHost}/api/levels/${id}`, {
+                    data: { subjectId, level }  // Send subjectId and level in the request body
                 });
-                console.log(id, subjectId)
+                console.log(id, subjectId, level);
                 setLevels(levels.filter((level) => level.id !== id));
             } catch (error) {
                 console.error('Error deleting level:', error);
             }
         }
     };
+
 
     const handleShowDocumentEditDelete = () => {
         setShowDocumentEditDelete(prevState => !prevState);
@@ -428,7 +435,7 @@ function Body() {
                                     className="delete-icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDelete(level.id);
+                                        handleDelete(level.id, subjectId, index);
                                     }}
                                 >
                                     <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
@@ -441,6 +448,9 @@ function Body() {
                                     <div className='level-num'>Level {level.level}</div>
                                     {level.lvl_name}
                                 </div>
+                                <button className="add-button-level" onClick={handleAddClick}>
+                                    <AddIcon style={{color:"var(--text)"}}/>
+                                </button>
                                 {showCheckboxes && (
                                     <input
                                         type="checkbox"
@@ -466,7 +476,7 @@ function Body() {
                         {selectedLevel ? (
                             <>
                                 <div>
-                                    <p className='level-num'>Level {selectedLevel.level}</p>
+                                    {/* <p className='level-num'>Level {selectedLevel.level}</p> */}
                                     <p>{selectedLevel.lvl_name}</p>
                                 </div>
                             </>
@@ -514,6 +524,9 @@ function Body() {
                                     )}
                                 </div>
                                 <div className='documents-div'>
+                                    <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                        <AddIcon />
+                                    </button>
                                     {documents.length > 0 ? (
                                         documents.map((doc, index) => (
                                             <div key={index} className='document-item'>
@@ -547,8 +560,8 @@ function Body() {
                                                     </div>
                                                 </div>
                                                 {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
-                                                <button className='add-button' onClick={handleDocumentPopupOpen}>
-                                                    <AddIcon />
+                                                <button className='add-button-document' onClick={handleDocumentPopupOpen}>
+                                                    <AddIcon style={{color:"var(--text)"}}/>
                                                 </button>
                                             </div>
                                         ))
@@ -584,6 +597,17 @@ function Body() {
                     <DialogContentText>
                         Enter the name of the new level.
                     </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Level Number"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={levelNum + 1}
+                        onChange={(e) => setLevelNum(e.target.value)}
+                    />
                     <TextField
                         autoFocus
                         margin="dense"

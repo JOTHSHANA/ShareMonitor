@@ -75,6 +75,35 @@
     cursor: pointer;
 }
 
+.add-button-level{
+    margin: 5px;
+    background-color: var(--document);
+    border: none;
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.add-button-document{
+    margin: 5px;
+    background-color: rgba(19, 162, 69, 0.219);
+    border: none;
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
 .sticky-add-button {
     position: sticky;
     top: 0;
