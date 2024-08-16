@@ -8,7 +8,7 @@ function SideBar(props) {
     // Function to determine if the path should be active for "Subjects"
     const isSubjectsActive = () => {
         return (
-            location.pathname.startsWith('/subjects') || 
+            location.pathname.startsWith('/subjects') ||
             location.pathname.startsWith('/levels')
         );
     };
@@ -31,7 +31,7 @@ function SideBar(props) {
                     className={`list-items ${location.pathname === '/history' ? "active" : ""}`}
                 >
                     <Link className="link" to="/history">
-                        <HistoryIcon sx={{ marginRight: "10px", color: "rgb(104, 173, 237)", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
+                        <HistoryIcon sx={{ marginRight: "10px", color: "tomato", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
                         <p className="menu-names">History</p>
                     </Link>
                 </li>

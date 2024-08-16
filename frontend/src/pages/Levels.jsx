@@ -21,6 +21,11 @@ import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './styles.css';
 
 function Levels() {
@@ -56,6 +61,7 @@ function Body() {
     const [showCheckboxes, setShowCheckboxes] = useState(false);
     const [selectedLevels, setSelectedLevels] = useState([]);
     const [levelNum, setLevelNum] = useState();
+    const [showFirstLevelPopup, setShowFirstLevelPopup] = useState(false);
 
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
@@ -75,6 +81,7 @@ function Body() {
             }
         });
     };
+
 
 
     const handleCheckedSubmit = () => {
@@ -140,6 +147,12 @@ function Body() {
         }
     }, [selectedLevel, activeTab]);
 
+    useEffect(() => {
+        if (selectedFolder) {
+            fetchDocuments();
+        }
+    }, [selectedFolder]);
+
     const fetchLevels = async () => {
         try {
             const response = await axios.get(`${apiHost}/api/levels`, {
@@ -149,6 +162,7 @@ function Body() {
                 }
             });
             setLevels(response.data);
+            setSelectedLevel(levels[0]);
         } catch (error) {
             console.error('Error fetching levels:', error);
         }
@@ -186,6 +200,10 @@ function Body() {
                 }
             });
             setFolders(response.data);
+            console.log("this");
+            console.log(response.data)
+            setActiveFolderId(response.data[0].id);
+            fetchDocuments(response.data[0].id);
         } catch (error) {
             console.error('Error fetching documents:', error);
         }
@@ -193,12 +211,20 @@ function Body() {
 
     const handleAddClick = () => {
         setShowPopup(true);
+    };
 
+    const handleAddFirstLevelClick = () => {
+        setLevelNum(0);
+        setShowFirstLevelPopup(true);
     };
 
     const handleClose = () => {
         setShowPopup(false);
+
     };
+    const handleFirstLevelClose = () => {
+        setShowFirstLevelPopup(false);
+    }
 
     const handleCreateLevel = async () => {
         if (newLevel.trim() !== "") {
@@ -214,9 +240,30 @@ function Body() {
         }
     };
 
+    // const handleCreateFolder = async () => {
+    //     try {
+    //         const response = await axios.post(`${apiHost}/api/folders`, { s_day: start_day, e_day: end_day, level_id: selectedLevel.id, work_type: documentCategoryMapping[activeTab] });
+
+    //         setFolders([...folders, response.data]);
+    //         setStart_day("");
+    //         setEnd_day("");
+    //         setShowNewFolderPopup(false);
+    //         fetchFolders();
+    //     } catch (error) {
+    //         console.error('Error creating folder:', error);
+    //     }
+
+    // }
     const handleCreateFolder = async () => {
         try {
-            const response = await axios.post(`${apiHost}/api/folders`, { s_day: start_day, e_day: end_day, level_id: selectedLevel.id, work_type: documentCategoryMapping[activeTab] });
+            const adjustedEndDay = end_day === undefined ? start_day : end_day;
+
+            const response = await axios.post(`${apiHost}/api/folders`, {
+                s_day: start_day,
+                e_day: adjustedEndDay,
+                level_id: selectedLevel.id,
+                work_type: documentCategoryMapping[activeTab]
+            });
 
             setFolders([...folders, response.data]);
             setStart_day("");
@@ -226,8 +273,8 @@ function Body() {
         } catch (error) {
             console.error('Error creating folder:', error);
         }
-
     }
+
 
     const handleLevelClick = (id) => {
         const level = levels.find((lvl) => lvl.id === id);
@@ -291,7 +338,6 @@ function Body() {
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
-        setActiveFolderId(activeFolderId)
         if (!selectedLevel) {
             alert('Please select a level before uploading a document.');
             return;
@@ -316,7 +362,7 @@ function Body() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            fetchDocuments();
+            fetchDocuments(activeFolderId);
         } catch (error) {
             console.error('Error uploading document:', error);
         }
@@ -383,6 +429,7 @@ function Body() {
                 console.error('Error deleting level:', error);
             }
         }
+        fetchLevels();
     };
 
 
@@ -397,25 +444,64 @@ function Body() {
         setShowNewFolderPopup(true);
     }
 
+    const handleMoveUp = async (in1, in2, currI, adjI) => {
+        await changeOrder(in1, in2, currI + 1, adjI + 1)
+    }
+
+
+    const handleMoveDown = async (in1, in2, currI, adjI) => {
+        await changeOrder(in1, in2, currI + 1, adjI + 1);
+    }
+
+    const changeOrder = async (in1, in2, currI, adjI) => {
+        console.log(in1, in2);
+        try {
+            await axios.put(`${apiHost}/api/documentOrder/`, {
+                in1,
+                in2
+            });
+
+            await fetchDocuments(activeFolderId);
+            toast.success(`Doc ${currI} moved as doc ${adjI}`);
+
+        } catch (error) {
+            console.error('Error changing document order:', error);
+            toast.error(`Error moving doc ${currI}!`);
+        }
+    };
+
+
     return (
-        <>
+        <div className='levels-page'>
+            <ToastContainer />
             <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
-                <div style={{ display: "flex" }}>
+                {/* <div style={{ display: "flex" }}>
                     <button className="add-button" onClick={handleShowEditDelete}>
                         <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
                     </button>
                     <button className="add-button" onClick={handleWholeShareClick}>
                         <RuleIcon />Select
                     </button>
-                    <button className="add-button" onClick={handleAddClick}>
+                    <button className="add-button" onClick={handleAddFirstLevelClick}>
                         <AddIcon />Add Level
                     </button>
-                </div>
+                </div> */}
             </div>
 
             <div className='levels-with-documents'>
                 <div className="container1">
+                    <div className='card1-fake' style={{ display: "flex" }}>
+                        <button style={{ flex: "1" }} className="add-button" onClick={handleShowEditDelete}>
+                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                        </button>
+                        <button style={{ flex: "1" }} className="add-button" onClick={handleWholeShareClick}>
+                            <RuleIcon />Select
+                        </button>
+                        <button style={{ flex: "1" }} className="add-button" onClick={handleAddFirstLevelClick}>
+                            <AddIcon />Add Level
+                        </button>
+                    </div>
                     {levels.map((level, index) => (
                         <div key={index} className="card1" onClick={() => handleLevelClick(level.id)}>
                             <div
@@ -448,16 +534,18 @@ function Body() {
                                     <div className='level-num'>Level {level.level}</div>
                                     {level.lvl_name}
                                 </div>
-                                <button className="add-button-level" onClick={handleAddClick}>
-                                    <AddIcon style={{color:"var(--text)"}}/>
-                                </button>
-                                {showCheckboxes && (
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleCheckboxChange(level.id)}
-                                        checked={selectedLevels.includes(level.id)}
-                                    />
-                                )}
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <button className="add-button-level" onClick={handleAddClick}>
+                                        <AddIcon style={{ color: "var(--text)" }} />
+                                    </button>
+                                    {showCheckboxes && (
+                                        <input
+                                            type="checkbox"
+                                            onChange={() => handleCheckboxChange(level.id)}
+                                            checked={selectedLevels.includes(level.id)}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -504,69 +592,119 @@ function Body() {
                     <div className='all-documents'>
                         <div className='sticky-add-button'>
                             <div style={{ display: "flex" }}>
-                                <button className='add-button' onClick={handleNewFolderPopupOpen}>
+                                {/* <button className='add-button' onClick={handleNewFolderPopupOpen}>
                                     <AddIcon />Add Folders
-                                </button>
-                                <button className="add-button" onClick={handleShowDocumentEditDelete}>
+                                </button> */}
+                                {/* <button className="add-button" onClick={handleShowDocumentEditDelete}>
                                     <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
-                                </button>
+                                </button> */}
                             </div>
                             <div className='documents-container'>
                                 <div className='folders-div'>
+                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <button className='add-button' onClick={handleNewFolderPopupOpen}>
+                                            <AddIcon />Add Folders
+                                        </button>
+                                    </div>
+                                    <hr />
                                     {folders.length > 0 ? (
                                         folders.map((folder, index) => (
-                                            <div key={index} className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`} onClick={() => fetchDocuments(folder.id)}>
-                                                Day {folder.s_day} - Day {folder.e_day}
+                                            <div
+                                                key={index}
+                                                className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`}
+                                                onClick={() => fetchDocuments(folder.id)}
+                                            >
+                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                    <img src={folder_img} alt="PDF" className="document-icon" />
+                                                    {folder.s_day === folder.e_day ? (
+                                                        <span>Day {folder.s_day}</span>
+                                                    ) : (
+                                                        <span>Day {folder.s_day} - Day {folder.e_day}</span>
+                                                    )}
+                                                </div>
+                                                <div className='open-icon'>
+                                                    <ArrowForwardIosRoundedIcon />
+                                                </div>
                                             </div>
                                         ))
                                     ) : (
                                         <p>No folders added.</p>
                                     )}
+
                                 </div>
                                 <div className='documents-div'>
-                                    <button className='add-button' onClick={handleDocumentPopupOpen}>
-                                        <AddIcon />
-                                    </button>
+                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <button className="add-button" onClick={handleShowDocumentEditDelete}>
+                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                                        </button>
+                                        <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                            <AddIcon />Add Document
+                                        </button>
+                                    </div>
+                                    <hr />
                                     {documents.length > 0 ? (
                                         documents.map((doc, index) => (
-                                            <div key={index} className='document-item'>
-                                                {doc.pdf && <div className='flex-align'>
-                                                    <img src={pdf_img} alt="PDF" className="document-icon" />
-                                                    <a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a>
-                                                </div>}
-                                                {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
-                                                {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
-                                                <div
-                                                    className="hover-edit-delete-documents"
-                                                    style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
-                                                >
-                                                    {/* <div
-                                                        className="edit-icon"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDocumentEditClick(id);
-                                                        }}
-                                                    >
-                                                        <CreateSharpIcon sx={{ color: "#588dc0" }} />
-                                                    </div> */}
-                                                    <div
-                                                        className="delete-icon"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDocumentDelete(doc.id);
-                                                        }}
-                                                    >
-                                                        <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+
+                                            <div style={{ display: "flex", gap: "5px" }}>
+                                                <div className='index-box' style={{ padding: "12px" }}>{index + 1}</div>
+                                                <div key={index} className='document-item' style={{ flex: "1" }}>
+                                                    {doc.pdf && <div className='flex-align'>
+                                                        <img src={pdf_img} alt="PDF" className="document-icon" />
+                                                        <a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a>
+                                                    </div>}
+                                                    {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
+                                                    {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
+                                                    <div style={{ display: "flex", gap: "5px" }}>
+
+                                                        {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
+                                                        {/* <button className='add-button-document' onClick={handleDocumentPopupOpen}>
+                                                            <AddIcon style={{ color: "var(--text)" }} />
+                                                        </button> */}
+                                                        <div style={{ display: "flex", gap: "5px" }}>
+                                                            <button
+                                                                className='add-button-document'
+                                                                onClick={() => handleMoveUp(doc.id, documents[index - 1]?.id, index, index - 1)}
+                                                                disabled={index === 0}
+                                                            >
+                                                                <KeyboardDoubleArrowUpIcon sx={{ color: "var(--text)" }} />
+                                                            </button>
+                                                            <button
+                                                                className='add-button-document'
+                                                                onClick={() => handleMoveDown(doc.id, documents[index + 1]?.id, index, index + 1)}
+                                                                disabled={index === documents.length - 1}
+                                                            >
+                                                                <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
+                                                            </button>
+                                                        </div>
+                                                        <div
+                                                            className="hover-edit-delete-documents"
+                                                            style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
+                                                        >
+                                                            {/* <div
+                                                                className="edit-icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDocumentEditClick(id);
+                                                                }}
+                                                            >
+                                                                <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                                            </div> */}
+                                                            <div
+                                                                className="delete-icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDocumentDelete(doc.id);
+                                                                }}
+                                                            >
+                                                                <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
-                                                <button className='add-button-document' onClick={handleDocumentPopupOpen}>
-                                                    <AddIcon style={{color:"var(--text)"}}/>
-                                                </button>
                                             </div>
                                         ))
                                     ) : (
-                                        <p>No documents found.</p>
+                                        <p>No documents added.</p>
                                     )}
                                 </div>
 
@@ -607,6 +745,7 @@ function Body() {
                         variant="standard"
                         value={levelNum + 1}
                         onChange={(e) => setLevelNum(e.target.value)}
+                        disabled={true}
                     />
                     <TextField
                         autoFocus
@@ -622,6 +761,41 @@ function Body() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleCreateLevel}>Create</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={showFirstLevelPopup} onClose={handleFirstLevelClose}>
+                <DialogTitle>Add New Level</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter the name of the new level.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Level Number"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={1}
+                        disabled={true}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Level Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={newLevel}
+                        onChange={(e) => setNewLevel(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleFirstLevelClose}>Cancel</Button>
                     <Button onClick={handleCreateLevel}>Create</Button>
                 </DialogActions>
             </Dialog>
@@ -747,7 +921,7 @@ function Body() {
                     </form>
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     );
 }
 

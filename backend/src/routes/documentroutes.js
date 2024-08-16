@@ -4,9 +4,9 @@ const DocumentController = require('../controllers/DocumentsController');
 const { uploadPdf, uploadVideo } = require('../middleware/uploadMiddleware');
 
 
-router.post('/share', DocumentController.shareHistory);
+router.post('/share', DocumentController.shareHistory)
 
-
+router.put('/documentOrder', DocumentController.changeOrder)
 router.get('/getDocument/:id', DocumentController.getDocument)
 router.delete('/deletedocument/:id', DocumentController.deleteDocument)
 

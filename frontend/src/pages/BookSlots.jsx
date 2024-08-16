@@ -147,7 +147,8 @@ function Body() {
                                 <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
                             </div>
                         </div>
-                        {subject.name}
+                        <p className="level-count">{subject.levelCount} Levels</p>
+                        <div style={{ fontSize: "17px", letterSpacing: "0.5px" }}>{subject.name}</div>
                     </div>
                 ))}
                 <Dialog open={showPopup} onClose={handleClose}>

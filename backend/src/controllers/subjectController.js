@@ -1,11 +1,33 @@
 const db = require('../config/db');
 
 exports.getSubjects = (req, res) => {
-    db.query('SELECT * FROM subjects WHERE status = "1"', (err, results) => {
+    db.query('SELECT * FROM subjects WHERE status = "1"', (err, subjects) => {
         if (err) throw err;
-        res.json(results);
+
+        const subjectPromises = subjects.map(subject => {
+            return new Promise((resolve, reject) => {
+                db.query('SELECT COUNT(*) as levelCount FROM levels WHERE subject = ? AND status = "1"', [subject.id], (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        subject.levelCount = result[0].levelCount; // Add the count to the subject object
+                        resolve(subject);
+                    }
+                });
+            });
+        });
+
+        Promise.all(subjectPromises)
+            .then(subjectsWithCount => {
+                res.json(subjectsWithCount);
+            })
+            .catch(error => {
+                console.error('Error fetching levels count:', error);
+                res.status(500).json({ error: 'An error occurred while fetching subjects and levels count' });
+            });
     });
 };
+
 
 exports.createSubject = (req, res) => {
     const { name } = req.body;

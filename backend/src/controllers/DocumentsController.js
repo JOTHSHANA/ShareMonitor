@@ -4,7 +4,7 @@ const { sendEmail } = require('../emailService');
 
 exports.getDocument = async (req, res) => {
     const { id } = req.params;
-    console.log(id);
+    // console.log(id);
 
     if (!id) {
         return res.status(400).json({ error: 'work_type and level are required' });
@@ -22,7 +22,7 @@ exports.getDocument = async (req, res) => {
 };
 
 exports.createDocument = (req, res) => {
-    const {folder, link } = req.body;
+    const { folder, link } = req.body;
     let pdfPath = null;
     let videoPath = null;
     let fileName = null;
@@ -30,9 +30,9 @@ exports.createDocument = (req, res) => {
     if (req.file) {
         fileName = req.file.originalname; // Extract the original name of the file
         if (req.body.documentType === 'pdf') {
-            pdfPath = path.join('/uploads', req.file.filename); 
+            pdfPath = path.join('/uploads', req.file.filename);
         } else if (req.body.documentType === 'video') {
-            videoPath = path.join('/uploads', req.file.filename);  
+            videoPath = path.join('/uploads', req.file.filename);
         }
     }
 
@@ -103,4 +103,37 @@ exports.deleteDocument = (req, res) => {
     });
 };
 
+exports.changeOrder = (req, res) => {
+    const { in1, in2 } = req.body;
+    // console.log('Received IDs to swap/order:', in1, in2);
 
+    // Use a temporary numeric ID that doesn't conflict with existing IDs
+    const tempId = -9999;
+
+    // Start by setting the first ID to the temporary value
+    db.query('UPDATE documents SET id = ? WHERE id = ?', [tempId, in1], (err, result) => {
+        if (err) {
+            console.error('Error updating first document:', err);
+            return res.status(500).json({ error: 'Database update failed' });
+        }
+
+        // Set the second ID to the first ID's value
+        db.query('UPDATE documents SET id = ? WHERE id = ?', [in1, in2], (err, result) => {
+            if (err) {
+                console.error('Error updating second document:', err);
+                return res.status(500).json({ error: 'Database update failed' });
+            }
+
+            // Finally, set the temporary ID value to the second ID's original value
+            db.query('UPDATE documents SET id = ? WHERE id = ?', [in2, tempId], (err, result) => {
+                if (err) {
+                    console.error('Error updating temporary document:', err);
+                    return res.status(500).json({ error: 'Database update failed' });
+                }
+
+                // If all queries were successful, send a success response
+                res.json({ success: true, swappedIds: { in1, in2 } });
+            });
+        });
+    });
+};

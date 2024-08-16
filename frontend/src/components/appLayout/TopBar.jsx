@@ -18,7 +18,8 @@ function TopBar(props) {
                 justifyContent: "space-between",
                 alignItems: "center",
                 gap: 20,
-                border:"1px solid var(--border-color)"
+                border:"1px solid var(--border-color)",
+                boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
             }}
         >
             <div

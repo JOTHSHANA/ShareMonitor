@@ -18,6 +18,13 @@
     box-sizing: border-box;
     cursor: pointer;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.open-icon {
+    display: flex;
+    align-items: center;
+    display: none;
 }
 
 @media (max-width: 1124px) {
@@ -73,9 +80,11 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+
 }
 
-.add-button-level{
+
+.add-button-level {
     margin: 5px;
     background-color: var(--document);
     border: none;
@@ -90,8 +99,7 @@
     cursor: pointer;
 }
 
-.add-button-document{
-    margin: 5px;
+.add-button-document {
     background-color: rgba(19, 162, 69, 0.219);
     border: none;
     padding: 5px 7px;
@@ -104,6 +112,7 @@
     justify-content: center;
     cursor: pointer;
 }
+
 .sticky-add-button {
     position: sticky;
     top: 0;
@@ -114,7 +123,7 @@
     margin: 5px;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
 
 }
@@ -128,6 +137,23 @@
     cursor: pointer;
     border: 1px solid var(--border-color);
     position: relative;
+    box-shadow: var(--shadow);
+}
+
+.card1:hover {
+    background-color: var(--card-hover);
+}
+
+.card1-fake {
+    border-radius: 5px;
+    background-color: var(--background-1);
+    margin: 5px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
 }
 
 .level-num {
@@ -140,7 +166,7 @@
     width: 100%;
     display: flex;
     gap: 5px;
-    
+
 }
 
 .container1 {
@@ -158,6 +184,7 @@
     border-radius: 5px;
     padding: 10px;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
 
 .level-name {
@@ -278,20 +305,28 @@ input[type=file]::file-selector-button:hover {
 
 
 .documents-container {
-    
-    /* max-width: 800px; */
     margin: 0 auto;
     display: flex;
     gap: 10px;
 }
-.documents-div, .folders-div{
-    flex: 1;
+
+.documents-div,
+.folders-div {
     background-color: var(--background-1);
     padding: 10px;
     border-radius: 5px;
+    box-shadow: var(--shadow);
 }
 
-.document-item {
+.documents-div {
+    flex: 2;
+}
+
+.folders-div {
+    flex: 1;
+}
+
+.index-box {
     background-color: #4caf4f13;
     color: white;
     border: 1px solid rgba(0, 128, 0, 0.548);
@@ -303,6 +338,26 @@ input[type=file]::file-selector-button:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: var(--text);
+}
+
+.document-item {
+    background-color: #4caf4f13;
+    color: white;
+    border: 1px solid rgba(0, 128, 0, 0.548);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+    padding: 0px;
+}
+
+.document-item:hover {
+    background-color: #4caf4f65;
 }
 
 .document-item a {
@@ -322,7 +377,7 @@ input[type=file]::file-selector-button:hover {
 }
 
 img {
-    height: 30px;
+    height: 25px;
     margin-right: 10px;
 }
 
@@ -335,15 +390,30 @@ img {
     right: 5px;
     display: flex;
     flex-direction: column;
-    gap: 5px;    
+    gap: 5px;
 }
 
-.hover-edit-delete-levels{
+.level-count {
+    position: absolute;
+    top: 10px;
+    left: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: smaller;
+    padding: 2px 7px;
+    background-color: rgb(10, 87, 97);
+    border-radius: 10px;
+    font-weight: 700;
+    color: white;
+}
+
+.hover-edit-delete-levels {
     position: absolute;
     top: 10px;
     right: 5px;
     display: flex;
-    gap: 5px;  
+    gap: 5px;
 }
 
 .edit-icon,
@@ -371,24 +441,29 @@ input[type=checkbox] {
     border-radius: 5px;
     border: 3px solid lightgray;
     margin-right: 10px;
- }
- input[type=checkbox]:checked {
+}
+
+input[type=checkbox]:checked {
     background-color: #13a245;
- }
+}
 
- .hover-edit-delete-documents{
-    
+.hover-edit-delete-documents {
+
     display: flex;
-    gap: 5px;  
- }
+    gap: 5px;
+}
 
 
- .document-item {
+.document-item {
     cursor: pointer;
     padding: 7px;
 }
 
 .document-item.active {
-    background-color: rgba(59, 145, 215, 0.752);
+    background-color: rgb(68, 107, 212);
     color: white;
+}
+
+.document-item.active .open-icon {
+    display: flex;
 }
