@@ -13,6 +13,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CreateSharpIcon from '@mui/icons-material/CreateSharp';
 import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 import './styles.css'; // Import the CSS file
 
 function Subjects() {
@@ -26,6 +28,7 @@ function Body() {
     const [editSubjectId, setEditSubjectId] = useState(null);
     const [editSubjectName, setEditSubjectName] = useState("");
     const [showEditDelete, setShowEditDelete] = useState(false);
+    const [loading, setLoading] = useState(true); // Add loading state
     const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
@@ -33,12 +36,18 @@ function Body() {
     }, []);
 
     const fetchSubjects = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(`${apiHost}/api/subjects`);
             setSubjects(response.data);
             console.log(response.data);
+            setTimeout(() => {
+                setSubjects(response.data);
+                setLoading(false); // Stop loading after 2 seconds
+            }, 1700);
         } catch (error) {
             console.error('Error fetching subjects:', error);
+            setLoading(false);
         }
     };
 
@@ -118,39 +127,58 @@ function Body() {
                 </div>
             </div>
             <div className="container">
-                {subjects.map((subject, index) => (
-                    <div
-                        key={index}
-                        className="card"
-                        onClick={() => handleSubjectClick(subject.id, subject.name)}
-                    >
-                        <div
-                            className="hover-edit-delete"
-                            style={{ display: showEditDelete ? 'flex' : 'none' }} // Conditional rendering
-                        >
+                {loading ? (
+                    <div style={{height:"80vh",width:"88vw", display:"flex", alignItems:"center", justifyContent:"center"}}><span class="loader"></span></div>
+
+                ) : (
+                    subjects.map((subject, index) => {
+                        const colors = ["#c7566b", "#1b6b5f", "#2b4257", "orange", "#2b4257", "#f5b3c3"];
+
+                        const getColorByIndex = (index) => {
+                            return colors[index % colors.length];
+                        };
+
+                        return (
                             <div
-                                className="edit-icon"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEdit(subject.id, subject.name);
-                                }}
+                                key={index}
+                                className="card"
+                                onClick={() => handleSubjectClick(subject.id, subject.name)}
                             >
-                                <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                <div
+                                    className="hover-edit-delete"
+                                    style={{ display: showEditDelete ? 'flex' : 'none' }}
+                                >
+                                    <div
+                                        className="edit-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEdit(subject.id, subject.name);
+                                        }}
+                                    >
+                                        <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                    </div>
+                                    <div
+                                        className="delete-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(subject.id);
+                                        }}
+                                    >
+                                        <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                    </div>
+                                </div>
+                                <p
+                                    className="level-count"
+                                    style={{ backgroundColor: getColorByIndex(index) }}
+                                >
+                                    {subject.levelCount} Levels
+                                </p>
+                                <div style={{ fontSize: "17px", letterSpacing: "0.5px" }}>{subject.name}</div>
                             </div>
-                            <div
-                                className="delete-icon"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(subject.id);
-                                }}
-                            >
-                                <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
-                            </div>
-                        </div>
-                        <p className="level-count">{subject.levelCount} Levels</p>
-                        <div style={{ fontSize: "17px", letterSpacing: "0.5px" }}>{subject.name}</div>
-                    </div>
-                ))}
+                        );
+                    })
+                )}
+
                 <Dialog open={showPopup} onClose={handleClose}>
                     <DialogTitle sx={{ width: "400px" }}>{editSubjectId ? "Edit Subject Name" : "Enter Subject Name"}</DialogTitle>
                     <DialogContent>
@@ -171,7 +199,7 @@ function Body() {
                         <Button onClick={handleCreateSubject}>{editSubjectId ? "Update Subject" : "Create Subject"}</Button>
                     </DialogActions>
                 </Dialog>
-            </div>
+            </div >
         </>
     );
 }

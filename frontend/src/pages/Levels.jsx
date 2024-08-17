@@ -47,6 +47,7 @@ function Body() {
     const [showEditDelete, setShowEditDelete] = useState(false);
     const [showDocumentEditDelete, setShowDocumentEditDelete] = useState(false);
     const [showNewFolderPopup, setShowNewFolderPopup] = useState(false);
+    const [showFolderEditDeletePopup, setShowFolderEditDeletePopup] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [link, setLink] = useState("");
     const [video, setVideo] = useState(null);
@@ -55,6 +56,7 @@ function Body() {
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [activeFolderId, setActiveFolderId] = useState(null);
     const [editLevel, setEditLevel] = useState("");
+    const [editFolder, setEditFolder] = useState("");
     const [showSharePopup, setShowSharePopup] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [email, setEmail] = useState("");
@@ -62,6 +64,7 @@ function Body() {
     const [selectedLevels, setSelectedLevels] = useState([]);
     const [levelNum, setLevelNum] = useState();
     const [showFirstLevelPopup, setShowFirstLevelPopup] = useState(false);
+    const [showFolderEditDelete, setShowFolderEditDelete] = useState(false);
 
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
@@ -276,6 +279,21 @@ function Body() {
     }
 
 
+    const handleEditFolder = async () => {
+        try {
+            const response = await axios.put(`${apiHost}/api/folders/${selectedFolder.id}`, {
+                s_day: start_day,
+                e_day: end_day
+            });
+            console.log(selectedFolder.id, start_day, end_day);
+            fetchFolders();
+
+        } catch (error) {
+            console.error('Error updating folder:', error);
+        }
+        setShowFolderEditDeletePopup(false)
+    }
+
     const handleLevelClick = (id) => {
         const level = levels.find((lvl) => lvl.id === id);
         setSelectedLevel(level);
@@ -318,6 +336,10 @@ function Body() {
     const handleNewFolderPopupClose = () => {
         setShowNewFolderPopup(false);
     };
+
+    const handleFolderEditDeletePopupClose = () => {
+        setShowFolderEditDeletePopup(false);
+    }
 
     const handleDocumentTypeChange = (event) => {
         setDocumentType(event.target.value);
@@ -376,6 +398,15 @@ function Body() {
         setShowEditPopup(true);
     };
 
+    const handleFolderEditClick = (folder, s_day, e_day) => {
+        
+        setSelectedFolder(folder)
+        setEditFolder(folder.id);
+        setStart_day(s_day);
+        setEnd_day(e_day);
+        setShowFolderEditDeletePopup(true);
+    };
+
     const handleDocumentDelete = async (id) => {
         const confirmDelete = window.confirm("Are you sure, You want to delete this document?");
         if (confirmDelete) {
@@ -432,18 +463,43 @@ function Body() {
         fetchLevels();
     };
 
+    const handleFolderDelete = async (id) => {
+        console.log(id);
+        const confirmDelete = window.confirm("Are you sure, you want to delete this document?");
+        if (confirmDelete) {
+            try {
+                await axios.put(`${apiHost}/api/folder/${id}`, {
+                });
+                console.log(id);
+            } catch (error) {
+                console.error('Error deleting level:', error);
+            }
+        }
+        fetchFolders();
+    };
+
 
     const handleShowDocumentEditDelete = () => {
         setShowDocumentEditDelete(prevState => !prevState);
     };
+
+    const handleShowFolderEditDelete = () => {
+        setShowFolderEditDelete(prevState => !prevState);
+    }
+
     const handleShowEditDelete = () => {
         setShowEditDelete(prevState => !prevState);
     };
 
     const handleNewFolderPopupOpen = () => {
+        setStart_day();
+        setEnd_day();
         setShowNewFolderPopup(true);
     }
 
+    const handleFolderEditDeleteOpen = () => {
+        setShowFolderEditDeletePopup(true);
+    }
     const handleMoveUp = async (in1, in2, currI, adjI) => {
         await changeOrder(in1, in2, currI + 1, adjI + 1)
     }
@@ -512,7 +568,7 @@ function Body() {
                                     className="edit-icon"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleEditClick(level); // Open the edit popup
+                                        handleEditClick(level);
                                     }}
                                 >
                                     <CreateSharpIcon sx={{ color: "#588dc0" }} />
@@ -602,6 +658,9 @@ function Body() {
                             <div className='documents-container'>
                                 <div className='folders-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <button className="add-button" onClick={handleShowFolderEditDelete}>
+                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                                        </button>
                                         <button className='add-button' onClick={handleNewFolderPopupOpen}>
                                             <AddIcon />Add Folders
                                         </button>
@@ -614,17 +673,45 @@ function Body() {
                                                 className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`}
                                                 onClick={() => fetchDocuments(folder.id)}
                                             >
-                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                                    <img src={folder_img} alt="PDF" className="document-icon" />
-                                                    {folder.s_day === folder.e_day ? (
-                                                        <span>Day {folder.s_day}</span>
-                                                    ) : (
-                                                        <span>Day {folder.s_day} - Day {folder.e_day}</span>
-                                                    )}
+                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                        <img src={folder_img} alt="PDF" className="document-icon" />
+                                                        {folder.s_day === folder.e_day ? (
+                                                            <span>Day {folder.s_day}</span>
+                                                        ) : (
+                                                            <span>Day {folder.s_day} - Day {folder.e_day}</span>
+                                                        )}
+
+                                                    </div>
+                                                    <div className='open-icon'>
+
+                                                        <ArrowForwardIosRoundedIcon />
+                                                    </div>
+                                                    <div
+                                                        className="hover-edit-delete-folders"
+                                                        style={{ display: showFolderEditDelete ? 'flex' : 'none' }}
+                                                    >
+                                                        <div
+                                                            className="edit-icon"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleFolderEditClick(folder, folder.s_day, folder.e_day);
+                                                            }}
+                                                        >
+                                                            <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                                        </div>
+                                                        <div
+                                                            className="delete-icon"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleFolderDelete(folder.id);
+                                                            }}
+                                                        >
+                                                            <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className='open-icon'>
-                                                    <ArrowForwardIosRoundedIcon />
-                                                </div>
+
                                             </div>
                                         ))
                                     ) : (
@@ -852,6 +939,39 @@ function Body() {
                 <DialogActions>
                     <Button onClick={handleNewFolderPopupClose}>Cancel</Button>
                     <Button onClick={handleCreateFolder}>Create</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* popup for folder edit and delete */}
+            <Dialog open={showFolderEditDeletePopup} onClose={handleFolderEditDeletePopupClose}>
+                <DialogTitle>Edit Folder</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="editLevel"
+                        label="Start"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={start_day}
+                        onChange={(e) => setStart_day(e.target.value)}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="editLevel"
+                        label="End"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={end_day}
+                        onChange={(e) => setEnd_day(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleFolderEditDeletePopupClose}>Cancel</Button>
+                    <Button onClick={handleEditFolder}>SAVE</Button>
                 </DialogActions>
             </Dialog>
 

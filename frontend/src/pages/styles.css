@@ -3,6 +3,57 @@
     flex-wrap: wrap;
 }
 
+.loader {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: block;
+    margin: 15px auto;
+    position: relative;
+    color: #FFF;
+    left: -100px;
+    box-sizing: border-box;
+    animation: shadowRolling 2s linear infinite;
+}
+
+@keyframes shadowRolling {
+    0% {
+        box-shadow: 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+    }
+
+    12% {
+        box-shadow: 100px 0 rgb(21, 134, 162), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+    }
+
+    25% {
+        box-shadow: 110px 0 rgb(21, 134, 162), 100px 0 rgb(21, 134, 162), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+    }
+
+    36% {
+        box-shadow: 120px 0 rgb(21, 134, 162), 110px 0 rgb(21, 134, 162), 100px 0 rgb(21, 134, 162), 0px 0 rgba(255, 255, 255, 0);
+    }
+
+    50% {
+        box-shadow: 130px 0 rgb(21, 134, 162), 120px 0 rgb(21, 134, 162), 110px 0 rgb(21, 134, 162), 100px 0 rgb(21, 134, 162);
+    }
+
+    62% {
+        box-shadow: 200px 0 rgba(255, 255, 255, 0), 130px 0 rgb(21, 134, 162), 120px 0 rgb(21, 134, 162), 110px 0 rgb(21, 134, 162);
+    }
+
+    75% {
+        box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 130px 0 rgb(21, 134, 162), 120px 0 rgb(21, 134, 162);
+    }
+
+    87% {
+        box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 130px 0 rgb(21, 134, 162);
+    }
+
+    100% {
+        box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0);
+    }
+}
+
 .card {
     flex: 1 1 calc(25% - 10px);
     max-width: calc(25% - 10px);
@@ -393,6 +444,14 @@ img {
     gap: 5px;
 }
 
+.hover-edit-delete-folders {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    right: 0px;
+    gap: 5px;
+}
+
 .level-count {
     position: absolute;
     top: 10px;
@@ -414,6 +473,9 @@ img {
     right: 5px;
     display: flex;
     gap: 5px;
+    background-color: var(--document);
+    padding: 3px;
+    border-radius: 5px;
 }
 
 .edit-icon,
@@ -466,4 +528,66 @@ input[type=checkbox]:checked {
 
 .document-item.active .open-icon {
     display: flex;
+}
+
+
+
+
+.document-upload-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.document-type-select,
+.text-input,
+.file-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.cancel-button,
+.upload-button {
+    padding: 8px 16px;
+    margin-left: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.upload-button {
+    background-color: #4caf50;
+    color: white;
+}
+
+.cancel-button:hover {
+    background-color: #e53935;
+}
+
+.upload-button:hover {
+    background-color: #43a047;
 }
