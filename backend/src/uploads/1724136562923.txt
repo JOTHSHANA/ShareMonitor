@@ -1,5 +1,0 @@
-edit for documents.
-document-item padding...how?
-loader
-general document upload
-popup choosee...document type select
