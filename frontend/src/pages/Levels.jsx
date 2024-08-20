@@ -21,6 +21,8 @@ import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
+import general_doc_img from '../assets/general_doc_img.png';
+
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
@@ -65,7 +67,7 @@ function Body() {
     const [levelNum, setLevelNum] = useState();
     const [showFirstLevelPopup, setShowFirstLevelPopup] = useState(false);
     const [showFolderEditDelete, setShowFolderEditDelete] = useState(false);
-
+    const [generalDoc, setGeneralDoc] = useState(null)
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
 
@@ -191,6 +193,9 @@ function Body() {
             console.error('Error fetching documents:', error);
         }
     };
+
+
+
 
 
     const fetchFolders = async () => {
@@ -347,10 +352,13 @@ function Body() {
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
+        console.log(file)
         if (documentType === "pdf") {
             setPdf(file);
         } else if (documentType === "video") {
             setVideo(file);
+        } else if (documentType === "general") {
+            setGeneralDoc(file);
         }
     };
 
@@ -369,14 +377,20 @@ function Body() {
         formData.append('subjectId', subjectId);
         formData.append('folder', activeFolderId);
         formData.append('documentType', documentType);
-
+        console.log(documentType)
         if (documentType === 'pdf' && pdf) {
             formData.append('file', pdf);
         } else if (documentType === 'video' && video) {
             formData.append('file', video);
         } else if (documentType === 'link' && link) {
             formData.append('link', link);
+        } else if (documentType === 'general' && generalDoc) {
+            formData.append('file', generalDoc);
         }
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+
 
         try {
             const response = await axios.post(`${apiHost}/api/uploadDocument`, formData, {
@@ -384,6 +398,7 @@ function Body() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            console.log(response)
             fetchDocuments(activeFolderId);
         } catch (error) {
             console.error('Error uploading document:', error);
@@ -392,6 +407,7 @@ function Body() {
         handleDocumentPopupClose();
     };
 
+
     const handleEditClick = (level) => {
         setEditLevel(level.lvl_name);
         setSelectedLevel(level);
@@ -399,7 +415,7 @@ function Body() {
     };
 
     const handleFolderEditClick = (folder, s_day, e_day) => {
-        
+
         setSelectedFolder(folder)
         setEditFolder(folder.id);
         setStart_day(s_day);
@@ -741,6 +757,14 @@ function Body() {
                                                     </div>}
                                                     {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
                                                     {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
+                                                    {doc.general_doc && (
+                                                        <div className='flex-align'>
+                                                            <img src={general_doc_img} alt="General Document" className="document-icon" />
+                                                            <a href={`${apiHost}${doc.general_doc}`} target="_blank" rel="noopener noreferrer">
+                                                                {doc.file_name}
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                     <div style={{ display: "flex", gap: "5px" }}>
 
                                                         {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
@@ -984,6 +1008,52 @@ function Body() {
                     </DialogContentText>
                     <form onSubmit={handleFormSubmit}>
                         <div className="document-type-select">
+                            <label htmlFor="documentType">Select Document Type:</label>
+                            <select
+                                id="documentType"
+                                value={documentType}
+                                onChange={handleDocumentTypeChange}
+                            >
+                                <option value="pdf">PDF</option>
+                                <option value="link">Link</option>
+                                <option value="video">Video</option>
+                                <option value="general">General Document</option>
+                            </select>
+                        </div>
+
+                        {documentType === "pdf" && (
+                            <input type="file" onChange={handleFileChange} accept=".pdf" />
+                        )}
+
+                        {documentType === "link" && (
+                            <TextField
+                                margin="dense"
+                                id="link"
+                                label="Document Link"
+                                type="url"
+                                fullWidth
+                                variant="standard"
+                                value={link}
+                                onChange={handleLinkChange}
+                            />
+                        )}
+
+                        {documentType === "video" && (
+                            <input type="file" onChange={handleFileChange} accept="video/*" />
+                        )}
+
+                        {documentType === "general" && (
+                            <input type="file" onChange={handleFileChange} />
+                        )}
+
+                        <DialogActions>
+                            <Button onClick={handleDocumentPopupClose}>Cancel</Button>
+                            <Button type="submit">Upload</Button>
+                        </DialogActions>
+                    </form>
+
+                    {/* <form onSubmit={handleFormSubmit}>
+                        <div className="document-type-select">
                             <label>
                                 <input
                                     type="radio"
@@ -1011,6 +1081,15 @@ function Body() {
                                 />
                                 Video
                             </label>
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="general"
+                                    checked={documentType === "general"}
+                                    onChange={handleDocumentTypeChange}
+                                />
+                                General Document
+                            </label>
                         </div>
 
                         {documentType === "pdf" && (
@@ -1033,12 +1112,14 @@ function Body() {
                         {documentType === "video" && (
                             <input type="file" onChange={handleFileChange} accept="video/*" />
                         )}
-
+                         {documentType === "general" && (
+                            <input type="file" onChange={handleFileChange} />
+                        )}
                         <DialogActions>
                             <Button onClick={handleDocumentPopupClose}>Cancel</Button>
                             <Button type="submit">Upload</Button>
                         </DialogActions>
-                    </form>
+                    </form> */}
                 </DialogContent>
             </Dialog>
         </div>

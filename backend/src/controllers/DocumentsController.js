@@ -25,14 +25,17 @@ exports.createDocument = (req, res) => {
     const { folder, link } = req.body;
     let pdfPath = null;
     let videoPath = null;
+    let generalDocPath = null;
     let fileName = null;
 
     if (req.file) {
-        fileName = req.file.originalname; // Extract the original name of the file
+        fileName = req.file.originalname;
         if (req.body.documentType === 'pdf') {
             pdfPath = path.join('/uploads', req.file.filename);
         } else if (req.body.documentType === 'video') {
             videoPath = path.join('/uploads', req.file.filename);
+        } else if (req.body.documentType === 'general') {
+            generalDocPath = path.join('/uploads', req.file.filename);
         }
     }
 
@@ -41,19 +44,18 @@ exports.createDocument = (req, res) => {
     }
 
     const query = `
-        INSERT INTO documents (folder, pdf, link, video, file_name) 
-        VALUES (?,?,?,?,?);
+        INSERT INTO documents (folder, pdf, link, video, general_doc, file_name) 
+        VALUES (?, ?, ?, ?, ?, ?);
     `;
 
-    db.query(query, [folder, pdfPath, link, videoPath, fileName], (err, result) => {
+    db.query(query, [folder, pdfPath, link, videoPath, generalDocPath, fileName], (err, result) => {
         if (err) {
             console.error('Error inserting document:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
-        res.json({ id: result.insertId, folder, pdfPath, link, videoPath, fileName });
+        res.json({ id: result.insertId, folder, pdfPath, link, videoPath, generalDocPath, fileName });
     });
 };
-
 exports.shareHistory = async (req, res) => {
     const { documentId, email } = req.body;
 

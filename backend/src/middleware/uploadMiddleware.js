@@ -1,7 +1,6 @@
 const multer = require('multer');
 const path = require('path');
 
-// Storage configuration for PDF files
 const storagePdf = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../uploads'));
@@ -11,7 +10,7 @@ const storagePdf = multer.diskStorage({
     }
 });
 
-// Storage configuration for Video files
+
 const storageVideo = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../uploads'));
@@ -21,7 +20,7 @@ const storageVideo = multer.diskStorage({
     }
 });
 
-// Multer upload instances
+
 const uploadPdf = multer({ storage: storagePdf });
 const uploadVideo = multer({ storage: storageVideo });
 

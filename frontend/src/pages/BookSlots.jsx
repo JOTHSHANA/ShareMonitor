@@ -44,7 +44,7 @@ function Body() {
             setTimeout(() => {
                 setSubjects(response.data);
                 setLoading(false); // Stop loading after 2 seconds
-            }, 1700);
+            }, 1500);
         } catch (error) {
             console.error('Error fetching subjects:', error);
             setLoading(false);
@@ -128,7 +128,7 @@ function Body() {
             </div>
             <div className="container">
                 {loading ? (
-                    <div style={{height:"80vh",width:"88vw", display:"flex", alignItems:"center", justifyContent:"center"}}><span class="loader"></span></div>
+                    <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
 
                 ) : (
                     subjects.map((subject, index) => {
