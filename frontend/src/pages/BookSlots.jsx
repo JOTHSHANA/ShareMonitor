@@ -44,7 +44,7 @@ function Body() {
             setTimeout(() => {
                 setSubjects(response.data);
                 setLoading(false); // Stop loading after 2 seconds
-            }, 1500);
+            }, 1);
         } catch (error) {
             console.error('Error fetching subjects:', error);
             setLoading(false);
@@ -63,16 +63,19 @@ function Body() {
 
     const handleCreateSubject = async () => {
         if (newSubject.trim() !== "") {
+            // Capitalize the first letter of the new subject's name
+            const formattedSubject = newSubject.charAt(0).toUpperCase() + newSubject.slice(1);
+
             try {
                 if (editSubjectId) {
                     // Update existing subject
-                    await axios.put(`${apiHost}/api/subjects/${editSubjectId}`, { newName: newSubject });
+                    await axios.put(`${apiHost}/api/subjects/${editSubjectId}`, { newName: formattedSubject });
                     setSubjects(subjects.map(subject =>
-                        subject.id === editSubjectId ? { ...subject, name: newSubject } : subject
+                        subject.id === editSubjectId ? { ...subject, name: formattedSubject } : subject
                     ));
                 } else {
                     // Create new subject
-                    const response = await axios.post(`${apiHost}/api/subjects`, { name: newSubject });
+                    const response = await axios.post(`${apiHost}/api/subjects`, { name: formattedSubject });
                     setSubjects([...subjects, response.data]);
                 }
                 setNewSubject("");
@@ -98,6 +101,7 @@ function Body() {
 
     const handleDelete = async (subjectId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this subject? You will loose all the levels and documents inside it!!");
+        handleShowEditDelete();
         if (confirmDelete) {
             try {
                 await axios.delete(`${apiHost}/api/subjects/${subjectId}`);
@@ -132,7 +136,7 @@ function Body() {
 
                 ) : (
                     subjects.map((subject, index) => {
-                        const colors = ["#c7566b", "#1b6b5f", "#2b4257", "orange", "#2b4257", "#f5b3c3"];
+                        const colors = ["#c7566b", "#1b6b5f", "#2b4257", "orange", "#2b4257", "#0079c5"];
 
                         const getColorByIndex = (index) => {
                             return colors[index % colors.length];
@@ -196,7 +200,9 @@ function Body() {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>Cancel</Button>
-                        <Button onClick={handleCreateSubject}>{editSubjectId ? "Update Subject" : "Create Subject"}</Button>
+                        <Button onClick={() => { handleCreateSubject(); handleShowEditDelete(); }}>
+                            {editSubjectId ? "Update Subject" : "Create Subject"}
+                        </Button>
                     </DialogActions>
                 </Dialog>
             </div >

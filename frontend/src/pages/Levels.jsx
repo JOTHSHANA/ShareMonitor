@@ -22,7 +22,7 @@ import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
 import general_doc_img from '../assets/general_doc_img.png';
-
+import NavigateNextSharpIcon from '@mui/icons-material/NavigateNextSharp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
@@ -70,7 +70,6 @@ function Body() {
     const [generalDoc, setGeneralDoc] = useState(null)
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
-
 
     const handleWholeShareClick = () => {
         setShowCheckboxes(prevState => !prevState);
@@ -168,6 +167,8 @@ function Body() {
             });
             setLevels(response.data);
             setSelectedLevel(levels[0]);
+            setLevelNum(response.data[0].level)
+
         } catch (error) {
             console.error('Error fetching levels:', error);
         }
@@ -194,10 +195,6 @@ function Body() {
         }
     };
 
-
-
-
-
     const fetchFolders = async () => {
 
         try {
@@ -207,11 +204,18 @@ function Body() {
                     level: selectedLevel.id
                 }
             });
-            setFolders(response.data);
-            console.log("this");
-            console.log(response.data)
-            setActiveFolderId(response.data[0].id);
-            fetchDocuments(response.data[0].id);
+            const folders = response.data;
+            setFolders(folders);
+            console.log(folders);
+
+            if (folders.length > 0) {
+                setActiveFolderId(folders[0].id);
+                fetchDocuments(folders[0].id);
+            } else {
+                setDocuments([]);
+                setActiveFolderId(null);
+            }
+
         } catch (error) {
             console.error('Error fetching documents:', error);
         }
@@ -302,6 +306,8 @@ function Body() {
     const handleLevelClick = (id) => {
         const level = levels.find((lvl) => lvl.id === id);
         setSelectedLevel(level);
+        // console.log("kjsdnhv0")
+        // console.log(selectedLevel.id)
         setLevelNum(level.level);
     };
 
@@ -541,6 +547,7 @@ function Body() {
             toast.error(`Error moving doc ${currI}!`);
         }
     };
+    
 
 
     return (
@@ -565,17 +572,17 @@ function Body() {
                 <div className="container1">
                     <div className='card1-fake' style={{ display: "flex" }}>
                         <button style={{ flex: "1" }} className="add-button" onClick={handleShowEditDelete}>
-                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                         </button>
                         <button style={{ flex: "1" }} className="add-button" onClick={handleWholeShareClick}>
-                            <RuleIcon />Select
+                            <RuleIcon /><span>Select</span>
                         </button>
                         <button style={{ flex: "1" }} className="add-button" onClick={handleAddFirstLevelClick}>
-                            <AddIcon />Add Level
+                            <AddIcon /><span>Add Level</span>
                         </button>
                     </div>
                     {levels.map((level, index) => (
-                        <div key={index} className="card1" onClick={() => handleLevelClick(level.id)}>
+                        <div key={index} className={`card1 ${levelNum === level.level ? 'active' : ''}`} onClick={() => handleLevelClick(level.id)}>
                             <div
                                 className="hover-edit-delete-levels"
                                 style={{ display: showEditDelete ? 'flex' : 'none' }}
@@ -604,7 +611,7 @@ function Body() {
 
                                 <div>
                                     <div className='level-num'>Level {level.level}</div>
-                                    {level.lvl_name}
+                                    <div className='level-name'>{level.lvl_name}</div>
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center" }}>
                                     <button className="add-button-level" onClick={handleAddClick}>
@@ -674,11 +681,11 @@ function Body() {
                             <div className='documents-container'>
                                 <div className='folders-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <button className="add-button" onClick={handleShowFolderEditDelete}>
-                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                                        <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
+                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                                         </button>
-                                        <button className='add-button' onClick={handleNewFolderPopupOpen}>
-                                            <AddIcon />Add Folders
+                                        <button className='add-button-folders' onClick={handleNewFolderPopupOpen}>
+                                            <AddIcon /><span>Add Folders</span>
                                         </button>
                                     </div>
                                     <hr />
@@ -738,10 +745,10 @@ function Body() {
                                 <div className='documents-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
                                         <button className="add-button" onClick={handleShowDocumentEditDelete}>
-                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
+                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                                         </button>
                                         <button className='add-button' onClick={handleDocumentPopupOpen}>
-                                            <AddIcon />Add Document
+                                            <AddIcon /><span>Add Document</span>
                                         </button>
                                     </div>
                                     <hr />

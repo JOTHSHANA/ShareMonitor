@@ -5,6 +5,7 @@ const subjectRoutes = require('./routes/subjectRoutes');
 const levelRoutes = require('./routes/levelroutes');
 const documentRoutes = require('./routes/documentroutes');
 const folderRoutes = require('./routes/folderroutes');
+const trashRoutes = require('./routes/trashRoutes');
 
 const cors = require('cors');
 app.use(bodyParser.json());
@@ -15,6 +16,7 @@ app.use('/api', subjectRoutes);
 app.use('/api', levelRoutes);
 app.use('/api', documentRoutes);
 app.use('/api', folderRoutes);
+app.use('/api', trashRoutes);
 
 app.use('/uploads', express.static('uploads'));
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import HistoryIcon from '@mui/icons-material/History';
+import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';import RecyclingSharpIcon from '@mui/icons-material/RecyclingSharp';
 function SideBar(props) {
     const location = useLocation();
 
@@ -22,8 +22,16 @@ function SideBar(props) {
                     className={`list-items ${isSubjectsActive() ? "active" : ""}`}
                 >
                     <Link className="link" to="/subjects">
-                        <DashboardIcon sx={{ marginRight: "10px", color: "#00d25b", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
+                        <DashboardIcon className="custom-sidebar-icon" />
                         <p className="menu-names">Subjects</p>
+                    </Link>
+                </li>
+                <li
+                    className={`list-items ${location.pathname === '/trash'? "active" : ""}`}
+                >
+                    <Link className="link" to="/trash">
+                        <RecyclingSharpIcon className="custom-sidebar-icon2" />
+                        <p className="menu-names">Trash</p>
                     </Link>
                 </li>
 
@@ -31,12 +39,13 @@ function SideBar(props) {
                     className={`list-items ${location.pathname === '/history' ? "active" : ""}`}
                 >
                     <Link className="link" to="/history">
-                        <HistoryIcon sx={{ marginRight: "10px", color: "tomato", fontSize: "20px", padding: "7px", borderRadius: "50%", backgroundColor: "var(--icons-bg)" }} />
+                        <ScheduleSendIcon className="custom-sidebar-icon1"/>
                         <p className="menu-names">History</p>
                     </Link>
                 </li>
             </ul>
         </div>
+        
     );
 }
 

@@ -9,7 +9,7 @@
     overflow: auto;
     background-color: var(--background-1);
     box-shadow: var(--shadow);
-    
+
 }
 
 .menu-names {
@@ -142,5 +142,39 @@ p {
 .list-items.active .link {
     background-color: var(--menu-hover);
     box-sizing: border-box;
-    
+}
+
+.list-items.active .custom-sidebar-icon,
+.list-items.active .custom-sidebar-icon1,
+.list-items.active .custom-sidebar-icon2 {
+    background-color: var(--active-bg);
+    box-shadow: var(--shadow);
+}
+
+
+.custom-sidebar-icon {
+    margin-right: 10px;
+    color: #00d25b;
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 50%;
+    background-color: var(--icons-bg);
+}
+
+.custom-sidebar-icon1 {
+    margin-right: 10px;
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 50%;
+    background-color: var(--icons-bg);
+    color: #179be7;
+}
+
+.custom-sidebar-icon2{
+    margin-right: 10px;
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 50%;
+    background-color: var(--icons-bg);
+    color: #e86232;
 }

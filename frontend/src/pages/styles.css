@@ -134,6 +134,60 @@
 
 }
 
+.add-button-folders{
+    margin: 5px;
+    background-color: rgb(19, 162, 69);
+    border: none;
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.button {
+    margin: 2px;
+    background-color: var(--document);
+    border: none;
+    padding: 5px 5px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+}
+
+
+.trash-details .counts.clr1 p:last-child {
+    background-color: rgba(4, 116, 107, 0.315);
+    padding: 0px 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.trash-details .counts.clr2 p:last-child {
+    background-color: rgba(200, 39, 103, 0.31);
+    padding: 0px 5px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.trash-details .counts.clr3 p:last-child {
+    background-color: rgba(69, 73, 176, 0.211);
+    padding: 0px 5px;
+    border-radius: 5px;
+    font-weight: 700;
+
+}
+
 
 .add-button-level {
     margin: 5px;
@@ -195,6 +249,15 @@
     background-color: var(--card-hover);
 }
 
+.card1.active {
+    background-color: #446bd4;
+}
+
+.card1.active .level-num {
+    color: white;
+    font-weight: 700;
+}
+
 .card1-fake {
     border-radius: 5px;
     background-color: var(--background-1);
@@ -216,9 +279,34 @@
 .levels-with-documents {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     gap: 5px;
 
 }
+
+@media (max-width:1200px){
+    .add-button-folders>span{
+        display: none;
+    }
+    .add-button>span{
+        display: none;
+    }
+    .folders-div{
+        min-width: 200px;
+    }
+   
+}
+
+@media (max-width:900px){
+    .levels-with-documents{
+        flex-direction: column;
+    }
+    .add-button>span{
+        display: block;
+    }
+
+}
+
 
 .container1 {
     flex: 1.5;
@@ -407,11 +495,24 @@ input[type=file]::file-selector-button:hover {
     padding: 0px;
 }
 
+.trash-document-item{
+    color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+    padding: 0px;
+    padding: 5px;
+}
+
 .document-item:hover {
     background-color: #4caf4f65;
 }
 
-.document-item a {
+.document-item a, .trash-document-item a {
     color: var(--text);
     text-decoration: none;
     font-weight: 500;
@@ -423,7 +524,7 @@ input[type=file]::file-selector-button:hover {
     align-items: center;
 }
 
-.document-item a:hover {
+.document-item a:hover, .trash-document-item a:hover {
     text-decoration: underline;
 }
 
@@ -514,7 +615,7 @@ input[type=checkbox]:checked {
 }
 
 
-.document-item {
+.document-item{
     cursor: pointer;
     padding: 7px;
 }
@@ -620,32 +721,32 @@ label {
     z-index: 1000;
     width: 400px;
     border-radius: 8px;
-  }
-  
-  .custom-dialog-content {
+}
+
+.custom-dialog-content {
     padding: 20px;
-  }
-  
-  .custom-dialog-body {
+}
+
+.custom-dialog-body {
     margin-top: 10px;
-  }
-  
-  .custom-input {
+}
+
+.custom-input {
     width: 100%;
     padding: 10px;
     margin-top: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-  }
-  
-  .custom-dialog-actions {
+}
+
+.custom-dialog-actions {
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
-  }
-  
-  .custom-button {
+}
+
+.custom-button {
     padding: 8px 16px;
     margin-left: 10px;
     background-color: #3f51b5;
@@ -653,9 +754,137 @@ label {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  .custom-button:hover {
+}
+
+.custom-button:hover {
     background-color: #303f9f;
-}  
-  
+}
+
+
+.card1.active {
+    border-left: 3px solid var(--wb);
+}
+
+.card1.active .level-name {
+    color: white;
+}
+
+.tabss {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+}
+
+.tabss button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: var(--background-1);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    border-radius: 3px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.tabss button:hover {
+    background-color: var(--card-hover);
+}
+
+.tabss button.active {
+    /* background-color: rgb(225, 231, 241);*/
+    border-bottom: 3px solid #179be7;
+    color: #179be7;
+    font-weight: bold;
+}
+
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+.trash-box {
+    flex: 1 1 calc(25% - 10px);
+    max-width: calc(25% - 10px);
+    position: relative;
+    padding: 10px;
+    border-radius: 3px;
+    background-color: var(--background-1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.trash-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+
+@media (max-width: 1124px) {
+    .trash-box {
+        flex: 1 1 calc(33.33% - 10px);
+        max-width: calc(33.33% - 10px);
+    }
+}
+
+@media (max-width: 868px) {
+    .trash-box {
+        flex: 1 1 calc(50% - 10px);
+        max-width: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 580px) {
+    .trash-box {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+.counts {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.popup-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.popup-actions .button {
+    padding: 7px 15px;
+}
