@@ -10,7 +10,7 @@ exports.getFolders = async (req, res) => {
         return res.status(400).json({ error: 'work_type and level are required' });
     }
 
-    const query = 'SELECT * FROM folders WHERE work_type = ? AND level = ? AND status = "1"';
+    const query = 'SELECT * FROM folders WHERE work_type = ? AND level = ? AND status = "1" ORDER BY s_day';
 
     db.query(query, [work_type, level], (err, results) => {
         if (err) {
@@ -18,7 +18,7 @@ exports.getFolders = async (req, res) => {
             return res.status(500).json({ error: 'Internal server error' });
         }
         res.json(results);
-        console.log(results)
+        console.log(results);
     });
 };
 
@@ -83,3 +83,121 @@ exports.deleteFolder = (req, res) => {
         res.status(200).json({ message: 'Folder deleted successfully' });
     });
 }
+
+
+
+
+
+
+//sample
+exports.mergeFolders = (req, res) => {
+    const { startFolderId, endFolderId } = req.body;
+
+    if (!startFolderId || !endFolderId) {
+        return res.status(400).json({ error: 'startFolderId and endFolderId are required' });
+    }
+
+    db.query(
+        'SELECT MIN(s_day) AS min_s_day, MAX(e_day) AS max_e_day FROM folders WHERE id BETWEEN ? AND ?',
+        [startFolderId, endFolderId],
+        (err, result) => {
+            if (err) {
+                console.error('Error fetching folders:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const { min_s_day, max_e_day } = result[0];
+
+            db.query(
+                'UPDATE documents SET folder = ? WHERE folder IN (SELECT id FROM folders WHERE id BETWEEN ? AND ?)',
+                [startFolderId, startFolderId, endFolderId],
+                (err) => {
+                    if (err) {
+                        console.error('Error updating documents:', err);
+                        return res.status(500).json({ error: 'Internal server error' });
+                    }
+
+                    db.query(
+                        'DELETE FROM folders WHERE id > ? AND id <= ?',
+                        [startFolderId, endFolderId],
+                        (err) => {
+                            if (err) {
+                                console.error('Error deleting folders:', err);
+                                return res.status(500).json({ error: 'Internal server error' });
+                            }
+
+                            db.query(
+                                'UPDATE folders SET s_day = ?, e_day = ? WHERE id = ?',
+                                [min_s_day, max_e_day, startFolderId],
+                                (err) => {
+                                    if (err) {
+                                        console.error('Error updating folder:', err);
+                                        return res.status(500).json({ error: 'Internal server error' });
+                                    }
+
+                                    res.json({ message: 'Folders merged successfully' });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    );
+};
+
+
+exports.unmergeFolder = (req, res) => {
+    const { folderId } = req.body;
+
+    // Fetch the folder to be unmerged
+    db.query('SELECT * FROM folders WHERE id = ?', [folderId], (err, folderResult) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+
+        if (folderResult.length === 0) {
+            return res.status(404).json({ error: 'Folder not found' });
+        }
+
+        const { s_day, e_day, level, work_type } = folderResult[0];
+        console.log(folderResult[0])
+
+        // Create separate folders for each day in the range
+        let firstUnmergedFolderId;
+        console.log(s_day, e_day)
+
+        for (let day = s_day; day <= e_day; day++) {
+            db.query('INSERT INTO folders (s_day, e_day, level, work_type) VALUES (?, ?, ?, ?)',
+                [day, day, level, work_type], (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ error: 'Error creating unmerged folder' });
+                    }
+
+                    // Capture the ID of the first unmerged folder
+                    if (day === s_day) {
+                        firstUnmergedFolderId = result.insertId;
+                    }
+
+                    // Once all folders are created, move documents to the first folder
+                    if (day === e_day) {
+                        db.query('UPDATE documents SET folder = ? WHERE folder = ?',
+                            [firstUnmergedFolderId, folderId], (err, result) => {
+                                if (err) {
+                                    return res.status(500).json({ error: 'Error updating documents' });
+                                }
+
+                                // Optionally delete the original merged folder
+                                db.query('DELETE FROM folders WHERE id = ?', [folderId], (err, result) => {
+                                    if (err) {
+                                        return res.status(500).json({ error: 'Error deleting original folder' });
+                                    }
+
+                                    res.status(200).json({ message: 'Folder unmerged successfully, documents retained in the first folder.' });
+                                });
+                            });
+                    }
+                });
+        }
+    });
+};

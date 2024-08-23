@@ -27,6 +27,8 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import { ToastContainer, toast } from 'react-toastify';
+import CallSplitIcon from '@mui/icons-material/CallSplit';
+import MergeTypeIcon from '@mui/icons-material/MergeType';
 import 'react-toastify/dist/ReactToastify.css';
 import './styles.css';
 
@@ -70,21 +72,85 @@ function Body() {
     const [generalDoc, setGeneralDoc] = useState(null)
     const [start_day, setStart_day] = useState();
     const [end_day, setEnd_day] = useState();
+    const [levelUndo, setLevelUndo] = useState(null);
+    const [folderUndo, setFolderUndo] = useState(null);
+    const [docUndo, setDocUndo] = useState(null);
+    const [showUndoAlert, setShowUndoAlert] = useState(false);
+    const [showFolderUndoAlert, setShowFolderUndoAlert] = useState(false);
+    const [showDocUndoAlert, setShowDocUndoAlert] = useState(false);
+    const [isSelecting, setIsSelecting] = useState(false);
+    const [startMergeFolderId, setStartMergeFolderId] = useState(null);
+    const [endMergeFolderId, setEndMergeFolderId] = useState(null);
+    const [isUnmerging, setIsUnmerging] = useState(false);
+    const [unmergeFolderId, setUnmergeFolderId] = useState(null);
+
+    const toggleSelectMode = () => {
+        setIsSelecting(!isSelecting);
+        setIsUnmerging(false); // Disable unmerging mode if selecting
+        setStartMergeFolderId(null);
+        setEndMergeFolderId(null);
+    };
+
+    const toggleUnmergeMode = () => {
+        setIsUnmerging(!isUnmerging);
+        setIsSelecting(false); // Disable selecting mode if unmerging
+        setUnmergeFolderId(null);
+    };
+
+    const handleCheckboxChangeForMerge = (folderId) => {
+        if (!startMergeFolderId) {
+            setStartMergeFolderId(folderId);
+        } else if (!endMergeFolderId) {
+            if (folderId !== startMergeFolderId) {
+                setEndMergeFolderId(folderId);
+            } else {
+                toast.error("You cannot select the same folder twice.");
+            }
+        } else {
+            toast.error("You can only select 2 folders.");
+        }
+    };
+
+    const handleCheckboxChangeForUnmerge = (folderId) => {
+        if (!unmergeFolderId) {
+            setUnmergeFolderId(folderId);
+        } else if (unmergeFolderId === folderId) {
+            setUnmergeFolderId(null); // Unselect if clicked again
+        } else {
+            toast.error("You can only select 1 folder.");
+        }
+    };
+
+    const handleMergeClick = () => {
+        if (startMergeFolderId && endMergeFolderId) {
+            handleMergeFolders();
+        } else {
+            toast.error("Please select two folders to merge.");
+        }
+    };
+
+    const handleUnmergeClick = () => {
+        if (unmergeFolderId) {
+            handleUnmergeFolder();
+        } else {
+            toast.error("Please select a folder to unmerge.");
+        }
+    };
 
     const handleWholeShareClick = () => {
         setShowCheckboxes(prevState => !prevState);
         if (!showCheckboxes) setSelectedLevels([]);
     };
 
-    const handleCheckboxChange = (levelId) => {
-        setSelectedLevels(prevSelectedLevels => {
-            if (prevSelectedLevels.includes(levelId)) {
-                return prevSelectedLevels.filter(id => id !== levelId);
-            } else {
-                return [...prevSelectedLevels, levelId];
-            }
-        });
-    };
+    // const handleCheckboxChange = (levelId) => {
+    //     setSelectedLevels(prevSelectedLevels => {
+    //         if (prevSelectedLevels.includes(levelId)) {
+    //             return prevSelectedLevels.filter(id => id !== levelId);
+    //         } else {
+    //             return [...prevSelectedLevels, levelId];
+    //         }
+    //     });
+    // };
 
 
 
@@ -430,18 +496,37 @@ function Body() {
     };
 
     const handleDocumentDelete = async (id) => {
+
         const confirmDelete = window.confirm("Are you sure, You want to delete this document?");
         if (confirmDelete) {
+            setDocUndo(id);
+            fetchFolders(activeFolderId);
             try {
+                fetchFolders(activeFolderId);
                 await axios.delete(`${apiHost}/api/deletedocument/${id}`, {
                 });
                 console.log(id);
+                setShowDocUndoAlert(true);
+                setTimeout(() => {
+                    setShowDocUndoAlert(false);
+                }, 5000);
             } catch (error) {
                 console.error('Error deleting level:', error);
             }
         }
-        fetchDocuments();
 
+        fetchDocuments();
+    }
+
+    const handleDocUndo = async () => {
+        try {
+            await axios.put(`${apiHost}/api/restoreDocument`, { id: docUndo });
+            setShowDocUndoAlert(false);
+            fetchDocuments();
+            fetchFolders(activeFolderId);
+        } catch (error) {
+            console.error('Error restoring document:', error);
+        }
     }
 
     const handleEditClose = () => {
@@ -456,7 +541,7 @@ function Body() {
                     subjectId: subjectId,
                     level: selectedLevel.level,
                 });
-                // console.log(selectedLevel.id, editLevel, subjectId, selectedLevel.level);
+
 
                 const updatedLevels = levels.map((lvl) =>
                     lvl.id === selectedLevel.id ? { ...lvl, lvl_name: editLevel } : lvl
@@ -469,36 +554,68 @@ function Body() {
         }
     };
 
+
     const handleDelete = async (id, subjectId, level) => {
         const confirmDelete = window.confirm("Are you sure, you want to delete this level? You will lose all the documents inside this level!!");
         if (confirmDelete) {
             try {
+                setLevelUndo(id);
                 await axios.delete(`${apiHost}/api/levels/${id}`, {
-                    data: { subjectId, level }  // Send subjectId and level in the request body
+                    data: { subjectId, level }
                 });
-                console.log(id, subjectId, level);
                 setLevels(levels.filter((level) => level.id !== id));
+
+                // Show undo alert
+                setShowUndoAlert(true);
+
+                // Hide alert after 5 seconds
+                setTimeout(() => {
+                    setShowUndoAlert(false);
+                }, 5000);
             } catch (error) {
                 console.error('Error deleting level:', error);
             }
         }
         fetchLevels();
     };
-
+    const handleLevelUndo = async () => {
+        try {
+            await axios.put(`${apiHost}/api/restoreLevel`, { id: levelUndo });
+            setShowUndoAlert(false);
+            fetchLevels();
+        } catch (error) {
+            console.error('Error restoring level:', error);
+        }
+    };
     const handleFolderDelete = async (id) => {
         console.log(id);
         const confirmDelete = window.confirm("Are you sure, you want to delete this document?");
         if (confirmDelete) {
+            setFolderUndo(id);
             try {
                 await axios.put(`${apiHost}/api/folder/${id}`, {
                 });
                 console.log(id);
+                setShowFolderUndoAlert(true);
+                setTimeout(() => {
+                    setShowFolderUndoAlert(false);
+                }, 5000);
             } catch (error) {
                 console.error('Error deleting level:', error);
             }
         }
         fetchFolders();
     };
+
+    const handleFolderUndo = async () => {
+        try {
+            await axios.put(`${apiHost}/api/restoreFolder`, { id: folderUndo });
+            setShowFolderUndoAlert(false);
+            fetchFolders();
+        } catch (error) {
+            console.error('Error restoring Folder:', error);
+        }
+    }
 
 
     const handleShowDocumentEditDelete = () => {
@@ -547,7 +664,43 @@ function Body() {
             toast.error(`Error moving doc ${currI}!`);
         }
     };
-    
+
+
+    const handleMergeFolders = async () => {
+        try {
+            const response = await axios.post(`${apiHost}/api/mergeFolders`, {
+                startFolderId: startMergeFolderId,
+                endFolderId: endMergeFolderId,
+            });
+            fetchFolders()
+            console.log('Folders merged successfully:', response.data);
+            fetchDocuments(activeFolderId);
+            setStartMergeFolderId(null);
+            setEndMergeFolderId(null);
+            setIsSelecting(false);
+            // Refresh the folder list or handle the response as needed
+        } catch (error) {
+            console.error('Error merging folders:', error);
+        }
+    };
+
+
+    const handleUnmergeFolder = async () => {
+        try {
+            const response = await axios.post(`${apiHost}/api/unmergeFolder`, {
+                folderId: unmergeFolderId,  // ID of the merged folder to unmerge
+            });
+            fetchFolders()
+            fetchDocuments(activeFolderId);
+            console.log('Folder unmerged successfully:', response.data);
+            setUnmergeFolderId(null);
+            setIsUnmerging(false);
+        } catch (error) {
+            console.error('Error unmerging folder:', error);
+        }
+    };
+
+
 
 
     return (
@@ -617,13 +770,13 @@ function Body() {
                                     <button className="add-button-level" onClick={handleAddClick}>
                                         <AddIcon style={{ color: "var(--text)" }} />
                                     </button>
-                                    {showCheckboxes && (
-                                        <input
+                                    {/* {showCheckboxes && (
+                                   <input
                                             type="checkbox"
                                             onChange={() => handleCheckboxChange(level.id)}
                                             checked={selectedLevels.includes(level.id)}
                                         />
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         </div>
@@ -633,6 +786,12 @@ function Body() {
                             <button className="add-button" style={{ float: "right" }} onClick={handleCheckedSubmit}>
                                 <ShareIcon />Share
                             </button>
+                        </div>
+                    )}
+                    {showUndoAlert && (
+                        <div className="undo-alert">
+                            <span>Level deleted. </span>
+                            <button onClick={handleLevelUndo}>Undo</button>
                         </div>
                     )}
                 </div>
@@ -681,14 +840,21 @@ function Body() {
                             <div className='documents-container'>
                                 <div className='folders-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
+                                        {/* <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
                                             <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                                         </button>
                                         <button className='add-button-folders' onClick={handleNewFolderPopupOpen}>
                                             <AddIcon /><span>Add Folders</span>
+                                        </button> */}
+                                        <button className='add-button' onClick={toggleSelectMode}>
+                                            <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
+                                        </button>
+                                        <button className='add-button' onClick={toggleUnmergeMode}>
+                                            <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
                                         </button>
                                     </div>
                                     <hr />
+
                                     {folders.length > 0 ? (
                                         folders.map((folder, index) => (
                                             <div
@@ -697,14 +863,29 @@ function Body() {
                                                 onClick={() => fetchDocuments(folder.id)}
                                             >
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
-                                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                                        <img src={folder_img} alt="PDF" className="document-icon" />
-                                                        {folder.s_day === folder.e_day ? (
-                                                            <span>Day {folder.s_day}</span>
-                                                        ) : (
-                                                            <span>Day {folder.s_day} - Day {folder.e_day}</span>
+                                                    <div style={{display:"flex", }}>
+                                                        {(isSelecting || isUnmerging) && (
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelecting
+                                                                    ? (folder.id === startMergeFolderId || folder.id === endMergeFolderId)
+                                                                    : folder.id === unmergeFolderId}
+                                                                onChange={() => {
+                                                                    isSelecting
+                                                                        ? handleCheckboxChangeForMerge(folder.id)
+                                                                        : handleCheckboxChangeForUnmerge(folder.id);
+                                                                }}
+                                                                style={{ marginLeft: '10px' }}
+                                                            />
                                                         )}
-
+                                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                            <img src={folder_img} alt="PDF" className="document-icon" />
+                                                            {folder.s_day === folder.e_day ? (
+                                                                <span>Day {folder.s_day}</span>
+                                                            ) : (
+                                                                <span>Day {folder.s_day} - Day {folder.e_day}</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     <div className='open-icon'>
 
@@ -733,12 +914,38 @@ function Body() {
                                                             <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
                                                         </div>
                                                     </div>
+                                                    {/* {(isSelecting || isUnmerging) && (
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelecting
+                                                                ? (folder.id === startMergeFolderId || folder.id === endMergeFolderId)
+                                                                : folder.id === unmergeFolderId}
+                                                            onChange={() => {
+                                                                isSelecting
+                                                                    ? handleCheckboxChangeForMerge(folder.id)
+                                                                    : handleCheckboxChangeForUnmerge(folder.id);
+                                                            }}
+                                                            style={{ marginLeft: '10px' }}
+                                                        />
+                                                    )} */}
                                                 </div>
 
                                             </div>
                                         ))
                                     ) : (
                                         <p>No folders added.</p>
+                                    )}
+                                    {isSelecting && (
+                                        <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon/>Merge</button>
+                                    )}
+                                    {isUnmerging && (
+                                        <button className='add-button' onClick={handleUnmergeClick}><CallSplitIcon/>Unmerge</button>
+                                    )}
+                                    {showFolderUndoAlert && (
+                                        <div className="undo-alert">
+                                            <span>Folder deleted. </span>
+                                            <button onClick={handleFolderUndo}>Undo</button>
+                                        </div>
                                     )}
 
                                 </div>
@@ -774,10 +981,6 @@ function Body() {
                                                     )}
                                                     <div style={{ display: "flex", gap: "5px" }}>
 
-                                                        {/* <Button onClick={() => handleShareClick(doc)}>Share</Button> */}
-                                                        {/* <button className='add-button-document' onClick={handleDocumentPopupOpen}>
-                                                            <AddIcon style={{ color: "var(--text)" }} />
-                                                        </button> */}
                                                         <div style={{ display: "flex", gap: "5px" }}>
                                                             <button
                                                                 className='add-button-document'
@@ -798,15 +1001,6 @@ function Body() {
                                                             className="hover-edit-delete-documents"
                                                             style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
                                                         >
-                                                            {/* <div
-                                                                className="edit-icon"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDocumentEditClick(id);
-                                                                }}
-                                                            >
-                                                                <CreateSharpIcon sx={{ color: "#588dc0" }} />
-                                                            </div> */}
                                                             <div
                                                                 className="delete-icon"
                                                                 onClick={(e) => {
@@ -823,6 +1017,12 @@ function Body() {
                                         ))
                                     ) : (
                                         <p>No documents added.</p>
+                                    )}
+                                    {showDocUndoAlert && (
+                                        <div className="undo-alert">
+                                            <span>Document deleted. </span>
+                                            <button onClick={handleDocUndo}>Undo</button>
+                                        </div>
                                     )}
                                 </div>
 
@@ -847,6 +1047,9 @@ function Body() {
                     </div>
                 </div>
             </div>
+            {/* <button onClick={handleMergeFolders}>Merge</button>
+            <button onClick={handleUnmergeFolder}>UnMerge</button> */}
+
             <Dialog open={showPopup} onClose={handleClose}>
                 <DialogTitle>Add New Level</DialogTitle>
                 <DialogContent>
@@ -1058,75 +1261,6 @@ function Body() {
                             <Button type="submit">Upload</Button>
                         </DialogActions>
                     </form>
-
-                    {/* <form onSubmit={handleFormSubmit}>
-                        <div className="document-type-select">
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="pdf"
-                                    checked={documentType === "pdf"}
-                                    onChange={handleDocumentTypeChange}
-                                />
-                                PDF
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="link"
-                                    checked={documentType === "link"}
-                                    onChange={handleDocumentTypeChange}
-                                />
-                                Link
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="video"
-                                    checked={documentType === "video"}
-                                    onChange={handleDocumentTypeChange}
-                                />
-                                Video
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    value="general"
-                                    checked={documentType === "general"}
-                                    onChange={handleDocumentTypeChange}
-                                />
-                                General Document
-                            </label>
-                        </div>
-
-                        {documentType === "pdf" && (
-                            <input type="file" onChange={handleFileChange} accept=".pdf" />
-                        )}
-
-                        {documentType === "link" && (
-                            <TextField
-                                margin="dense"
-                                id="link"
-                                label="Document Link"
-                                type="url"
-                                fullWidth
-                                variant="standard"
-                                value={link}
-                                onChange={handleLinkChange}
-                            />
-                        )}
-
-                        {documentType === "video" && (
-                            <input type="file" onChange={handleFileChange} accept="video/*" />
-                        )}
-                         {documentType === "general" && (
-                            <input type="file" onChange={handleFileChange} />
-                        )}
-                        <DialogActions>
-                            <Button onClick={handleDocumentPopupClose}>Cancel</Button>
-                            <Button type="submit">Upload</Button>
-                        </DialogActions>
-                    </form> */}
                 </DialogContent>
             </Dialog>
         </div>

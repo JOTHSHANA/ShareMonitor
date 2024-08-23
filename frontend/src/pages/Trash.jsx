@@ -175,7 +175,7 @@ function Subjects() {
                                     <button className="button" onClick={() => handleRestoreClick(subject)}>
                                         <RestoreIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "#ada20a56",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "#cfa002",
@@ -186,7 +186,7 @@ function Subjects() {
                                     <button className="button" onClick={() => handleDeleteClick(subject)}>
                                         <DeleteForeverIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "rgba(255, 0, 0, 0.16)",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "red",
@@ -332,7 +332,7 @@ function Levels() {
                                     <button className="button" onClick={() => handleRestoreClick(level)}>
                                         <RestoreIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "#ada20a56",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "#cfa002",
@@ -343,7 +343,7 @@ function Levels() {
                                     <button className="button" onClick={() => handleDeleteClick(level)}>
                                         <DeleteForeverIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "rgba(255, 0, 0, 0.16)",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "red",
@@ -491,7 +491,7 @@ function Folders() {
                                     <button className="button" onClick={() => handleRestoreClick(folder)}>
                                         <RestoreIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "#ada20a56",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "#cfa002",
@@ -502,7 +502,7 @@ function Folders() {
                                     <button className="button" onClick={() => handleDeleteClick(folder)}>
                                         <DeleteForeverIcon sx={{
                                             padding: "2px",
-                                            backgroundColor: "rgba(255, 0, 0, 0.16)",
+                                            backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
                                             color: "red",
@@ -659,7 +659,7 @@ function Documents() {
                                 <button className="button" onClick={() => handleRestoreClick(document)}>
                                     <RestoreIcon sx={{
                                         padding: "2px",
-                                        backgroundColor: "#ada20a56",
+                                        backgroundColor: "var(--background-1)",
                                         borderRadius: "5px",
                                         marginRight: "5px",
                                         color: "#cfa002",
@@ -670,7 +670,7 @@ function Documents() {
                                 <button className="button" onClick={() => handleDeleteClick(document)}>
                                     <DeleteForeverIcon sx={{
                                         padding: "2px",
-                                        backgroundColor: "rgba(255, 0, 0, 0.16)",
+                                        backgroundColor: "var(--background-1)",
                                         borderRadius: "5px",
                                         marginRight: "5px",
                                         color: "red",

@@ -134,7 +134,7 @@
 
 }
 
-.add-button-folders{
+.add-button-folders {
     margin: 5px;
     background-color: rgb(19, 162, 69);
     border: none;
@@ -167,21 +167,19 @@
 
 
 .trash-details .counts.clr1 p:last-child {
-    background-color: rgba(4, 116, 107, 0.315);
+
     padding: 0px 5px;
     border-radius: 5px;
     font-weight: 700;
 }
 
 .trash-details .counts.clr2 p:last-child {
-    background-color: rgba(200, 39, 103, 0.31);
     padding: 0px 5px;
     border-radius: 5px;
     font-weight: 700;
 }
 
 .trash-details .counts.clr3 p:last-child {
-    background-color: rgba(69, 73, 176, 0.211);
     padding: 0px 5px;
     border-radius: 5px;
     font-weight: 700;
@@ -199,7 +197,7 @@
     font-weight: 700;
     font-size: 14px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     cursor: pointer;
 }
@@ -284,24 +282,27 @@
 
 }
 
-@media (max-width:1200px){
-    .add-button-folders>span{
+@media (max-width:1200px) {
+    .add-button-folders>span {
         display: none;
     }
-    .add-button>span{
+
+    .add-button>span {
         display: none;
     }
-    .folders-div{
+
+    .folders-div {
         min-width: 200px;
     }
-   
+
 }
 
-@media (max-width:900px){
-    .levels-with-documents{
+@media (max-width:900px) {
+    .levels-with-documents {
         flex-direction: column;
     }
-    .add-button>span{
+
+    .add-button>span {
         display: block;
     }
 
@@ -495,7 +496,7 @@ input[type=file]::file-selector-button:hover {
     padding: 0px;
 }
 
-.trash-document-item{
+.trash-document-item {
     color: white;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -512,7 +513,8 @@ input[type=file]::file-selector-button:hover {
     background-color: #4caf4f65;
 }
 
-.document-item a, .trash-document-item a {
+.document-item a,
+.trash-document-item a {
     color: var(--text);
     text-decoration: none;
     font-weight: 500;
@@ -524,7 +526,8 @@ input[type=file]::file-selector-button:hover {
     align-items: center;
 }
 
-.document-item a:hover, .trash-document-item a:hover {
+.document-item a:hover,
+.trash-document-item a:hover {
     text-decoration: underline;
 }
 
@@ -596,8 +599,8 @@ img {
 
 input[type=checkbox] {
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
     background-color: rgb(214, 214, 214);
     border-radius: 5px;
     border: 3px solid lightgray;
@@ -615,7 +618,7 @@ input[type=checkbox]:checked {
 }
 
 
-.document-item{
+.document-item {
     cursor: pointer;
     padding: 7px;
 }
@@ -887,4 +890,36 @@ label {
 
 .popup-actions .button {
     padding: 7px 15px;
+}
+
+
+.undo-alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--background-1);
+    color: var(--text);
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 300px;
+    box-shadow: var(--shadow);
+}
+
+.undo-alert button {
+    background-color: var(--background-1);
+    color: rgb(17, 94, 203);
+    border: none;
+    padding: 7px 13px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.undo-alert button:hover {
+    background-color: rgba(12, 12, 231, 0.125);
 }

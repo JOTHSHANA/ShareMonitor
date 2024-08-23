@@ -23,13 +23,41 @@ exports.getLevels = (req, res) => {
 };
 
 
+// exports.createLevels = (req, res) => {
+//     const { name, subjectId, levelNum } = req.body;
+//     if (!name || !subjectId || !levelNum) {
+//         return res.status(400).json({ error: 'Name, subjectId, and levelNum are required' });
+//     }
+//     console.log(levelNum)
+//     db.query(
+//         'UPDATE levels SET level = level + 1 WHERE subject = ? AND level >= ?',
+//         [subjectId, levelNum],
+//         (err, result) => {
+//             if (err) {
+//                 return res.status(500).json({ error: err.message });
+//             }
+
+//             db.query(
+//                 'INSERT INTO levels (lvl_name, subject, level) VALUES (?, ?, ?)',
+//                 [name, subjectId, levelNum],
+//                 (err, result) => {
+//                     if (err) {
+//                         return res.status(500).json({ error: err.message });
+//                     }
+//                     res.json({ id: result.insertId, name, subject: subjectId, level: levelNum, status: 1 });
+//                 }
+//             );
+//         }
+//     );
+// };
+
+
 exports.createLevels = (req, res) => {
     const { name, subjectId, levelNum } = req.body;
     if (!name || !subjectId || !levelNum) {
         return res.status(400).json({ error: 'Name, subjectId, and levelNum are required' });
     }
-    console.log(levelNum)
-    // Update the levels greater than levelNum by incrementing them by 1
+
     db.query(
         'UPDATE levels SET level = level + 1 WHERE subject = ? AND level >= ?',
         [subjectId, levelNum],
@@ -38,7 +66,6 @@ exports.createLevels = (req, res) => {
                 return res.status(500).json({ error: err.message });
             }
 
-            // Insert the new level
             db.query(
                 'INSERT INTO levels (lvl_name, subject, level) VALUES (?, ?, ?)',
                 [name, subjectId, levelNum],
@@ -46,7 +73,38 @@ exports.createLevels = (req, res) => {
                     if (err) {
                         return res.status(500).json({ error: err.message });
                     }
-                    res.json({ id: result.insertId, name, subject: subjectId, level: levelNum, status: 1 });
+
+                    const levelId = result.insertId;
+                    const workTypes = [1, 2, 3, 4];
+                    const folders = [];
+
+                    // Automatically create 10 folders for each work_type
+                    workTypes.forEach((workType) => {
+                        for (let i = 1; i <= 10; i++) {
+                            const s_day = i;
+                            const e_day = i; // You can modify this if you want multi-day folders
+                            folders.push([s_day, e_day, levelId, workType]);
+                        }
+                    });
+
+                    db.query(
+                        'INSERT INTO folders (s_day, e_day, level, work_type) VALUES ?',
+                        [folders],
+                        (err, result) => {
+                            if (err) {
+                                return res.status(500).json({ error: err.message });
+                            }
+
+                            res.json({
+                                id: levelId,
+                                name,
+                                subject: subjectId,
+                                level: levelNum,
+                                status: 1,
+                                foldersCreated: result.affectedRows
+                            });
+                        }
+                    );
                 }
             );
         }

@@ -8,7 +8,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
         <Route path="/" element={<Subjects />} />
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/levels/:subjectId/:subjectName" element={<Levels />} />
