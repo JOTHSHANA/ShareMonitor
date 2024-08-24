@@ -10,6 +10,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddIcon from '@mui/icons-material/Add';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import CreateSharpIcon from '@mui/icons-material/CreateSharp';
@@ -27,8 +28,15 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import { ToastContainer, toast } from 'react-toastify';
+import { Edit, Assignment, MoreHoriz } from '@mui/icons-material';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
+import MenuIcon from '@mui/icons-material/Menu';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import 'react-toastify/dist/ReactToastify.css';
 import './styles.css';
 
@@ -45,7 +53,7 @@ function Body() {
     const [newFolder, NewFolder] = useState("");
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [selectedFolder, setSelectedFolder] = useState(null);
-    const [activeTab, setActiveTab] = useState("Class Works");
+    const [activeTab, setActiveTab] = useState("ClassWorks");
     const [showDocumentPopup, setShowDocumentPopup] = useState(false);
     const [documentType, setDocumentType] = useState("");
     const [showEditDelete, setShowEditDelete] = useState(false);
@@ -83,6 +91,16 @@ function Body() {
     const [endMergeFolderId, setEndMergeFolderId] = useState(null);
     const [isUnmerging, setIsUnmerging] = useState(false);
     const [unmergeFolderId, setUnmergeFolderId] = useState(null);
+    const [missingDays, setMissingDays] = useState([]);
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCloseMui = () => {
+        setAnchorEl(null);
+    };
 
     const toggleSelectMode = () => {
         setIsSelecting(!isSelecting);
@@ -189,8 +207,8 @@ function Body() {
     };
 
     const documentCategoryMapping = {
-        "Class Works": 1,
-        "Home Works": 2,
+        "ClassWorks": 1,
+        "HomeWorks": 2,
         "Others": 3,
         "Assessment": 4,
     };
@@ -284,6 +302,22 @@ function Body() {
 
         } catch (error) {
             console.error('Error fetching documents:', error);
+        }
+    };
+
+    const findMissing = async () => {
+        try {
+            const response = await axios.get(`${apiHost}/api/findMissing`, {
+                params: {
+                    work_type: documentCategoryMapping[activeTab],
+                    level: selectedLevel.id
+                }
+            });
+            setMissingDays(response.data.missingDays);
+
+            console.log(missingDays);
+        } catch (error) {
+            console.error('Cannot find missing days:', error);
         }
     };
 
@@ -463,18 +497,30 @@ function Body() {
             console.log(`${key}:`, value);
         }
 
-
         try {
             const response = await axios.post(`${apiHost}/api/uploadDocument`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response)
-            fetchDocuments(activeFolderId);
+            console.log(response);
+            fetchDocuments(activeFolderId); 
         } catch (error) {
             console.error('Error uploading document:', error);
+        
+            if (error.response) {
+                if (error.response.status === 401) {
+                    toast.error("Fields are required");
+                } else {
+                    toast.error("An error occurred: " + error.response.data.message || "Unknown error");
+                }
+            } else if (error.request) {
+                toast.error("No response from server");
+            } else {
+                toast.error("Error: " + error.message);
+            }
         }
+        
 
         handleDocumentPopupClose();
     };
@@ -631,6 +677,7 @@ function Body() {
     };
 
     const handleNewFolderPopupOpen = () => {
+        findMissing();
         setStart_day();
         setEnd_day();
         setShowNewFolderPopup(true);
@@ -701,7 +748,11 @@ function Body() {
     };
 
 
-
+    const handleDayChange = (event) => {
+        const selectedDay = event.target.value;
+        setStart_day(selectedDay);
+        setEnd_day(selectedDay);
+    };
 
     return (
         <div className='levels-page'>
@@ -768,7 +819,7 @@ function Body() {
                                 </div>
                                 <div style={{ display: "flex", alignItems: "center" }}>
                                     <button className="add-button-level" onClick={handleAddClick}>
-                                        <AddIcon style={{ color: "var(--text)" }} />
+                                        <PlaylistAddIcon style={{ color: "var(--text)" }} />
                                     </button>
                                     {/* {showCheckboxes && (
                                    <input
@@ -816,17 +867,39 @@ function Body() {
                     <hr />
                     <div className='tabs'>
                         <ul className='tabs-list'>
-                            {["Class Works", "Home Works", "Assessment", "Others"].map((tab) => (
+                            {["ClassWorks", "HomeWorks", "Assessment", "Others"].map((tab) => (
                                 <li
                                     key={tab}
                                     className={`each-tab ${activeTab === tab ? "active" : ""}`}
                                     onClick={() => handleTabClick(tab)}
                                 >
-                                    {tab}
+                                    <span className="tab-icon">
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            {tab === "ClassWorks" && <LibraryBooksIcon sx={{ fontSize: "20px", color: "#0079c5", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            {tab === "HomeWorks" && <HomeWorkIcon sx={{ fontSize: "20px", color: "#1b6b5f", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            {tab === "Assessment" && <Assignment sx={{ fontSize: "20px", color: "#c7566b", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            {tab === "Others" && <MenuOpenIcon sx={{ fontSize: "20px", color: "#b04dc2", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                        </div>
+                                    </span>
+                                    <span className="full-tab-name">{tab}</span>
+                                    <span className="short-tab-name">
+                                        {tab === "ClassWorks" ? "CW" :
+                                            tab === "HomeWorks" ? "HW" :
+                                                tab === "Assessment" ? "TEST" :
+                                                    "OTHERS"}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
+
                     </div>
+
                     <div className='all-documents'>
                         <div className='sticky-add-button'>
                             <div style={{ display: "flex" }}>
@@ -839,20 +912,63 @@ function Body() {
                             </div>
                             <div className='documents-container'>
                                 <div className='folders-div'>
-                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        {/* <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
+
+                                    <div style={{display:"flex", alignItems:"center", justifyContent:"flex-end"}}>
+                                        <Button
+                                            id="basic-button"
+                                            aria-controls={open ? 'basic-menu' : undefined}
+                                            aria-haspopup="true"
+                                            aria-expanded={open ? 'true' : undefined}
+                                            onClick={handleClick}
+                                        >
+                                            <MenuIcon sx={{color:"var(--text)"}}/>
+                                        </Button>
+                                        <Menu
+                                            id="basic-menu"
+                                            anchorEl={anchorEl}
+                                            open={open}
+                                            onClose={handleCloseMui}
+                                            MenuListProps={{
+                                                'aria-labelledby': 'basic-button',
+                                            }}
+                                        >
+                                            <MenuItem onClick={handleCloseMui}>
+                                                <div className='menu-icons-align' onClick={handleShowFolderEditDelete}>
+                                                    <DeleteForeverSharpIcon /><span>Delete</span>
+                                                </div>
+                                            </MenuItem>
+                                            
+                                            <MenuItem onClick={handleCloseMui}>
+                                                <div className='menu-icons-align' onClick={handleNewFolderPopupOpen}>
+                                                    <AddIcon /><span>AddFolders</span>
+                                                </div>
+                                            </MenuItem>
+                                            <MenuItem onClick={handleCloseMui}>
+                                                <div className='menu-icons-align' onClick={toggleSelectMode}>
+                                                    <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
+                                                </div>
+                                            </MenuItem>
+                                            <MenuItem onClick={handleCloseMui}>
+                                                <div className='menu-icons-align' onClick={toggleUnmergeMode}>
+                                                    <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
+                                                </div>
+                                            </MenuItem>
+                                        </Menu>
+                                    </div>
+                                    {/* <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
                                             <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                                         </button>
                                         <button className='add-button-folders' onClick={handleNewFolderPopupOpen}>
-                                            <AddIcon /><span>Add Folders</span>
-                                        </button> */}
+                                            <AddIcon /><span>AddFolders</span>
+                                        </button>
                                         <button className='add-button' onClick={toggleSelectMode}>
                                             <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
                                         </button>
                                         <button className='add-button' onClick={toggleUnmergeMode}>
                                             <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
                                         </button>
-                                    </div>
+                                    </div> */}
                                     <hr />
 
                                     {folders.length > 0 ? (
@@ -863,7 +979,7 @@ function Body() {
                                                 onClick={() => fetchDocuments(folder.id)}
                                             >
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
-                                                    <div style={{display:"flex", }}>
+                                                    <div style={{ display: "flex", }}>
                                                         {(isSelecting || isUnmerging) && (
                                                             <input
                                                                 type="checkbox"
@@ -895,7 +1011,7 @@ function Body() {
                                                         className="hover-edit-delete-folders"
                                                         style={{ display: showFolderEditDelete ? 'flex' : 'none' }}
                                                     >
-                                                        <div
+                                                        {/* <div
                                                             className="edit-icon"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -903,7 +1019,7 @@ function Body() {
                                                             }}
                                                         >
                                                             <CreateSharpIcon sx={{ color: "#588dc0" }} />
-                                                        </div>
+                                                        </div> */}
                                                         <div
                                                             className="delete-icon"
                                                             onClick={(e) => {
@@ -936,10 +1052,10 @@ function Body() {
                                         <p>No folders added.</p>
                                     )}
                                     {isSelecting && (
-                                        <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon/>Merge</button>
+                                        <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon />Merge</button>
                                     )}
                                     {isUnmerging && (
-                                        <button className='add-button' onClick={handleUnmergeClick}><CallSplitIcon/>Unmerge</button>
+                                        <button className='add-button' onClick={handleUnmergeClick}><CallSplitIcon />Unmerge</button>
                                     )}
                                     {showFolderUndoAlert && (
                                         <div className="undo-alert">
@@ -1147,7 +1263,17 @@ function Body() {
             <Dialog open={showNewFolderPopup} onClose={handleNewFolderPopupClose}>
                 <DialogTitle>Add Folder</DialogTitle>
                 <DialogContent>
-                    <TextField
+
+                    <select className="missing-day-select" value={start_day || ""} onChange={handleDayChange}>
+                        <option value="">Select a missing day</option>
+                        {missingDays.map(day => (
+                            <option key={day} value={day}>
+                                Day {day}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* <TextField
                         autoFocus
                         margin="dense"
                         id="editLevel"
@@ -1168,7 +1294,7 @@ function Body() {
                         variant="standard"
                         value={end_day}
                         onChange={(e) => setEnd_day(e.target.value)}
-                    />
+                    /> */}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleNewFolderPopupClose}>Cancel</Button>

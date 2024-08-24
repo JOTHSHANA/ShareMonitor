@@ -80,7 +80,7 @@ exports.createLevels = (req, res) => {
 
                     // Automatically create 10 folders for each work_type
                     workTypes.forEach((workType) => {
-                        for (let i = 1; i <= 10; i++) {
+                        for (let i = 1; i <= 5; i++) {
                             const s_day = i;
                             const e_day = i; // You can modify this if you want multi-day folders
                             folders.push([s_day, e_day, levelId, workType]);

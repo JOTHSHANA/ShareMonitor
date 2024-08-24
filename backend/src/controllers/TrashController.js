@@ -72,14 +72,76 @@ exports.getSubjects = async (req, res) => {
 
 
 
+// exports.getLevels = async (req, res) => {
+//     const getLevelsQuery = 'SELECT * FROM levels WHERE status = "0"';
+//     const getFolderCountQuery = `
+//         SELECT COUNT(*) as folderCount 
+//         FROM folders 
+//         WHERE level = ? 
+//         AND status = "1"
+//     `;
+//     const getDocumentCountQuery = `
+//         SELECT COUNT(*) as documentCount 
+//         FROM documents 
+//         WHERE folder IN (
+//             SELECT id FROM folders 
+//             WHERE level = ?
+//         ) 
+//         AND status = "1"
+//     `;
+
+//     db.query(getLevelsQuery, (err, levels) => {
+//         if (err) {
+//             console.error('Error fetching levels:', err);
+//             return res.status(500).json({ error: 'Internal server error' });
+//         }
+
+//         const levelsWithCounts = levels.map(level => {
+//             return new Promise((resolve, reject) => {
+//                 // Get the folder count for the level
+//                 db.query(getFolderCountQuery, [level.id], (err, folderResult) => {
+//                     if (err) {
+//                         console.error('Error counting folders:', err);
+//                         reject(err);
+//                     } else {
+//                         level.folderCount = folderResult[0].folderCount;
+
+//                         // Get the document count for the level
+//                         db.query(getDocumentCountQuery, [level.id], (err, documentResult) => {
+//                             if (err) {
+//                                 console.error('Error counting documents:', err);
+//                                 reject(err);
+//                             } else {
+//                                 level.documentCount = documentResult[0].documentCount;
+//                                 resolve(level);
+//                             }
+//                         });
+//                     }
+//                 });
+//             });
+//         });
+
+//         Promise.all(levelsWithCounts)
+//             .then(results => res.json(results))
+//             .catch(err => res.status(500).json({ error: 'Internal server error' }));
+//     });
+// };
+
 exports.getLevels = async (req, res) => {
-    const getLevelsQuery = 'SELECT * FROM levels WHERE status = "0"';
+    const getLevelsQuery = `
+        SELECT levels.*, subjects.name as subjectName 
+        FROM levels 
+        JOIN subjects ON levels.subject = subjects.id 
+        WHERE levels.status = "0"
+    `;
+
     const getFolderCountQuery = `
         SELECT COUNT(*) as folderCount 
         FROM folders 
         WHERE level = ? 
         AND status = "1"
     `;
+
     const getDocumentCountQuery = `
         SELECT COUNT(*) as documentCount 
         FROM documents 
@@ -129,8 +191,52 @@ exports.getLevels = async (req, res) => {
 
 
 
+
+// exports.getFolders = async (req, res) => {
+//     const getFoldersQuery = 'SELECT * FROM folders WHERE status = "0"';
+//     const getDocumentCountQuery = `
+//         SELECT COUNT(*) as documentCount 
+//         FROM documents 
+//         WHERE folder = ? 
+//         AND status = "1"
+//     `;
+
+//     db.query(getFoldersQuery, (err, folders) => {
+//         if (err) {
+//             console.error('Error fetching deleted folders:', err);
+//             return res.status(500).json({ error: 'Internal server error' });
+//         }
+
+//         const foldersWithDocumentCounts = folders.map(folder => {
+//             return new Promise((resolve, reject) => {
+//                 db.query(getDocumentCountQuery, [folder.id], (err, documentResult) => {
+//                     if (err) {
+//                         console.error('Error counting documents:', err);
+//                         reject(err);
+//                     } else {
+//                         folder.documentCount = documentResult[0].documentCount;
+//                         resolve(folder);
+//                     }
+//                 });
+//             });
+//         });
+
+//         Promise.all(foldersWithDocumentCounts)
+//             .then(results => res.json(results))
+//             .catch(err => res.status(500).json({ error: 'Internal server error' }));
+//     });
+// };
+
 exports.getFolders = async (req, res) => {
-    const getFoldersQuery = 'SELECT * FROM folders WHERE status = "0"';
+    const getFoldersQuery = `
+        SELECT folders.*, levels.level AS level, work_type.type AS workTypeName, subjects.name AS subjectName
+        FROM folders
+        JOIN levels ON folders.level = levels.id
+        JOIN work_type ON folders.work_type = work_type.id
+        JOIN subjects ON levels.subject = subjects.id
+        WHERE folders.status = "0"
+    `;
+
     const getDocumentCountQuery = `
         SELECT COUNT(*) as documentCount 
         FROM documents 
@@ -165,9 +271,38 @@ exports.getFolders = async (req, res) => {
 };
 
 
-exports.getDocuments = async (req, res) => {
 
-    const query = 'SELECT * FROM documents WHERE status = "0"';
+// exports.getDocuments = async (req, res) => {
+
+//     const query = 'SELECT * FROM documents WHERE status = "0"';
+
+//     db.query(query, (err, results) => {
+//         if (err) {
+//             console.error('Error fetching deleted documents:', err);
+//             return res.status(500).json({ error: 'Internal server error' });
+//         }
+//         res.json(results);
+//     });
+// };
+
+
+
+exports.getDocuments = async (req, res) => {
+    const query = `
+        SELECT 
+            documents.*, 
+            folders.s_day, 
+            folders.e_day, 
+            levels.level AS level, 
+            work_type.type AS workTypeName, 
+            subjects.name AS subjectName
+        FROM documents
+        JOIN folders ON documents.folder = folders.id
+        JOIN levels ON folders.level = levels.id
+        JOIN work_type ON folders.work_type = work_type.id
+        JOIN subjects ON levels.subject = subjects.id
+        WHERE documents.status = "0"
+    `;
 
     db.query(query, (err, results) => {
         if (err) {
@@ -177,7 +312,6 @@ exports.getDocuments = async (req, res) => {
         res.json(results);
     });
 };
-
 
 
 exports.restoreSubject = (req, res) => {

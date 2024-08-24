@@ -1,4 +1,5 @@
 
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -26,7 +27,7 @@ body {
 
 /* Style the draggable part of the scrollbar */
 ::-webkit-scrollbar-thumb {
-    background: var(--background-1); /* Color of the thumb */
+    background: #179be7; /* Color of the thumb */
     border-radius: 10px; /* Optional: Adds rounded corners to the thumb */
 }
 
@@ -35,4 +36,6 @@ body {
     background: var(--background); /* Change color when hovered */
 }
 
- 
+::-webkit-scrollbar {
+  height: 4px; /* Width of the horizontal scrollbar */
+}

@@ -201,3 +201,52 @@ exports.unmergeFolder = (req, res) => {
         }
     });
 };
+
+
+exports.findMissingFolders = async (req, res) => {
+    const { level, work_type } = req.query;
+    console.log(level, work_type);
+
+    const query = `
+        SELECT s_day, e_day 
+        FROM folders 
+        WHERE level = ? 
+        AND work_type = ? 
+        AND status = "1"
+    `;
+
+    db.query(query, [level, work_type], (err, results) => {
+        if (err) {
+            console.error('Error fetching folders:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+            return res.json({ missingDays: [] });
+        }
+
+        const daysSet = new Set();
+        let minDay = Number.MAX_VALUE;
+        let maxDay = Number.MIN_VALUE;
+        results.forEach(row => {
+            const { s_day, e_day } = row;
+            minDay = Math.min(minDay, s_day);
+            maxDay = Math.max(maxDay, e_day);
+            console.log(s_day, e_day)
+            for (let day = s_day; day <= e_day; day++) {
+                daysSet.add(day);
+            }
+        });
+
+        const missingDays = [];
+        for (let day = minDay; day <= maxDay; day++) {
+            if (!daysSet.has(day)) {
+                missingDays.push(day);
+            }
+        }
+
+        missingDays.push(maxDay + 1);
+
+        return res.json({ missingDays });
+    });
+};

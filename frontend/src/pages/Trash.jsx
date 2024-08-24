@@ -154,8 +154,8 @@ function Subjects() {
                 <div className="flex">
                     {subjects.map(subject => (
                         <div className="trash-box" key={subject.id}>
-                            <b>
-                                <p>{subject.name}</p>
+                            <b >
+                                <p> {subject.name}</p>
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
@@ -171,6 +171,7 @@ function Subjects() {
                                     <p>Documents :</p>
                                     <p>{subject.documentCount}</p>
                                 </div>
+
                                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
                                     <button className="button" onClick={() => handleRestoreClick(subject)}>
                                         <RestoreIcon sx={{
@@ -320,6 +321,7 @@ function Levels() {
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
+
                                 <div className="counts clr1">
                                     <p>Folders : </p>
                                     <p>{level.folderCount}</p>
@@ -327,6 +329,9 @@ function Levels() {
                                 <div className="counts clr2">
                                     <p>documents :</p>
                                     <p>{level.documentCount}</p>
+                                </div>
+                                <div style={{ padding: "7px", backgroundColor: "var(--document)", borderRadius: "5px" }}>
+                                    <p>{level.subjectName} /</p>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
                                     <button className="button" onClick={() => handleRestoreClick(level)}>
@@ -468,6 +473,25 @@ function Folders() {
     };
 
 
+    const handleCopyText = (event) => {
+        // Get the text content of the div
+        const textToCopy = event.currentTarget.innerText;
+
+        // Create a temporary textarea element to hold the text
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+
+        // Select the text and copy it to the clipboard
+        textarea.select();
+        document.execCommand('copy');
+
+        // Remove the temporary textarea element
+        document.body.removeChild(textarea);
+
+        // Optionally provide feedback to the user
+        alert('Text copied to clipboard!');
+    };
 
     return (
         <div>
@@ -479,14 +503,38 @@ function Folders() {
                     {folders.map(folder => (
                         <div className="trash-box">
                             <b>
-                                <p key={folder.id}>Day{folder.s_day} - Day{folder.e_day}</p>
+                                <p key={folder.id} style={{ margin: 0 }}>
+                                    {folder.s_day === folder.e_day
+                                        ? `Day ${folder.s_day}`
+                                        : `Day ${folder.s_day} - Day ${folder.e_day}`}
+                                </p>
                             </b>
+
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
                                 <div className="counts clr1">
                                     <p>Folders : </p>
                                     <p>{folder.documentCount}</p>
                                 </div>
+
+                                <div
+                                    style={{
+                                        padding: "7px",
+                                        backgroundColor: "var(--document)",
+                                        borderRadius: "5px",
+                                        maxWidth: "100%",
+                                        overflowX: "auto",
+                                        whiteSpace: "nowrap",
+                                        cursor: "pointer" // Optional: Change the cursor to indicate clickable content
+                                    }}
+                                    onClick={handleCopyText}
+                                >
+                                    <p style={{ margin: 0 }}>
+                                        {folder.subjectName} / Level {folder.level} / {folder.workTypeName} /
+                                    </p>
+                                </div>
+
+
                                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
                                     <button className="button" onClick={() => handleRestoreClick(folder)}>
                                         <RestoreIcon sx={{
@@ -621,6 +669,26 @@ function Documents() {
         }
     };
 
+    const handleCopyText = (event) => {
+        // Get the text content of the div
+        const textToCopy = event.currentTarget.innerText;
+
+        // Create a temporary textarea element to hold the text
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+
+        // Select the text and copy it to the clipboard
+        textarea.select();
+        document.execCommand('copy');
+
+        // Remove the temporary textarea element
+        document.body.removeChild(textarea);
+
+        // Optionally provide feedback to the user
+        alert('Text copied to clipboard!');
+    };
+
 
     return (
         <div>
@@ -652,10 +720,30 @@ function Documents() {
                                         </a>
                                     </div>
                                 )}
-
                             </div>
                             <hr style={{ width: "100%" }} />
-                            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                            <div
+                                style={{
+                                    padding: "7px",
+                                    backgroundColor: "var(--document)",
+                                    borderRadius: "5px",
+                                    maxWidth: "100%",
+                                    overflowX: "auto",
+                                    whiteSpace: "nowrap",
+                                    cursor: "pointer" // Optional: Change the cursor to indicate clickable content
+                                }}
+                                onClick={handleCopyText}
+                            >
+                                <p style={{ margin: 0 }}>
+                                    {document.subjectName}/Level {document.level}/{document.workTypeName}/
+                                    {document.s_day === document.e_day
+                                        ? `Day ${document.s_day}`
+                                        : `Day ${document.s_day} - Day ${document.e_day}`}
+                                </p>
+                            </div>
+
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop:"5px" }}>
                                 <button className="button" onClick={() => handleRestoreClick(document)}>
                                     <RestoreIcon sx={{
                                         padding: "2px",

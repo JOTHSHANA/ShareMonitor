@@ -38,7 +38,9 @@ exports.createDocument = (req, res) => {
             generalDocPath = path.join('/uploads', req.file.filename);
         }
     }
-
+    if(!pdfPath && !videoPath && !generalDocPath && !link){
+        return res.status(401).json({error:"Fields are required.."})
+    }
     if (!folder) {
         return res.status(400).json({ error: 'Required fields are missing' });
     }
