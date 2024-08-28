@@ -14,8 +14,9 @@ import CreateSharpIcon from '@mui/icons-material/CreateSharp';
 import DeleteForeverSharpIcon from '@mui/icons-material/DeleteForeverSharp';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Skeleton from '@mui/material/Skeleton';
+import subjects_image from '../assets/subjects.png'
 import Stack from '@mui/material/Stack';
-import './styles.css'; // Import the CSS file
+import './styles.css'; 
 
 function Subjects() {
     return <Layout rId={2} body={<Body />} />;
@@ -133,6 +134,14 @@ function Body() {
             <div className="container">
                 {loading ? (
                     <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+                ) : subjects.length === 0 ? (
+                    <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                        <img style={{height:"160px"}} src={subjects_image} alt="" />
+                        No Subjects Added
+                        <button className="add-button" onClick={handleAddClick}>
+                            <AddIcon />Add Subject
+                        </button>
+                    </div>
 
                 ) : (
                     subjects.map((subject, index) => {

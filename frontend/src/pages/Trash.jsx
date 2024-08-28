@@ -18,6 +18,9 @@ import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
+import empty_folder from '../assets/empty_folder.png'
+import empty_subjects from '../assets/empty_subjects.png'
+
 import general_doc_img from '../assets/general_doc_img.png';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -149,7 +152,13 @@ function Subjects() {
         <div>
             <ToastContainer />
             {loading ? (
-                <p>Loading...</p>
+                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+
+            ) : subjects.length === 0 ? (
+                <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <img style={{height:"160px"}} src={empty_subjects} alt="no subjects" />
+                    <p>No folders found</p>
+                </div>
             ) : (
                 <div className="flex">
                     {subjects.map(subject => (
@@ -311,7 +320,12 @@ function Levels() {
         <div>
             <ToastContainer />
             {loading ? (
-                <p>Loading...</p>
+                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+
+            ) : levels.length === 0 ? (
+                <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    No Levels in Trash
+                </div>
             ) : (
                 <div className="flex">
                     {levels.map(level => (
@@ -497,7 +511,13 @@ function Folders() {
         <div>
             <ToastContainer />
             {loading ? (
-                <p>Loading...</p>
+                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+
+            ) : folders.length === 0 ? (
+                <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <img style={{height:"160px"}} src={empty_folder} alt="No Folders" />
+                    <p>No folders found</p>
+                </div>
             ) : (
                 <div className="flex">
                     {folders.map(folder => (
@@ -694,7 +714,12 @@ function Documents() {
         <div>
             <ToastContainer />
             {loading ? (
-                <p>Loading...</p>
+                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+
+            ) : documents.length === 0 ? (
+                <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    No Documents in trash
+                </div>
             ) : (
                 <div className="flex">
                     {/* {documents.map(document => (
@@ -743,7 +768,7 @@ function Documents() {
                             </div>
 
 
-                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop:"5px" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "5px" }}>
                                 <button className="button" onClick={() => handleRestoreClick(document)}>
                                     <RestoreIcon sx={{
                                         padding: "2px",

@@ -4,10 +4,16 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CustomizedSwitches from "./toggleTheme";
+import Cookies from "js-cookie";
+
+
 
 
 function TopBar(props) {
 
+    const name = Cookies.get("name");
+    const capitalizedName = name ? name.toUpperCase() : "";
+    
     return (
         <div
             className="app-topbar"
@@ -37,7 +43,9 @@ function TopBar(props) {
                 <div className="app-name gradient-text" ><b>ShareManager</b></div>
                 <div className="top-bar-menus">
                     <CustomizedSwitches />
+                    {capitalizedName}
                     <AccountCircleIcon sx={{ marginRight: "10px", color: "#6c7293", fontSize: "35px" }} />
+                    
 
                 </div>
             </div>

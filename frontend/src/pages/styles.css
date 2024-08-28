@@ -1014,3 +1014,13 @@ label {
     background-color: #007BFF;
     color: #fff;
 }
+
+.no-subjects-text{
+    font-size: 18px;
+    color: var(--text);
+}
+
+.no-levels-text{
+    font-size: 18px;
+    color: var(--text);
+}

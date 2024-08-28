@@ -241,7 +241,7 @@ exports.getFolders = async (req, res) => {
         SELECT COUNT(*) as documentCount 
         FROM documents 
         WHERE folder = ? 
-        AND status = "1"
+        AND status = "3"
     `;
 
     db.query(getFoldersQuery, (err, folders) => {
@@ -436,28 +436,37 @@ exports.levelDelete = (req, res) => {
 }
 
 
-
-
 exports.restoreFolder = (req, res) => {
     const folderId = req.body.id;
 
     if (!folderId) {
-        return res.status(400).json({ error: 'Subject ID is required' });
+        return res.status(400).json({ error: 'Folder ID is required' });
     }
 
+    // Start with restoring the folder
     db.query('UPDATE folders SET status = "1" WHERE id = ?', [folderId], (err, result) => {
         if (err) {
             console.error('Error restoring folder:', err);
-            return res.status(500).json({ error: 'An error occurred while restoring the subject' });
+            return res.status(500).json({ error: 'An error occurred while restoring the folder' });
         }
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'folder not found' });
+            return res.status(404).json({ error: 'Folder not found' });
         }
 
-        res.json({ message: 'Folder restored successfully' });
+        // Now restore the documents within the folder
+        db.query('UPDATE documents SET status = "1" WHERE folder = ?', [folderId], (err, result) => {
+            if (err) {
+                console.error('Error restoring documents:', err);
+                return res.status(500).json({ error: 'An error occurred while restoring the documents' });
+            }
+
+            // It's possible that no documents are associated with the folder, so no need for a 404 check here
+            res.json({ message: 'Folder and associated documents restored successfully' });
+        });
     });
 };
+
 
 exports.folderDelete = (req, res) => {
     const folderId = req.body.id;

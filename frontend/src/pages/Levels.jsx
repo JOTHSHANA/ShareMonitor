@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Layout from "../components/appLayout/Layout";
@@ -22,6 +22,7 @@ import pdf_img from '../assets/pdf_img.png';
 import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
+import levels_img from '../assets/levels.png';
 import general_doc_img from '../assets/general_doc_img.png';
 import NavigateNextSharpIcon from '@mui/icons-material/NavigateNextSharp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
@@ -92,8 +93,30 @@ function Body() {
     const [isUnmerging, setIsUnmerging] = useState(false);
     const [unmergeFolderId, setUnmergeFolderId] = useState(null);
     const [missingDays, setMissingDays] = useState([]);
-
+    const actionsRef = useRef(null);
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [loading, setLoading] = useState(true); // New loading state
+    const [isLoading, setIsLoading] = useState(true);
+
+
+    const handleShowEditDelete = (e) => {
+        e.stopPropagation();
+        setShowEditDelete(prevState => !prevState);
+    };
+
+    const handleClickOutside = (e) => {
+        if (actionsRef.current && !actionsRef.current.contains(e.target)) {
+            setShowEditDelete(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
+
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -177,7 +200,6 @@ function Body() {
             console.warn("No levels selected for sharing.");
             return;
         }
-        console.log('Data sent to backend:', { levels: selectedLevels });
         axios.post(`${apiHost}/api/shareLevels`, { levels: selectedLevels })
             .then(response => console.log('Levels shared:', response.data))
             .catch(error => console.error('Error sharing levels:', error));
@@ -242,6 +264,7 @@ function Body() {
     }, [selectedFolder]);
 
     const fetchLevels = async () => {
+        setLoading(true)
         try {
             const response = await axios.get(`${apiHost}/api/levels`, {
                 params: {
@@ -256,6 +279,9 @@ function Body() {
         } catch (error) {
             console.error('Error fetching levels:', error);
         }
+        finally {
+            setLoading(false); // Set loading to false after fetching
+        }
     };
 
     useEffect(() => {
@@ -268,20 +294,20 @@ function Body() {
 
     const fetchDocuments = async (folderId) => {
         // setSelectedFolder(folderId)
-        console.log("Fetching documents for folder ID:", folderId);
+        // console.log("Fetching documents for folder ID:", folderId);
         try {
             const response = await axios.get(`${apiHost}/api/getDocument/${folderId}`, {});
             setDocuments(response.data);
             setActiveFolderId(folderId);
-            console.log(response.data)
+            // console.log(response.data)
         } catch (error) {
             console.error('Error fetching documents:', error);
         }
     };
 
     const fetchFolders = async () => {
-
         try {
+            setIsLoading(true); // Start loading
             const response = await axios.get(`${apiHost}/api/getfolders`, {
                 params: {
                     work_type: documentCategoryMapping[activeTab],
@@ -290,8 +316,7 @@ function Body() {
             });
             const folders = response.data;
             setFolders(folders);
-            console.log(folders);
-
+            console.log(folders)
             if (folders.length > 0) {
                 setActiveFolderId(folders[0].id);
                 fetchDocuments(folders[0].id);
@@ -299,9 +324,10 @@ function Body() {
                 setDocuments([]);
                 setActiveFolderId(null);
             }
-
         } catch (error) {
             console.error('Error fetching documents:', error);
+        } finally {
+            setIsLoading(false); // End loading
         }
     };
 
@@ -315,7 +341,7 @@ function Body() {
             });
             setMissingDays(response.data.missingDays);
 
-            console.log(missingDays);
+            // console.log(missingDays);
         } catch (error) {
             console.error('Cannot find missing days:', error);
         }
@@ -394,7 +420,7 @@ function Body() {
                 s_day: start_day,
                 e_day: end_day
             });
-            console.log(selectedFolder.id, start_day, end_day);
+            // console.log(selectedFolder.id, start_day, end_day);
             fetchFolders();
 
         } catch (error) {
@@ -414,7 +440,7 @@ function Body() {
 
 
     const handleFolderClick = (id) => {
-        console.log(id);
+        // console.log(id);
         const folder = folders.find((fldr) => fldr.id === id);
         setSelectedFolder(folder);
 
@@ -458,7 +484,7 @@ function Body() {
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
-        console.log(file)
+        // console.log(file)
         if (documentType === "pdf") {
             setPdf(file);
         } else if (documentType === "video") {
@@ -483,7 +509,7 @@ function Body() {
         formData.append('subjectId', subjectId);
         formData.append('folder', activeFolderId);
         formData.append('documentType', documentType);
-        console.log(documentType)
+        // console.log(documentType)
         if (documentType === 'pdf' && pdf) {
             formData.append('file', pdf);
         } else if (documentType === 'video' && video) {
@@ -494,7 +520,7 @@ function Body() {
             formData.append('file', generalDoc);
         }
         for (const [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
+            // console.log(`${key}:`, value);
         }
 
         try {
@@ -503,11 +529,11 @@ function Body() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response);
-            fetchDocuments(activeFolderId); 
+            // console.log(response);
+            fetchDocuments(activeFolderId);
         } catch (error) {
             console.error('Error uploading document:', error);
-        
+
             if (error.response) {
                 if (error.response.status === 401) {
                     toast.error("Fields are required");
@@ -520,7 +546,7 @@ function Body() {
                 toast.error("Error: " + error.message);
             }
         }
-        
+
 
         handleDocumentPopupClose();
     };
@@ -551,7 +577,7 @@ function Body() {
                 fetchFolders(activeFolderId);
                 await axios.delete(`${apiHost}/api/deletedocument/${id}`, {
                 });
-                console.log(id);
+                // console.log(id);
                 setShowDocUndoAlert(true);
                 setTimeout(() => {
                     setShowDocUndoAlert(false);
@@ -634,14 +660,14 @@ function Body() {
         }
     };
     const handleFolderDelete = async (id) => {
-        console.log(id);
+        // console.log(id);
         const confirmDelete = window.confirm("Are you sure, you want to delete this document?");
         if (confirmDelete) {
             setFolderUndo(id);
             try {
                 await axios.put(`${apiHost}/api/folder/${id}`, {
                 });
-                console.log(id);
+                // console.log(id);
                 setShowFolderUndoAlert(true);
                 setTimeout(() => {
                     setShowFolderUndoAlert(false);
@@ -672,9 +698,9 @@ function Body() {
         setShowFolderEditDelete(prevState => !prevState);
     }
 
-    const handleShowEditDelete = () => {
-        setShowEditDelete(prevState => !prevState);
-    };
+    // const handleShowEditDelete = () => {
+    //     setShowEditDelete(prevState => !prevState);
+    // };
 
     const handleNewFolderPopupOpen = () => {
         findMissing();
@@ -696,7 +722,7 @@ function Body() {
     }
 
     const changeOrder = async (in1, in2, currI, adjI) => {
-        console.log(in1, in2);
+        // console.log(in1, in2);
         try {
             await axios.put(`${apiHost}/api/documentOrder/`, {
                 in1,
@@ -714,10 +740,15 @@ function Body() {
 
 
     const handleMergeFolders = async () => {
+
+        console.log(`Hello ${startMergeFolderId}`);
+        console.log(`Hello ${endMergeFolderId}`);
         try {
             const response = await axios.post(`${apiHost}/api/mergeFolders`, {
                 startFolderId: startMergeFolderId,
                 endFolderId: endMergeFolderId,
+                level: selectedLevel.id,
+                work_type: documentCategoryMapping[activeTab]
             });
             fetchFolders()
             console.log('Folders merged successfully:', response.data);
@@ -785,53 +816,67 @@ function Body() {
                             <AddIcon /><span>Add Level</span>
                         </button>
                     </div>
-                    {levels.map((level, index) => (
-                        <div key={index} className={`card1 ${levelNum === level.level ? 'active' : ''}`} onClick={() => handleLevelClick(level.id)}>
-                            <div
-                                className="hover-edit-delete-levels"
-                                style={{ display: showEditDelete ? 'flex' : 'none' }}
-                            >
-                                <div
-                                    className="edit-icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEditClick(level);
-                                    }}
-                                >
-                                    <CreateSharpIcon sx={{ color: "#588dc0" }} />
-                                </div>
-                                <div
-                                    className="delete-icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDelete(level.id, subjectId, index);
-                                    }}
-                                >
-                                    <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
-                                </div>
-                            </div>
-
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-
-                                <div>
-                                    <div className='level-num'>Level {level.level}</div>
-                                    <div className='level-name'>{level.lvl_name}</div>
-                                </div>
-                                <div style={{ display: "flex", alignItems: "center" }}>
-                                    <button className="add-button-level" onClick={handleAddClick}>
-                                        <PlaylistAddIcon style={{ color: "var(--text)" }} />
-                                    </button>
-                                    {/* {showCheckboxes && (
-                                   <input
-                                            type="checkbox"
-                                            onChange={() => handleCheckboxChange(level.id)}
-                                            checked={selectedLevels.includes(level.id)}
-                                        />
-                                    )} */}
-                                </div>
-                            </div>
+                    {loading ? (
+                        <div style={{ height: "73vh", width: "100%", backgroundColor: "var(--background-1)", borderRadius: "5px", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
+                    ) : levels.length === 0 ? (
+                        <div className="no-levels-text" style={{ height: "73vh", backgroundColor: "var(--background-1)", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                            <img style={{ height: "120px" }} src={levels_img} alt="" />
+                            No levels added
+                            <button className="add-button" onClick={handleAddFirstLevelClick}>
+                                <AddIcon /><span>Add Level</span>
+                            </button>
                         </div>
-                    ))}
+
+                    ) : (
+                        levels.map((level, index) => (
+                            <div key={index} className={`card1 ${levelNum === level.level ? 'active' : ''}`} onClick={() => handleLevelClick(level.id)}>
+                                <div
+                                    className="hover-edit-delete-levels"
+                                    style={{ display: showEditDelete ? 'flex' : 'none' }}
+                                    ref={actionsRef}
+                                >
+                                    <div
+                                        className="edit-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEditClick(level);
+                                        }}
+                                    >
+                                        <CreateSharpIcon sx={{ color: "#588dc0" }} />
+                                    </div>
+                                    <div
+                                        className="delete-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(level.id, subjectId, index);
+                                        }}
+                                    >
+                                        <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                    <div>
+                                        <div className='level-num'>Level {level.level}</div>
+                                        <div className='level-name'>{level.lvl_name}</div>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <button className="add-button-level" onClick={handleAddClick}>
+                                            <PlaylistAddIcon style={{ color: "var(--text)" }} />
+                                        </button>
+                                        {/* {showCheckboxes && (
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => handleCheckboxChange(level.id)}
+                                        checked={selectedLevels.includes(level.id)}
+                                    />
+                                )} */}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+
                     {showCheckboxes && (
                         <div style={{ marginTop: "20px" }}>
                             <button className="add-button" style={{ float: "right" }} onClick={handleCheckedSubmit}>
@@ -839,6 +884,7 @@ function Body() {
                             </button>
                         </div>
                     )}
+
                     {showUndoAlert && (
                         <div className="undo-alert">
                             <span>Level deleted. </span>
@@ -903,17 +949,10 @@ function Body() {
                     <div className='all-documents'>
                         <div className='sticky-add-button'>
                             <div style={{ display: "flex" }}>
-                                {/* <button className='add-button' onClick={handleNewFolderPopupOpen}>
-                                    <AddIcon />Add Folders
-                                </button> */}
-                                {/* <button className="add-button" onClick={handleShowDocumentEditDelete}>
-                                    <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
-                                </button> */}
                             </div>
                             <div className='documents-container'>
                                 <div className='folders-div'>
-
-                                    <div style={{display:"flex", alignItems:"center", justifyContent:"flex-end"}}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                                         <Button
                                             id="basic-button"
                                             aria-controls={open ? 'basic-menu' : undefined}
@@ -921,7 +960,7 @@ function Body() {
                                             aria-expanded={open ? 'true' : undefined}
                                             onClick={handleClick}
                                         >
-                                            <MenuIcon sx={{color:"var(--text)"}}/>
+                                            <MenuIcon sx={{ color: "var(--text)" }} />
                                         </Button>
                                         <Menu
                                             id="basic-menu"
@@ -937,7 +976,7 @@ function Body() {
                                                     <DeleteForeverSharpIcon /><span>Delete</span>
                                                 </div>
                                             </MenuItem>
-                                            
+
                                             <MenuItem onClick={handleCloseMui}>
                                                 <div className='menu-icons-align' onClick={handleNewFolderPopupOpen}>
                                                     <AddIcon /><span>AddFolders</span>
@@ -955,31 +994,38 @@ function Body() {
                                             </MenuItem>
                                         </Menu>
                                     </div>
-                                    {/* <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <button className="add-button-folders" onClick={handleShowFolderEditDelete}>
-                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
-                                        </button>
-                                        <button className='add-button-folders' onClick={handleNewFolderPopupOpen}>
-                                            <AddIcon /><span>AddFolders</span>
-                                        </button>
-                                        <button className='add-button' onClick={toggleSelectMode}>
-                                            <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
-                                        </button>
-                                        <button className='add-button' onClick={toggleUnmergeMode}>
-                                            <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
-                                        </button>
-                                    </div> */}
                                     <hr />
 
-                                    {folders.length > 0 ? (
-                                        folders.map((folder, index) => (
+                                    {isLoading ? (
+                                        <div style={{ width: "100%", backgroundColor: "var(--background-1)", borderRadius: "5px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                            <span className="loader"></span>
+                                        </div>
+                                    ) : folders.length > 0 ? (
+                                        folders.reduce((acc, folder, index) => {
+                                            if (folder.status === "2") {
+                                                const lastGroup = acc[acc.length - 1];
+
+                                                if (lastGroup && lastGroup.status === "2" && lastGroup.merge_random === folder.merge_random) {
+                                                    lastGroup.e_day = folder.s_day;
+                                                } else {
+                                                    acc.push({
+                                                        ...folder,
+                                                        e_day: folder.s_day
+                                                    });
+                                                }
+                                            } else {
+                                                acc.push(folder);
+                                            }
+
+                                            return acc;
+                                        }, []).map((folder, index) => (
                                             <div
                                                 key={index}
                                                 className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`}
                                                 onClick={() => fetchDocuments(folder.id)}
                                             >
                                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
-                                                    <div style={{ display: "flex", }}>
+                                                    <div style={{ display: "flex" }}>
                                                         {(isSelecting || isUnmerging) && (
                                                             <input
                                                                 type="checkbox"
@@ -1004,22 +1050,12 @@ function Body() {
                                                         </div>
                                                     </div>
                                                     <div className='open-icon'>
-
                                                         <ArrowForwardIosRoundedIcon />
                                                     </div>
                                                     <div
                                                         className="hover-edit-delete-folders"
                                                         style={{ display: showFolderEditDelete ? 'flex' : 'none' }}
                                                     >
-                                                        {/* <div
-                                                            className="edit-icon"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleFolderEditClick(folder, folder.s_day, folder.e_day);
-                                                            }}
-                                                        >
-                                                            <CreateSharpIcon sx={{ color: "#588dc0" }} />
-                                                        </div> */}
                                                         <div
                                                             className="delete-icon"
                                                             onClick={(e) => {
@@ -1030,27 +1066,13 @@ function Body() {
                                                             <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
                                                         </div>
                                                     </div>
-                                                    {/* {(isSelecting || isUnmerging) && (
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelecting
-                                                                ? (folder.id === startMergeFolderId || folder.id === endMergeFolderId)
-                                                                : folder.id === unmergeFolderId}
-                                                            onChange={() => {
-                                                                isSelecting
-                                                                    ? handleCheckboxChangeForMerge(folder.id)
-                                                                    : handleCheckboxChangeForUnmerge(folder.id);
-                                                            }}
-                                                            style={{ marginLeft: '10px' }}
-                                                        />
-                                                    )} */}
                                                 </div>
-
                                             </div>
                                         ))
                                     ) : (
                                         <p>No folders added.</p>
                                     )}
+
                                     {isSelecting && (
                                         <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon />Merge</button>
                                     )}
@@ -1064,6 +1086,8 @@ function Body() {
                                         </div>
                                     )}
 
+
+
                                 </div>
                                 <div className='documents-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -1075,18 +1099,38 @@ function Body() {
                                         </button>
                                     </div>
                                     <hr />
-                                    {documents.length > 0 ? (
-                                        documents.map((doc, index) => (
 
-                                            <div style={{ display: "flex", gap: "5px" }}>
+                                    {isLoading ? (
+                                        <p>Loading...</p>
+                                    ) : documents.length > 0 ? (
+                                        documents.map((doc, index) => (
+                                            <div style={{ display: "flex", gap: "5px" }} key={index}>
                                                 <div className='index-box' style={{ padding: "12px" }}>{index + 1}</div>
-                                                <div key={index} className='document-item' style={{ flex: "1" }}>
-                                                    {doc.pdf && <div className='flex-align'>
-                                                        <img src={pdf_img} alt="PDF" className="document-icon" />
-                                                        <a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a>
-                                                    </div>}
-                                                    {doc.video && <div className='flex-align'><img src={video_img} alt="PDF" className="document-icon" /><a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer"> {doc.file_name}</a></div>}
-                                                    {doc.link && <div className='flex-align'><img src={link_img} alt="PDF" className="document-icon" /><a href={doc.link} target="_blank" rel="noopener noreferrer"> {doc.link}</a></div>}
+                                                <div className='document-item' style={{ flex: "1" }}>
+                                                    {doc.pdf && (
+                                                        <div className='flex-align'>
+                                                            <img src={pdf_img} alt="PDF" className="document-icon" />
+                                                            <a href={`${apiHost}${doc.pdf}`} target="_blank" rel="noopener noreferrer">
+                                                                {doc.file_name}
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                    {doc.video && (
+                                                        <div className='flex-align'>
+                                                            <img src={video_img} alt="Video" className="document-icon" />
+                                                            <a href={`${apiHost}${doc.video}`} target="_blank" rel="noopener noreferrer">
+                                                                {doc.file_name}
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                    {doc.link && (
+                                                        <div className='flex-align'>
+                                                            <img src={link_img} alt="Link" className="document-icon" />
+                                                            <a href={doc.link} target="_blank" rel="noopener noreferrer">
+                                                                {doc.link}
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                     {doc.general_doc && (
                                                         <div className='flex-align'>
                                                             <img src={general_doc_img} alt="General Document" className="document-icon" />
@@ -1096,43 +1140,40 @@ function Body() {
                                                         </div>
                                                     )}
                                                     <div style={{ display: "flex", gap: "5px" }}>
-
-                                                        <div style={{ display: "flex", gap: "5px" }}>
-                                                            <button
-                                                                className='add-button-document'
-                                                                onClick={() => handleMoveUp(doc.id, documents[index - 1]?.id, index, index - 1)}
-                                                                disabled={index === 0}
-                                                            >
-                                                                <KeyboardDoubleArrowUpIcon sx={{ color: "var(--text)" }} />
-                                                            </button>
-                                                            <button
-                                                                className='add-button-document'
-                                                                onClick={() => handleMoveDown(doc.id, documents[index + 1]?.id, index, index + 1)}
-                                                                disabled={index === documents.length - 1}
-                                                            >
-                                                                <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
-                                                            </button>
-                                                        </div>
-                                                        <div
-                                                            className="hover-edit-delete-documents"
-                                                            style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
+                                                        <button
+                                                            className='add-button-document'
+                                                            onClick={() => handleMoveUp(doc.id, documents[index - 1]?.id, index, index - 1)}
+                                                            disabled={index === 0}
                                                         >
-                                                            <div
-                                                                className="delete-icon"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDocumentDelete(doc.id);
-                                                                }}
-                                                            >
-                                                                <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
-                                                            </div>
+                                                            <KeyboardDoubleArrowUpIcon sx={{ color: "var(--text)" }} />
+                                                        </button>
+                                                        <button
+                                                            className='add-button-document'
+                                                            onClick={() => handleMoveDown(doc.id, documents[index + 1]?.id, index, index + 1)}
+                                                            disabled={index === documents.length - 1}
+                                                        >
+                                                            <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
+                                                        </button>
+                                                    </div>
+                                                    <div
+                                                        className="hover-edit-delete-documents"
+                                                        style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
+                                                    >
+                                                        <div
+                                                            className="delete-icon"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDocumentDelete(doc.id);
+                                                            }}
+                                                        >
+                                                            <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p>No documents added.</p>
+                                        <p>No documents found.</p>
                                     )}
                                     {showDocUndoAlert && (
                                         <div className="undo-alert">
@@ -1163,9 +1204,6 @@ function Body() {
                     </div>
                 </div>
             </div>
-            {/* <button onClick={handleMergeFolders}>Merge</button>
-            <button onClick={handleUnmergeFolder}>UnMerge</button> */}
-
             <Dialog open={showPopup} onClose={handleClose}>
                 <DialogTitle>Add New Level</DialogTitle>
                 <DialogContent>
@@ -1273,28 +1311,6 @@ function Body() {
                         ))}
                     </select>
 
-                    {/* <TextField
-                        autoFocus
-                        margin="dense"
-                        id="editLevel"
-                        label="Start"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        value={start_day}
-                        onChange={(e) => setStart_day(e.target.value)}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="editLevel"
-                        label="End"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        value={end_day}
-                        onChange={(e) => setEnd_day(e.target.value)}
-                    /> */}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleNewFolderPopupClose}>Cancel</Button>
@@ -1302,7 +1318,6 @@ function Body() {
                 </DialogActions>
             </Dialog>
 
-            {/* popup for folder edit and delete */}
             <Dialog open={showFolderEditDeletePopup} onClose={handleFolderEditDeletePopupClose}>
                 <DialogTitle>Edit Folder</DialogTitle>
                 <DialogContent>
@@ -1335,7 +1350,6 @@ function Body() {
                 </DialogActions>
             </Dialog>
 
-            {/* Add Document Popup */}
             <Dialog open={showDocumentPopup} onClose={handleDocumentPopupClose}>
                 <DialogTitle>Add New Document</DialogTitle>
                 <DialogContent>
