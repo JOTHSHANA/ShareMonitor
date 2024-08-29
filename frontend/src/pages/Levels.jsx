@@ -23,6 +23,7 @@ import video_img from '../assets/video_img.png';
 import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
 import levels_img from '../assets/levels.png';
+import empty_folder from '../assets/empty_folder.png'
 import general_doc_img from '../assets/general_doc_img.png';
 import NavigateNextSharpIcon from '@mui/icons-material/NavigateNextSharp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
@@ -1101,7 +1102,7 @@ function Body() {
                                     <hr />
 
                                     {isLoading ? (
-                                        <p>Loading...</p>
+                                        <span className="loader"></span>
                                     ) : documents.length > 0 ? (
                                         documents.map((doc, index) => (
                                             <div style={{ display: "flex", gap: "5px" }} key={index}>
@@ -1173,7 +1174,15 @@ function Body() {
                                             </div>
                                         ))
                                     ) : (
-                                        <p>No documents found.</p>
+                                        <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
+                                                <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
+                                                <p>Folder is Empty</p>
+                                                <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                                    <AddIcon /><span>Add Document</span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
                                     {showDocUndoAlert && (
                                         <div className="undo-alert">

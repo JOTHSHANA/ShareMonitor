@@ -20,7 +20,8 @@ import link_img from '../assets/link_img.png';
 import folder_img from '../assets/folder_img.png';
 import empty_folder from '../assets/empty_folder.png'
 import empty_subjects from '../assets/empty_subjects.png'
-
+import empty_levels from '../assets/empty_levels.png'
+import empty_doc from '../assets/empty_doc.png'
 import general_doc_img from '../assets/general_doc_img.png';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -156,8 +157,10 @@ function Subjects() {
 
             ) : subjects.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <img style={{height:"160px"}} src={empty_subjects} alt="no subjects" />
-                    <p>No folders found</p>
+                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px" }}>
+                        <img style={{height:"120px"}} src={empty_subjects} alt="no subjects" />
+                        <p>No Subjects in Trash</p>
+                    </div>
                 </div>
             ) : (
                 <div className="flex">
@@ -324,7 +327,10 @@ function Levels() {
 
             ) : levels.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    No Levels in Trash
+                    <div  style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
+                        <img style={{height:"120px"}} src={empty_levels} alt="" />
+                        No Levels in Trash
+                    </div>
                 </div>
             ) : (
                 <div className="flex">
@@ -515,8 +521,10 @@ function Folders() {
 
             ) : folders.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <img style={{height:"160px"}} src={empty_folder} alt="No Folders" />
-                    <p>No folders found</p>
+                    <div  style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
+                        <img style={{height:"120px"}} src={empty_folder} alt="No Folders" />
+                        <p>No folders in Trash</p>
+                    </div>
                 </div>
             ) : (
                 <div className="flex">
@@ -533,7 +541,7 @@ function Folders() {
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
                                 <div className="counts clr1">
-                                    <p>Folders : </p>
+                                    <p>Documents : </p>
                                     <p>{folder.documentCount}</p>
                                 </div>
 
@@ -550,7 +558,7 @@ function Folders() {
                                     onClick={handleCopyText}
                                 >
                                     <p style={{ margin: 0 }}>
-                                        {folder.subjectName} / Level {folder.level} / {folder.workTypeName} /
+                                        {folder.subject_name} / {folder.level_name} / {folder.workTypeName} /
                                     </p>
                                 </div>
 
@@ -718,7 +726,10 @@ function Documents() {
 
             ) : documents.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    No Documents in trash
+                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
+                        <img style={{height:"120px"}} src={empty_doc} alt="" />
+                        <div>No Documents in trash</div>
+                    </div>
                 </div>
             ) : (
                 <div className="flex">

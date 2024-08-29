@@ -229,12 +229,17 @@ exports.getLevels = async (req, res) => {
 
 exports.getFolders = async (req, res) => {
     const getFoldersQuery = `
-        SELECT folders.*, levels.level AS level, work_type.type AS workTypeName, subjects.name AS subjectName
-        FROM folders
-        JOIN levels ON folders.level = levels.id
-        JOIN work_type ON folders.work_type = work_type.id
-        JOIN subjects ON levels.subject = subjects.id
-        WHERE folders.status = "0"
+        select f.s_day , f.e_day, w.type as workTypeName ,l.lvl_name as level_name,s.name as subject_name,  d.* from
+documents d
+inner join folders f
+on d.folder = f.id
+inner join levels l
+on f.level = l.id
+join subjects s
+on l.subject = s.id
+join work_type w
+on f.work_type = w.id
+where d.status = '3'
     `;
 
     const getDocumentCountQuery = `
@@ -252,7 +257,7 @@ exports.getFolders = async (req, res) => {
 
         const foldersWithDocumentCounts = folders.map(folder => {
             return new Promise((resolve, reject) => {
-                db.query(getDocumentCountQuery, [folder.id], (err, documentResult) => {
+                db.query(getDocumentCountQuery, [folder.folder], (err, documentResult) => {
                     if (err) {
                         console.error('Error counting documents:', err);
                         reject(err);

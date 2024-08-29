@@ -1,37 +1,81 @@
-.total-login{
-    height: 100vh;
-    width: 100%;
-    background-color: #191c24;
+
+.total-login {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
 }
 
-.login-card{
-    height: 70%;
-    width: 23%;
+.login-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #0f1015;
-    border-radius: 5px;
-    box-shadow: rgb(39, 39, 39) 0px 1px 4px;
-    padding: 10px;
+    background: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    transition: transform 0.3s ease;
 }
 
-.signin-button{
+.login-card:hover {
+    transform: translateY(-5px);
+}
+
+.login-img-div {
     width: 100%;
-    margin: 5px 10px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #191c24;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-img-div img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    opacity: 0.9; /* Slight transparency to blend with the dark theme */
+    mix-blend-mode:difference;
+}
+
+.signin-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    background-color: #4285f4;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+}
+
+.signin-button:hover {
+    background-color: #357ae8;
+}
+
+.google-logo {
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        padding: 20px;
+    }
+    
+    .signin-button {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .google-logo {
+        width: 18px;
+        margin-right: 8px;
+    }
 }
