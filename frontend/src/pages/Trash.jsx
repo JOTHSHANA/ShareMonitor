@@ -23,6 +23,8 @@ import empty_subjects from '../assets/empty_subjects.png'
 import empty_levels from '../assets/empty_levels.png'
 import empty_doc from '../assets/empty_doc.png'
 import general_doc_img from '../assets/general_doc_img.png';
+import Cookies from "js-cookie";
+const role = Cookies.get("role")
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -34,6 +36,9 @@ function Trash() {
 
 function Body() {
     const [activeTab, setActiveTab] = useState("subjects");
+
+
+
 
     const renderContent = () => {
         switch (activeTab) {
@@ -114,8 +119,12 @@ function Subjects() {
     };
 
     const handleDeleteClick = (subject) => {
-        setSelectedSubject(subject);
-        setOpenDeleteDialog(true);
+        if (role !== "1") {
+            toast.warning("Only admin can delete");
+        } else {
+            setSelectedSubject(subject);
+            setOpenDeleteDialog(true);
+        }
     };
 
     const handleClose = () => {
@@ -157,8 +166,8 @@ function Subjects() {
 
             ) : subjects.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px" }}>
-                        <img style={{height:"120px"}} src={empty_subjects} alt="no subjects" />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px" }}>
+                        <img style={{ height: "120px" }} src={empty_subjects} alt="no subjects" />
                         <p>No Subjects in Trash</p>
                     </div>
                 </div>
@@ -196,15 +205,26 @@ function Subjects() {
                                         }} />
                                         Restore
                                     </button>
-                                    <button className="button" onClick={() => handleDeleteClick(subject)}>
-                                        <DeleteForeverIcon sx={{
-                                            padding: "2px",
-                                            backgroundColor: "var(--background-1)",
-                                            borderRadius: "5px",
-                                            marginRight: "5px",
-                                            color: "red",
-                                            fontSize: "20px"
-                                        }} /> Delete</button>
+                                    <button
+                                        className="button"
+                                        onClick={() => handleDeleteClick(subject)}
+                                        style={{
+                                            color: role !== "1" ? "grey" : "var(--text)",
+                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                        }}
+                                    >
+                                        <DeleteForeverIcon
+                                            sx={{
+                                                padding: "2px",
+                                                backgroundColor: "var(--background-1)",
+                                                borderRadius: "5px",
+                                                marginRight: "5px",
+                                                color: role === "1" ? "red" : "grey",
+                                                fontSize: "20px",
+                                            }}
+                                        />
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -284,8 +304,12 @@ function Levels() {
     };
 
     const handleDeleteClick = (level) => {
-        setSelectedLevel(level);
-        setOpenDeleteDialog(true);
+        if (role !== "1") {
+            toast.warning("Only admin can delete");
+        } else {
+            setSelectedLevel(level);
+            setOpenDeleteDialog(true);
+        }
     };
 
     const handleClose = () => {
@@ -327,8 +351,8 @@ function Levels() {
 
             ) : levels.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div  style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
-                        <img style={{height:"120px"}} src={empty_levels} alt="" />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px" }}>
+                        <img style={{ height: "120px" }} src={empty_levels} alt="" />
                         No Levels in Trash
                     </div>
                 </div>
@@ -365,15 +389,26 @@ function Levels() {
                                         }} />
                                         Restore
                                     </button>
-                                    <button className="button" onClick={() => handleDeleteClick(level)}>
-                                        <DeleteForeverIcon sx={{
-                                            padding: "2px",
-                                            backgroundColor: "var(--background-1)",
-                                            borderRadius: "5px",
-                                            marginRight: "5px",
-                                            color: "red",
-                                            fontSize: "20px"
-                                        }} /> Delete</button>
+                                    <button
+                                        className="button"
+                                        onClick={() => handleDeleteClick(level)}
+                                        style={{
+                                            color: role !== "1" ? "grey" : "var(--text)",
+                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                        }}
+                                    >
+                                        <DeleteForeverIcon
+                                            sx={{
+                                                padding: "2px",
+                                                backgroundColor: "var(--background-1)",
+                                                borderRadius: "5px",
+                                                marginRight: "5px",
+                                                color: role === "1" ? "red" : "grey",
+                                                fontSize: "20px",
+                                            }}
+                                        />
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -456,8 +491,12 @@ function Folders() {
     };
 
     const handleDeleteClick = (folder) => {
-        setSelectedFolder(folder);
-        setOpenDeleteDialog(true);
+        if (role !== "1") {
+            toast.warning("Only admin can delete");
+        } else {
+            setSelectedFolder(folder);
+            setOpenDeleteDialog(true);
+        }
     };
 
     const handleClose = () => {
@@ -467,9 +506,9 @@ function Folders() {
 
 
     const handleRestore = async () => {
-        console.log(selectedFolder.id)
+        console.log(selectedFolder.folder)
         try {
-            await axios.put(`${apiHost}/api/restoreFolder`, { id: selectedFolder.id });
+            await axios.put(`${apiHost}/api/restoreFolder`, { id: selectedFolder.folder });
             handleClose();
             fetchFolders();
             toast.success(`Restored successfully!`);
@@ -480,9 +519,9 @@ function Folders() {
     };
 
     const handleDelete = async () => {
-        console.log(selectedFolder.id)
+        console.log(selectedFolder.folder)
         try {
-            await axios.put(`${apiHost}/api/folderDelete`, { id: selectedFolder.id });
+            await axios.put(`${apiHost}/api/folderDelete`, { id: selectedFolder.folder });
             handleClose();
             fetchFolders();
             toast.success(`Deleted successfully!`);
@@ -521,8 +560,8 @@ function Folders() {
 
             ) : folders.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div  style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
-                        <img style={{height:"120px"}} src={empty_folder} alt="No Folders" />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px" }}>
+                        <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
                         <p>No folders in Trash</p>
                     </div>
                 </div>
@@ -575,15 +614,37 @@ function Folders() {
                                         }} />
                                         Restore
                                     </button>
-                                    <button className="button" onClick={() => handleDeleteClick(folder)}>
+                                    {/* <button className="button" onClick={() => handleDeleteClick(folder)} disabled={role !== "1"}>
                                         <DeleteForeverIcon sx={{
                                             padding: "2px",
                                             backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
-                                            color: "red",
+                                            color: role === "1" ? "red" : "grey",
                                             fontSize: "20px"
-                                        }} /> Delete</button>
+                                        }} /> Delete
+                                        </button> */}
+                                    <button
+                                        className="button"
+                                        onClick={() => handleDeleteClick(folder)}
+                                        style={{
+                                            color: role !== "1" ? "grey" : "var(--text)",
+                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                        }}
+                                    >
+                                        <DeleteForeverIcon
+                                            sx={{
+                                                padding: "2px",
+                                                backgroundColor: "var(--background-1)",
+                                                borderRadius: "5px",
+                                                marginRight: "5px",
+                                                color: role === "1" ? "red" : "grey",
+                                                fontSize: "20px",
+                                            }}
+                                        />
+                                        Delete
+                                    </button>
+
                                 </div>
                             </div>
                         </div>
@@ -662,8 +723,12 @@ function Documents() {
     };
 
     const handleDeleteClick = (document) => {
-        setSelectedDocument(document);
-        setOpenDeleteDialog(true);
+        if (role !== "1") {
+            toast.warning("Only admin can delete");
+        } else {
+            setSelectedDocument(document);
+            setOpenDeleteDialog(true);
+        }
     };
 
     const handleClose = () => {
@@ -726,8 +791,8 @@ function Documents() {
 
             ) : documents.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap:"20px"  }}>
-                        <img style={{height:"120px"}} src={empty_doc} alt="" />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px" }}>
+                        <img style={{ height: "120px" }} src={empty_doc} alt="" />
                         <div>No Documents in trash</div>
                     </div>
                 </div>
@@ -791,15 +856,26 @@ function Documents() {
                                     }} />
                                     Restore
                                 </button>
-                                <button className="button" onClick={() => handleDeleteClick(document)}>
-                                    <DeleteForeverIcon sx={{
-                                        padding: "2px",
-                                        backgroundColor: "var(--background-1)",
-                                        borderRadius: "5px",
-                                        marginRight: "5px",
-                                        color: "red",
-                                        fontSize: "20px"
-                                    }} /> Delete</button>
+                                <button
+                                    className="button"
+                                    onClick={() => handleDeleteClick(document)}
+                                    style={{
+                                        color: role !== "1" ? "grey" : "var(--text)",
+                                        cursor: role !== "1" ? "not-allowed" : "pointer",
+                                    }}
+                                >
+                                    <DeleteForeverIcon
+                                        sx={{
+                                            padding: "2px",
+                                            backgroundColor: "var(--background-1)",
+                                            borderRadius: "5px",
+                                            marginRight: "5px",
+                                            color: role === "1" ? "red" : "grey",
+                                            fontSize: "20px",
+                                        }}
+                                    />
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     ))

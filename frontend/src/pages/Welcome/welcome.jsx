@@ -25,17 +25,20 @@ const Welcome = () => {
         id: Cookies.get("id"),
       };
       console.log("Saved JSON data:", savedData);
-      if(role === 1){
-      navigate("/subjects");}
-        else{
-          navigate('/subjects')
-        }
+      if (role === 1) {
+        navigate("/subjects");
+      }
+      else {
+        navigate('/subjects')
+      }
     }
   }, [searchParams, navigate]);
 
   return (
     <div>
-      <h1>Welcome Page</h1>
+      <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span class="loader"></span>
+      </div>
     </div>
   );
 };

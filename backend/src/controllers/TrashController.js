@@ -192,54 +192,42 @@ exports.getLevels = async (req, res) => {
 
 
 
-// exports.getFolders = async (req, res) => {
-//     const getFoldersQuery = 'SELECT * FROM folders WHERE status = "0"';
-//     const getDocumentCountQuery = `
-//         SELECT COUNT(*) as documentCount 
-//         FROM documents 
-//         WHERE folder = ? 
-//         AND status = "1"
-//     `;
 
-//     db.query(getFoldersQuery, (err, folders) => {
-//         if (err) {
-//             console.error('Error fetching deleted folders:', err);
-//             return res.status(500).json({ error: 'Internal server error' });
-//         }
-
-//         const foldersWithDocumentCounts = folders.map(folder => {
-//             return new Promise((resolve, reject) => {
-//                 db.query(getDocumentCountQuery, [folder.id], (err, documentResult) => {
-//                     if (err) {
-//                         console.error('Error counting documents:', err);
-//                         reject(err);
-//                     } else {
-//                         folder.documentCount = documentResult[0].documentCount;
-//                         resolve(folder);
-//                     }
-//                 });
-//             });
-//         });
-
-//         Promise.all(foldersWithDocumentCounts)
-//             .then(results => res.json(results))
-//             .catch(err => res.status(500).json({ error: 'Internal server error' }));
-//     });
-// };
+// select f.s_day , f.e_day, w.type as workTypeName ,l.lvl_name as level_name,s.name as subject_name,  d.* from
+// documents d
+// inner join folders f
+// on d.folder = f.id
+// inner join levels l
+// on f.level = l.id
+// join subjects s
+// on l.subject = s.id
+// join work_type w
+// on f.work_type = w.id
+// where d.status = '3'
 
 exports.getFolders = async (req, res) => {
     const getFoldersQuery = `
-        select f.s_day , f.e_day, w.type as workTypeName ,l.lvl_name as level_name,s.name as subject_name,  d.* from
-documents d
-inner join folders f
-on d.folder = f.id
-inner join levels l
-on f.level = l.id
-join subjects s
-on l.subject = s.id
-join work_type w
-on f.work_type = w.id
-where d.status = '3'
+        SELECT 
+        MIN(d.id) AS document_id,
+        f.s_day, 
+        f.e_day, 
+        w.type AS workTypeName, 
+        l.lvl_name AS level_name, 
+        s.name AS subject_name, 
+        d.folder, 
+        MIN(d.file_name) AS file_name,
+        MIN(d.pdf) AS pdf,
+        MIN(d.video) AS video,
+        MIN(d.link) AS link,
+        MIN(d.general_doc) AS general_doc,
+        MIN(d.status) AS status
+    FROM documents d
+    INNER JOIN folders f ON d.folder = f.id
+    INNER JOIN levels l ON f.level = l.id
+    JOIN subjects s ON l.subject = s.id
+    JOIN work_type w ON f.work_type = w.id
+    WHERE d.status = '3'
+    GROUP BY d.folder, f.s_day, f.e_day, w.type, l.lvl_name, s.name
     `;
 
     const getDocumentCountQuery = `

@@ -1155,21 +1155,22 @@ function Body() {
                                                         >
                                                             <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
                                                         </button>
-                                                    </div>
-                                                    <div
-                                                        className="hover-edit-delete-documents"
-                                                        style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
-                                                    >
                                                         <div
-                                                            className="delete-icon"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDocumentDelete(doc.id);
-                                                            }}
+                                                            className="hover-edit-delete-documents"
+                                                            style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
                                                         >
-                                                            <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                                            <div
+                                                                className="delete-icon"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDocumentDelete(doc.id);
+                                                                }}
+                                                            >
+                                                                <DeleteForeverSharpIcon sx={{ color: "#d12830" }} />
+                                                            </div>
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </div>
                                         ))

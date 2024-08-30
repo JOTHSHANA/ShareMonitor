@@ -23,25 +23,7 @@ function HistoryPage() {
     return (
         <Layout rId={3} body={
             <div className="history-container">
-                <h2>Share History</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Document Name</th>
-                            <th>Email</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {history.map((entry, index) => (
-                            <tr key={index}>
-                                <td>{entry.document_name}</td>
-                                <td>{entry.email}</td>
-                                <td>{new Date(entry.timestamp).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                UNDER DEVELOPMENT...
             </div>
         } />
     );
