@@ -24,6 +24,9 @@ import empty_levels from '../assets/empty_levels.png'
 import empty_doc from '../assets/empty_doc.png'
 import general_doc_img from '../assets/general_doc_img.png';
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+
 const role = Cookies.get("role")
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -36,7 +39,6 @@ function Trash() {
 
 function Body() {
     const [activeTab, setActiveTab] = useState("subjects");
-
 
 
 
@@ -96,6 +98,9 @@ function Subjects() {
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [subjectClick, setSubjectClick] = useState(null)
+    const navigate = useNavigate()
+
 
     const fetchSubjects = async () => {
         setLoading(true);
@@ -131,6 +136,10 @@ function Subjects() {
         setOpenRestoreDialog(false);
         setOpenDeleteDialog(false);
     };
+
+    const handleSubClick = (subjectId, subName) => {
+        navigate(`/levels/${subjectId}/${subName}`)
+    }
 
     const handleRestore = async () => {
         try {
@@ -174,9 +183,14 @@ function Subjects() {
             ) : (
                 <div className="flex">
                     {subjects.map(subject => (
-                        <div className="trash-box" key={subject.id}>
-                            <b >
+                        <div className="trash-box" key={subject.id} >
+                            <b style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <p> {subject.name}</p>
+                                <p>
+                                    <button className="button" onClick={() => handleSubClick(subject.id, subject.name)}>
+                                        <UnfoldMoreIcon style={{ transform: 'rotate(45deg)' }} />
+                                    </button>
+                                </p>
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
@@ -205,7 +219,7 @@ function Subjects() {
                                         }} />
                                         Restore
                                     </button>
-                                    <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(subject)}
                                         style={{
@@ -224,7 +238,8 @@ function Subjects() {
                                             }}
                                         />
                                         Delete
-                                    </button>
+                                    </button>}
+
                                 </div>
                             </div>
                         </div>
@@ -281,6 +296,7 @@ function Levels() {
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [openEmptyDialog, setOpenEmptyDialog] = useState(false); // State for the empty dialog
 
     const fetchLevels = async () => {
         setLoading(true);
@@ -315,10 +331,11 @@ function Levels() {
     const handleClose = () => {
         setOpenRestoreDialog(false);
         setOpenDeleteDialog(false);
+        setOpenEmptyDialog(false); // Close the empty dialog
     };
 
     const handleRestore = async () => {
-        console.log(selectedLevel.id)
+        console.log(selectedLevel.id);
         try {
             await axios.put(`${apiHost}/api/restoreLevel`, { id: selectedLevel.id });
             handleClose();
@@ -331,7 +348,7 @@ function Levels() {
     };
 
     const handleDelete = async () => {
-        console.log(selectedLevel.id)
+        console.log(selectedLevel.id);
         try {
             await axios.put(`${apiHost}/api/levelDelete`, { id: selectedLevel.id });
             handleClose();
@@ -343,12 +360,16 @@ function Levels() {
         }
     };
 
+    const handleLvlClick = async (level, work_type) => {
+        console.log(level, work_type);
+        setOpenEmptyDialog(true); // Open the empty dialog
+    };
+
     return (
         <div>
             <ToastContainer />
             {loading ? (
-                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
-
+                <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}><span className="loader"></span></div>
             ) : levels.length === 0 ? (
                 <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px" }}>
@@ -359,19 +380,23 @@ function Levels() {
             ) : (
                 <div className="flex">
                     {levels.map(level => (
-                        <div className="trash-box">
-                            <b>
-                                <p key={level.id}>{level.lvl_name}</p>
+                        <div className="trash-box" key={level.id}>
+                            <b style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                <p>{level.lvl_name}</p>
+                                <p>
+                                    <button className="button" onClick={() => handleLvlClick(level.id, level.work_type)}>
+                                        <UnfoldMoreIcon style={{ transform: 'rotate(45deg)' }} />
+                                    </button>
+                                </p>
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
-
                                 <div className="counts clr1">
-                                    <p>Folders : </p>
+                                    <p>Folders :</p>
                                     <p>{level.folderCount}</p>
                                 </div>
                                 <div className="counts clr2">
-                                    <p>documents :</p>
+                                    <p>Documents :</p>
                                     <p>{level.documentCount}</p>
                                 </div>
                                 <div style={{ padding: "7px", backgroundColor: "var(--document)", borderRadius: "5px" }}>
@@ -389,7 +414,7 @@ function Levels() {
                                         }} />
                                         Restore
                                     </button>
-                                    <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(level)}
                                         style={{
@@ -408,13 +433,15 @@ function Levels() {
                                             }}
                                         />
                                         Delete
-                                    </button>
+                                    </button>}
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+
+            {/* Restore Dialog */}
             <Dialog
                 open={openRestoreDialog}
                 TransitionComponent={Transition}
@@ -425,8 +452,8 @@ function Levels() {
                 <DialogTitle>{"Restore this subject?"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
-                        Are you sure you want to restore the level "{selectedLevel?.lvl_name}" ?
-                        {selectedLevel?.levelCount} levels, {selectedLevel?.folderCount} folders and {selectedLevel?.documentCount} documents will be restored.
+                        Are you sure you want to restore the level "{selectedLevel?.lvl_name}"?
+                        {selectedLevel?.folderCount} folders and {selectedLevel?.documentCount} documents will be restored.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -454,10 +481,28 @@ function Levels() {
                     <Button onClick={handleDelete}>Delete</Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Empty Dialog */}
+            <Dialog
+                open={openEmptyDialog}
+                TransitionComponent={Transition}
+                keepMounted
+                onClose={handleClose}
+                aria-describedby="alert-dialog-slide-description"
+            >
+                <DialogTitle>{"Empty Popup"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                        {/* You can add content here if needed */}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Close</Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
-
 function Folders() {
     const [loading, setLoading] = useState(false);
     const [folders, setFolders] = useState([]);
@@ -624,7 +669,7 @@ function Folders() {
                                             fontSize: "20px"
                                         }} /> Delete
                                         </button> */}
-                                    <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(folder)}
                                         style={{
@@ -643,7 +688,7 @@ function Folders() {
                                             }}
                                         />
                                         Delete
-                                    </button>
+                                    </button>}
 
                                 </div>
                             </div>
@@ -856,7 +901,7 @@ function Documents() {
                                     }} />
                                     Restore
                                 </button>
-                                <button
+                                {role === "1" && <button
                                     className="button"
                                     onClick={() => handleDeleteClick(document)}
                                     style={{
@@ -875,7 +920,7 @@ function Documents() {
                                         }}
                                     />
                                     Delete
-                                </button>
+                                </button>}
                             </div>
                         </div>
                     ))

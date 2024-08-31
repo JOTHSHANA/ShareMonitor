@@ -366,9 +366,12 @@ function Body() {
     }
 
     const handleCreateLevel = async () => {
+
+        setShowFirstLevelPopup(false)
         if (newLevel.trim() !== "") {
+            const formattedLevel = newLevel.charAt(0).toUpperCase() + newLevel.slice(1);
             try {
-                const response = await axios.post(`${apiHost}/api/levels`, { name: newLevel, subjectId: subjectId, levelNum: levelNum + 1 });
+                const response = await axios.post(`${apiHost}/api/levels`, { name: formattedLevel, subjectId: subjectId, levelNum: levelNum + 1 });
                 setLevels([...levels, response.data]);
                 setNewLevel("");
                 setShowPopup(false);

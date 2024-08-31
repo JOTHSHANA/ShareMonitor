@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MenuIcon from '@mui/icons-material/Menu';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -15,6 +16,7 @@ import Button from '@mui/material/Button';
 
 function TopBar(props) {
     const name = Cookies.get("name");
+    const navigate = useNavigate()
     const capitalizedName = name ? name.toUpperCase() : "";
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -38,11 +40,21 @@ function TopBar(props) {
         setAnchorEl(null);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
 
-        Cookies.remove("token");
+        try {
+            Cookies.remove("token");
+            Cookies.remove('name')
+            Cookies.remove('id')
+            Cookies.remove('role')
 
-        window.location.href = "/login";
+
+            navigate('/login')
+            console.log(token)
+        }
+        catch (err) {
+            console.log(err)
+        }
     };
 
     const confirmLogout = () => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import './Login.css';
 import google_logo from '../../assets/google_logo.png';
-import login_img from '../../assets/login_img.png'
+import login_img from '../../assets/login_img.jpg'
 import apiHost from '../../components/utils/api';
 
 function Login() {
@@ -16,7 +16,7 @@ function Login() {
                     <img style={{height:"100%"}} src={login_img} alt="" />
                 </div>
                 <button className="signin-button" onClick={handleGoogleLogin}>
-            <img src={google_logo} alt="GoogleImage" className="google-logo" />
+            <img style={{backgroundColor:"white", padding:"5px 3px", borderRadius:"10px"}} src={google_logo} alt="GoogleImage" className="google-logo" />
             Sign in with Google
           </button>
             </div>
