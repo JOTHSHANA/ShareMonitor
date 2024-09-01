@@ -432,7 +432,7 @@ hr {
     justify-content: center;
     align-items: center;
     height: 100px;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     border: 2px dashed #2469b3;
     color: var(--text);
@@ -442,8 +442,8 @@ hr {
 
 .drop-container:hover,
 .drop-container.drag-active {
-    background: var(--background);
-    border-color: #111;
+    background: var(--document);
+    
 }
 
 .drop-container:hover .drop-title,
@@ -703,11 +703,7 @@ label {
 .document-type-select,
 .text-input,
 .file-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: auto;
 }
 
 .dialog-actions {
@@ -1015,12 +1011,16 @@ label {
     color: #fff;
 }
 
-.no-subjects-text{
-    font-size: 18px;
+.no-subjects-text {
+    font-size: 16px;
     color: var(--text);
 }
 
-.no-levels-text{
-    font-size: 18px;
+.no-levels-text {
+    font-size: 16px;
     color: var(--text);
+}
+
+.no-subjects-text img, .no-levels-text img{
+    margin-right: 0px;
 }

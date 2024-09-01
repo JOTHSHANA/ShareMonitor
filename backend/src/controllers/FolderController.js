@@ -25,7 +25,7 @@ exports.getFolders = async (req, res) => {
 
 exports.createFolder = (req, res) => {
     const { s_day, e_day, level_id, work_type } = req.body;
-    console.log(s_day, level_id, work_type)
+    console.log(s_day,e_day, level_id, work_type)
     if (!s_day || !e_day || !level_id || !work_type) {
         return res.status(400).json({ error: 'All fields are required' });
     }
@@ -66,7 +66,7 @@ exports.createFolder = (req, res) => {
                 } else {
                     // Step 3: If not found, insert a new record
                     db.query(
-                        'INSERT INTO folders (s_day, e_day, level, work_type, status) VALUES(?, ?, ?, ?, 1)',
+                        'INSERT INTO folders (s_day, e_day, level, work_type) VALUES(?, ?, ?, ?)',
                         [s_day, e_day, level_id, work_type],
                         (err, result) => {
                             if (err) {
@@ -312,17 +312,18 @@ exports.unmergeFolder = (req, res) => {
     });
 };
 
-
 exports.findMissingFolders = async (req, res) => {
     const { level, work_type } = req.query;
     console.log(level, work_type);
 
+    // Query to select only s_day
     const query = `
-        SELECT s_day, e_day 
+        SELECT s_day 
         FROM folders 
         WHERE level = ? 
         AND work_type = ? 
-        AND status = "1"
+        AND (status = "1"||status = "2")
+        ORDER BY s_day
     `;
 
     db.query(query, [level, work_type], (err, results) => {
@@ -330,32 +331,23 @@ exports.findMissingFolders = async (req, res) => {
             console.error('Error fetching folders:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
-
         if (results.length === 0) {
             return res.json({ missingDays: [] });
         }
 
-        const daysSet = new Set();
-        let minDay = Number.MAX_VALUE;
-        let maxDay = Number.MIN_VALUE;
-        results.forEach(row => {
-            const { s_day, e_day } = row;
-            minDay = Math.min(minDay, s_day);
-            maxDay = Math.max(maxDay, e_day);
-            console.log(s_day, e_day)
-            for (let day = s_day; day <= e_day; day++) {
-                daysSet.add(day);
+        const days = results.map(row => row.s_day);
+        const missingDays = [];
+
+        let previousDay = 0;
+
+        days.forEach(day => {
+            for (let i = previousDay + 1; i < day; i++) {
+                missingDays.push(i);
             }
+            previousDay = day;
         });
 
-        const missingDays = [];
-        for (let day = minDay; day <= maxDay; day++) {
-            if (!daysSet.has(day)) {
-                missingDays.push(day);
-            }
-        }
-
-        missingDays.push(maxDay + 1);
+        missingDays.push(previousDay + 1);
 
         return res.json({ missingDays });
     });

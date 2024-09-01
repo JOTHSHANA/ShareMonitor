@@ -956,53 +956,65 @@ function Body() {
                             </div>
                             <div className='documents-container'>
                                 <div className='folders-div'>
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                                        <Button
-                                            id="basic-button"
-                                            aria-controls={open ? 'basic-menu' : undefined}
-                                            aria-haspopup="true"
-                                            aria-expanded={open ? 'true' : undefined}
-                                            onClick={handleClick}
-                                        >
-                                            <MenuIcon sx={{ color: "var(--text)" }} />
-                                        </Button>
-                                        <Menu
-                                            id="basic-menu"
-                                            anchorEl={anchorEl}
-                                            open={open}
-                                            onClose={handleCloseMui}
-                                            MenuListProps={{
-                                                'aria-labelledby': 'basic-button',
-                                            }}
-                                        >
-                                            <MenuItem onClick={handleCloseMui}>
-                                                <div className='menu-icons-align' onClick={handleShowFolderEditDelete}>
-                                                    <DeleteForeverSharpIcon /><span>Delete</span>
-                                                </div>
-                                            </MenuItem>
-
-                                            <MenuItem onClick={handleCloseMui}>
-                                                <div className='menu-icons-align' onClick={handleNewFolderPopupOpen}>
-                                                    <AddIcon /><span>AddFolders</span>
-                                                </div>
-                                            </MenuItem>
-                                            <MenuItem onClick={handleCloseMui}>
-                                                <div className='menu-icons-align' onClick={toggleSelectMode}>
-                                                    <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
-                                                </div>
-                                            </MenuItem>
-                                            <MenuItem onClick={handleCloseMui}>
-                                                <div className='menu-icons-align' onClick={toggleUnmergeMode}>
-                                                    <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
-                                                </div>
-                                            </MenuItem>
-                                        </Menu>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <div>
+                                            {isSelecting && (
+                                                <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon />Merge</button>
+                                            )}
+                                            {isUnmerging && (
+                                                <button className='add-button' onClick={handleUnmergeClick}><CallSplitIcon />Unmerge</button>
+                                            )}
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                                            <Button
+                                                id="basic-button"
+                                                aria-controls={open ? 'basic-menu' : undefined}
+                                                aria-haspopup="true"
+                                                aria-expanded={open ? 'true' : undefined}
+                                                onClick={handleClick}
+                                            >
+                                                <MenuIcon sx={{ color: "var(--text)" }} />
+                                            </Button>
+                                            <Menu
+                                                id="basic-menu"
+                                                anchorEl={anchorEl}
+                                                open={open}
+                                                onClose={handleCloseMui}
+                                                MenuListProps={{
+                                                    'aria-labelledby': 'basic-button',
+                                                }}
+                                            >
+                                                <MenuItem onClick={handleCloseMui}>
+                                                    <div className='menu-icons-align' onClick={handleShowFolderEditDelete}>
+                                                        <DeleteForeverSharpIcon /><span>Delete</span>
+                                                    </div>
+                                                </MenuItem>
+                                                <MenuItem onClick={handleCloseMui}>
+                                                    <div className='menu-icons-align' onClick={handleNewFolderPopupOpen}>
+                                                        <AddIcon /><span>AddFolders</span>
+                                                    </div>
+                                                </MenuItem>
+                                                <MenuItem onClick={handleCloseMui}>
+                                                    <div className='menu-icons-align' onClick={toggleSelectMode}>
+                                                        <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
+                                                    </div>
+                                                </MenuItem>
+                                                <MenuItem onClick={handleCloseMui}>
+                                                    <div className='menu-icons-align' onClick={toggleUnmergeMode}>
+                                                        <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
+                                                    </div>
+                                                </MenuItem>
+                                            </Menu>
+                                        </div>
                                     </div>
                                     <hr />
 
                                     {isLoading ? (
-                                        <div style={{ width: "100%", backgroundColor: "var(--background-1)", borderRadius: "5px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            <span className="loader"></span>
+                                        <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px"}}>
+                                                <img style={{ height: "120px"}} src={empty_folder} alt="No Folders" />
+                                                <p>No folders added</p>
+                                            </div>
                                         </div>
                                     ) : folders.length > 0 ? (
                                         folders.reduce((acc, folder, index) => {
@@ -1077,12 +1089,7 @@ function Body() {
                                         <p>No folders added.</p>
                                     )}
 
-                                    {isSelecting && (
-                                        <button className='add-button' onClick={handleMergeClick}><MergeTypeIcon />Merge</button>
-                                    )}
-                                    {isUnmerging && (
-                                        <button className='add-button' onClick={handleUnmergeClick}><CallSplitIcon />Unmerge</button>
-                                    )}
+
                                     {showFolderUndoAlert && (
                                         <div className="undo-alert">
                                             <span>Folder deleted. </span>
@@ -1105,7 +1112,15 @@ function Body() {
                                     <hr />
 
                                     {isLoading ? (
-                                        <span className="loader"></span>
+                                        <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
+                                                <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
+                                                <p>No documents added</p>
+                                                <button className='add-button' onClick={handleDocumentPopupOpen}>
+                                                    <AddIcon /><span>Add Document</span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     ) : documents.length > 0 ? (
                                         documents.map((doc, index) => (
                                             <div style={{ display: "flex", gap: "5px" }} key={index}>
@@ -1181,7 +1196,7 @@ function Body() {
                                         <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
                                                 <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
-                                                <p>Folder is Empty</p>
+                                                <p>No documents added</p>
                                                 <button className='add-button' onClick={handleDocumentPopupOpen}>
                                                     <AddIcon /><span>Add Document</span>
                                                 </button>
@@ -1217,81 +1232,197 @@ function Body() {
                     </div>
                 </div>
             </div>
-            <Dialog open={showPopup} onClose={handleClose}>
-                <DialogTitle>Add New Level</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+            <Dialog
+                open={showPopup}
+                fullWidth={true}
+                onClose={handleClose}
+                sx={{
+                    "& .MuiDialog-paper": {
+                        backgroundColor: "var(--background-1)", // Replace with your desired background color
+                        color: "var(--text)", // Replace with your desired text color
+                        borderRadius: "8px", // Optional: Add border radius for rounded corners
+                    }
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "var(--background-2)", // Background color for the title
+                        color: "var(--text)", // Text color for the title
+                        borderBottom: "1px solid var(--border-color)" // Optional: Border color for the title
+                    }}
+                >
+                    Add New Level
+                </DialogTitle>
+                <DialogContent
+                    sx={{
+                        backgroundColor: "var(--background-1)", // Background color for the content
+                        color: "var(--text)" // Text color for the content
+                    }}
+                >
+                    <DialogContentText
+                        sx={{
+                            color: "var(--text)" // Text color for the content text
+                        }}
+                    >
                         Enter the name of the new level.
                     </DialogContentText>
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="name"
+                        id="level-number"
                         label="Level Number"
                         type="text"
                         fullWidth
                         variant="standard"
                         value={levelNum + 1}
                         onChange={(e) => setLevelNum(e.target.value)}
-                        disabled={true}
+                        disabled
+                        sx={{
+                            "& .MuiInputBase-input": {
+                                color: "var(--text)" // Text color for the input
+                            },
+                            "& .MuiInput-underline:before": {
+                                borderBottomColor: "#446bd4", // Border color before focus
+                            },
+                            "& .MuiInput-underline:after": {
+                                borderBottomColor: "#446bd4" // Border color after focus
+                            }
+                        }}
                     />
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="name"
+                        id="level-name"
                         label="Level Name"
                         type="text"
                         fullWidth
                         variant="standard"
                         value={newLevel}
                         onChange={(e) => setNewLevel(e.target.value)}
+                        sx={{
+                            "& .MuiInputBase-input": {
+                                color: "var(--text)" // Text color for the input
+                            },
+                            "& .MuiInput-underline:before": {
+                                borderBottomColor: "#446bd4", // Border color before focus
+                            },
+                            "& .MuiInput-underline:after": {
+                                borderBottomColor: "#446bd4" // Border color after focus
+                            }
+                        }}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleCreateLevel}>Create</Button>
+                <DialogActions
+                    sx={{
+                        backgroundColor: "var(--background-2)" // Background color for the actions area
+                    }}
+                >
+                    <Button
+                        onClick={handleClose}
+                        sx={{
+                            color: "#446bd4" // Color for the cancel button
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleCreateLevel}
+                        sx={{
+                            color: "#446bd4" // Color for the create button
+                        }}
+                    >
+                        Create
+                    </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={showFirstLevelPopup} onClose={handleFirstLevelClose}>
-                <DialogTitle>Add New Level</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+
+            <Dialog
+                open={showFirstLevelPopup}
+                fullWidth={true}
+                onClose={handleFirstLevelClose}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
+            >
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    Add New Level
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText sx={{ color: "var(--text)" }}>
                         Enter the name of the new level.
                     </DialogContentText>
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="name"
+                        id="level-number"
                         label="Level Number"
                         type="text"
                         fullWidth
                         variant="standard"
                         value={1}
-                        disabled={true}
+                        disabled
+                        InputProps={{
+                            style: { color: "var(--text)" },
+                            disableUnderline: false,
+                            sx: {
+                                "&:before": { borderBottomColor: "#446bd4", borderBottomWidth: "1px" },
+                                "&:after": { borderBottomColor: "#446bd4", borderBottomWidth: "1px" },
+                            }
+                        }}
+                        InputLabelProps={{ style: { color: "var(--text)" } }}
                     />
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="name"
+                        id="level-name"
                         label="Level Name"
                         type="text"
                         fullWidth
                         variant="standard"
                         value={newLevel}
                         onChange={(e) => setNewLevel(e.target.value)}
+                        InputProps={{
+                            style: { color: "var(--text)" },
+                            disableUnderline: false,
+                            sx: {
+                                "&:before": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" },
+                                "&:after": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" }
+                            }
+                        }}
+                        InputLabelProps={{ style: { color: "var(--text)" } }}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleFirstLevelClose}>Cancel</Button>
-                    <Button onClick={handleCreateLevel}>Create</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleFirstLevelClose} sx={{ color: "#446bd4" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleCreateLevel} sx={{ color: "#446bd4" }}>
+                        Create
+                    </Button>
                 </DialogActions>
             </Dialog>
 
+
+
             {/* Edit Level Popup */}
-            <Dialog open={showEditPopup} onClose={handleEditClose}>
-                <DialogTitle>Edit Level Name</DialogTitle>
-                <DialogContent>
+            <Dialog open={showEditPopup} fullWidth={true} onClose={handleEditClose}
+                sx={{
+                    "& .MuiDialog-paper": {
+                        backgroundColor: "var(--background-1)", // Background color for the dialog
+                        color: "var(--text)", // Text color for the dialog
+                    },
+                }}
+            >
+                <DialogTitle sx={{
+                    backgroundColor: "var(--background-1)", // Background color for the title
+                    color: "var(--text)", // Text color for the title
+                    fontWeight: "bold", // Bold font for the title
+                }}>
+                    Edit Level Name
+                </DialogTitle>
+                <DialogContent sx={{
+                    backgroundColor: "var(--background-1)", // Background color for the content
+                    color: "var(--text)", // Text color for the content
+                }}>
                     <TextField
                         autoFocus
                         margin="dense"
@@ -1302,20 +1433,93 @@ function Body() {
                         variant="standard"
                         value={editLevel}
                         onChange={(e) => setEditLevel(e.target.value)}
+                        InputProps={{
+                            style: { color: "var(--text)" }, // Text color for the input
+                            disableUnderline: false,
+                            sx: {
+                                "&:before": {
+                                    borderBottomColor: "#446bd4", // Bottom border color before interaction
+                                    borderBottomWidth: "2px", // Bottom border width before interaction
+                                },
+                                "&:after": {
+                                    borderBottomColor: "#446bd4", // Bottom border color after interaction
+                                    borderBottomWidth: "2px", // Bottom border width after interaction
+                                },
+                            },
+                        }}
+                        InputLabelProps={{
+                            style: { color: "var(--text)" }, // Text color for the label
+                        }}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleEditClose}>Cancel</Button>
-                    <Button onClick={handleEditSubmit}>Save</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button
+                        onClick={handleEditClose}
+                        sx={{
+                            color: "#446bd4", // Button text color
+                            "&:hover": {
+                                backgroundColor: "rgba(68, 107, 212, 0.1)", // Button hover effect
+                            },
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleEditSubmit}
+                        sx={{
+                            color: "#446bd4", // Button text color
+                            "&:hover": {
+                                backgroundColor: "rgba(68, 107, 212, 0.1)", // Button hover effect
+                            },
+                        }}
+                    >
+                        Save
+                    </Button>
                 </DialogActions>
             </Dialog>
 
             {/*popup for adding folders */}
-            <Dialog open={showNewFolderPopup} onClose={handleNewFolderPopupClose}>
-                <DialogTitle>Add Folder</DialogTitle>
-                <DialogContent>
-
-                    <select className="missing-day-select" value={start_day || ""} onChange={handleDayChange}>
+            <Dialog
+                open={showNewFolderPopup}
+                fullWidth={true}
+                onClose={handleNewFolderPopupClose}
+                sx={{
+                    "& .MuiDialog-paper": {
+                        backgroundColor: "var(--background-1)", // Replace with your background color
+                        color: "var(--text)", // Replace with your text color
+                        borderRadius: "8px", // Optional: Rounded corners
+                        width: "100%"
+                    }
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "var(--background-2)", // Background color for the title
+                        color: "var(--text)", // Text color for the title
+                        borderBottom: "1px solid var(--border-color)" // Optional: Border bottom for the title
+                    }}
+                >
+                    Add Folder
+                </DialogTitle>
+                <DialogContent
+                    sx={{
+                        backgroundColor: "var(--background-1)", // Background color for content
+                        color: "var(--text)" // Text color for content
+                    }}
+                >
+                    <select
+                        className="missing-day-select"
+                        value={start_day || ""}
+                        onChange={handleDayChange}
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: '1px solid #446bd4', // Border color
+                            backgroundColor: 'var(--input-background)', // Replace with your input background color
+                            color: 'var(--text)' // Text color
+                        }}
+                    >
                         <option value="">Select a missing day</option>
                         {missingDays.map(day => (
                             <option key={day} value={day}>
@@ -1323,15 +1527,33 @@ function Body() {
                             </option>
                         ))}
                     </select>
-
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleNewFolderPopupClose}>Cancel</Button>
-                    <Button onClick={handleCreateFolder}>Create</Button>
+                <DialogActions
+                    sx={{
+                        backgroundColor: "var(--background-2)" // Background color for actions
+                    }}
+                >
+                    <Button
+                        onClick={handleNewFolderPopupClose}
+                        sx={{
+                            color: "#446bd4" // Color for the cancel button
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleCreateFolder}
+                        sx={{
+                            color: "#446bd4" // Color for the create button
+                        }}
+                    >
+                        Create
+                    </Button>
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={showFolderEditDeletePopup} onClose={handleFolderEditDeletePopupClose}>
+
+            {/* <Dialog open={showFolderEditDeletePopup} onClose={handleFolderEditDeletePopupClose}>
                 <DialogTitle>Edit Folder</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -1361,31 +1583,87 @@ function Body() {
                     <Button onClick={handleFolderEditDeletePopupClose}>Cancel</Button>
                     <Button onClick={handleEditFolder}>SAVE</Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog> */}
 
-            <Dialog open={showDocumentPopup} onClose={handleDocumentPopupClose}>
-                <DialogTitle>Add New Document</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Select the type of document and upload it.
+            <Dialog
+                open={showDocumentPopup}
+                onClose={handleDocumentPopupClose}
+                sx={{
+                    "& .MuiDialog-paper": {
+                        backgroundColor: "var(--background-1)", // Replace with your background color
+                        color: "var(--text)", // Replace with your text color
+                        borderRadius: "8px", // Optional: Rounded corners
+                        width: "100%"
+                    }
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "var(--background-2)", // Background color for the title
+                        color: "var(--text)", // Text color for the title
+                        borderBottom: "1px solid var(--border-color)" // Optional: Border bottom for the title
+                    }}
+                >
+                    Add New Document
+                </DialogTitle>
+                <DialogContent
+                    sx={{
+                        backgroundColor: "var(--background-1)", // Background color for content
+                        color: "var(--text)" // Text color for content
+                    }}
+                >
+                    <DialogContentText
+                        sx={{
+                            color: "var(--text)" // Text color for content text
+                        }}
+                    >
                     </DialogContentText>
                     <form onSubmit={handleFormSubmit}>
-                        <div className="document-type-select">
+                        <div
+                            className="document-type-select"
+                            style={{
+                                marginBottom: '5px',
+                            }}
+                        >
                             <label htmlFor="documentType">Select Document Type:</label>
                             <select
                                 id="documentType"
+                                className="missing-day-select"
                                 value={documentType}
                                 onChange={handleDocumentTypeChange}
+                                style={{
+                                    width: '100%',
+                                    padding: '8px',
+                                    borderRadius: '4px',
+                                    border: '1px solid #446bd4', // Border color
+                                    backgroundColor: 'var(--input-background)', // Replace with your input background color
+                                    color: 'var(--text)' // Text color
+                                }}
                             >
+                                <option value="" disabled>Select the type of document</option>
                                 <option value="pdf">PDF</option>
                                 <option value="link">Link</option>
                                 <option value="video">Video</option>
                                 <option value="general">General Document</option>
                             </select>
+
                         </div>
 
+
+
                         {documentType === "pdf" && (
-                            <input type="file" onChange={handleFileChange} accept=".pdf" />
+                            <label for="images" class="drop-container" id="dropcontainer">
+                                <span class="drop-title">Drop files here</span>
+                                <p>or</p>
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    accept=".pdf"
+                                    style={{
+                                        marginBottom: '16px',
+                                        width: '98%',
+                                    }}
+                                /></label>
                         )}
 
                         {documentType === "link" && (
@@ -1398,24 +1676,76 @@ function Body() {
                                 variant="standard"
                                 value={link}
                                 onChange={handleLinkChange}
+                                sx={{
+                                    marginBottom: '16px',
+                                    "& .MuiInputBase-input": {
+                                        color: "var(--text)" // Text color for the input
+                                    },
+                                    "& .MuiInput-underline:before": {
+                                        borderBottomColor: "#446bd4", // Border color before focus
+                                    },
+                                    "& .MuiInput-underline:after": {
+                                        borderBottomColor: "#446bd4" // Border color after focus
+                                    }
+                                }}
                             />
                         )}
 
                         {documentType === "video" && (
-                            <input type="file" onChange={handleFileChange} accept="video/*" />
+                            <label for="images" class="drop-container" id="dropcontainer">
+                                <span class="drop-title">Drop files here</span>
+                                <p>or</p>
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    accept="video/*"
+                                    style={{
+                                        marginBottom: '16px',
+                                        width: '98%',
+                                    }}
+                                /></label>
                         )}
 
                         {documentType === "general" && (
-                            <input type="file" onChange={handleFileChange} />
+                            <label for="images" class="drop-container" id="dropcontainer">
+                                <span class="drop-title">Drop files here</span>
+                                <p>or</p>
+                                <input
+                                    type="file"
+                                    onChange={handleFileChange}
+                                    style={{
+                                        marginBottom: '16px',
+                                        width: '100%',
+                                    }}
+                                /></label>
                         )}
 
-                        <DialogActions>
-                            <Button onClick={handleDocumentPopupClose}>Cancel</Button>
-                            <Button type="submit">Upload</Button>
+                        <DialogActions
+                            sx={{
+                                backgroundColor: "var(--background-2)" // Background color for actions
+                            }}
+                        >
+                            <Button
+                                onClick={handleDocumentPopupClose}
+                                sx={{
+                                    color: "#446bd4" // Color for the cancel button
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                sx={{
+                                    color: "#446bd4" // Color for the upload button
+                                }}
+                            >
+                                Upload
+                            </Button>
                         </DialogActions>
                     </form>
                 </DialogContent>
             </Dialog>
+
         </div>
     );
 }

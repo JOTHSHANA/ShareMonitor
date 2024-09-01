@@ -205,6 +205,7 @@ exports.getLevels = async (req, res) => {
 // on f.work_type = w.id
 // where d.status = '3'
 
+
 exports.getFolders = async (req, res) => {
     const getFoldersQuery = `
         SELECT 
@@ -226,7 +227,7 @@ exports.getFolders = async (req, res) => {
     INNER JOIN levels l ON f.level = l.id
     JOIN subjects s ON l.subject = s.id
     JOIN work_type w ON f.work_type = w.id
-    WHERE d.status = '3'
+    WHERE d.status = '3' AND f.status = '0'
     GROUP BY d.folder, f.s_day, f.e_day, w.type, l.lvl_name, s.name
     `;
 
@@ -262,8 +263,6 @@ exports.getFolders = async (req, res) => {
             .catch(err => res.status(500).json({ error: 'Internal server error' }));
     });
 };
-
-
 
 // exports.getDocuments = async (req, res) => {
 

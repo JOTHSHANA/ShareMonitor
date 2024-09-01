@@ -1,8 +1,17 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+const ensureUploadsDirectoryExists = () => {
+    const uploadsDir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+};
 
 const storagePdf = multer.diskStorage({
     destination: function (req, file, cb) {
+        ensureUploadsDirectoryExists();
         cb(null, path.join(__dirname, '../uploads'));
     },
     filename: function (req, file, cb) {
@@ -13,6 +22,7 @@ const storagePdf = multer.diskStorage({
 
 const storageVideo = multer.diskStorage({
     destination: function (req, file, cb) {
+        ensureUploadsDirectoryExists();
         cb(null, path.join(__dirname, '../uploads'));
     },
     filename: function (req, file, cb) {

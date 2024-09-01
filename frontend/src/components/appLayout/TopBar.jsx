@@ -101,7 +101,8 @@ function TopBar(props) {
                             justifyContent: "center",
                             padding: "3px 10px 3px 7px",
                             border: "1px solid var(--border-color)",
-                            cursor: "pointer"
+                            cursor: "pointer",
+                            margin:"0px 5px"
                         }}
                         onClick={handleClick}
                     >
@@ -109,6 +110,7 @@ function TopBar(props) {
                         {capitalizedName}
                     </div>
                     <Menu
+
                         anchorEl={anchorEl}
                         open={openMenu}
                         onClose={handleCloseMenu}
@@ -120,9 +122,26 @@ function TopBar(props) {
                             vertical: 'top',
                             horizontal: 'right',
                         }}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                backgroundColor: "var(--background-1)", // Background color for the menu
+                                borderWidth: "2px",
+                                borderColor:"var(--border-color)",
+                                width: "11%"
+                            }
+                        }}
                     >
-                        <MenuItem onClick={handleLogoutClick}>
-                            <ExitToAppIcon sx={{ marginRight: "5px" }} />
+                        <MenuItem
+                            onClick={handleLogoutClick}
+                            sx={{
+                                backgroundColor: "var(--background-1)", // Background color for the menu item
+                                color: "var(--text)",
+                                "&:hover": {
+                                    backgroundColor: "", // Background color on hover
+                                }
+                            }}
+                        >
+                            <ExitToAppIcon sx={{ marginRight: "5px", color:"#e74c3c" }} />
                             Logout
                         </MenuItem>
                     </Menu>
@@ -132,13 +151,15 @@ function TopBar(props) {
             {/* Logout Confirmation Dialog */}
             <Dialog
                 open={openDialog}
+                fullWidth={true}
                 onClose={handleCloseDialog}
                 aria-labelledby="logout-dialog-title"
                 aria-describedby="logout-dialog-description"
+                sx={{"& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" }}}
             >
-                <DialogTitle id="logout-dialog-title">{"Logout Confirmation"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="logout-dialog-description">
+                <DialogTitle sx={{backgroundColor: "var(--background-1)", color: "var(--text)" , borderBottom: "1px solid var(--border-color)", marginBottom:"10px"}} id="logout-dialog-title">{"Logout Confirmation"}</DialogTitle>
+                <DialogContent  sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="logout-dialog-description"  sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
                         Are you sure you want to logout?
                     </DialogContentText>
                 </DialogContent>
