@@ -11,18 +11,22 @@ const Welcome = () => {
 
     if (dataParam) {
       const data = JSON.parse(decodeURIComponent(dataParam));
-      const { token, name, role, id } = data;
+      const { token, name, role, id,gmail, profilePhoto } = data;
 
       Cookies.set("token", token, { expires: 1 });
       Cookies.set("name", name);
       Cookies.set("role", role);
       Cookies.set("id", id);
+      Cookies.set("gmail",gmail)
+      Cookies.set('profilePhoto', profilePhoto)
 
       const savedData = {
         token: Cookies.get("token"),
         name: Cookies.get("name"),
         role: Cookies.get("role"),
         id: Cookies.get("id"),
+        gmail:Cookies.get("gmail"),
+        profilePhoto:Cookies.get("profilePhoto")
       };
       console.log("Saved JSON data:", savedData);
       if (role === 1) {

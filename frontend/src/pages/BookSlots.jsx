@@ -137,7 +137,7 @@ function Body() {
                 ) : subjects.length === 0 ? (
                     <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                         <img style={{ height: "160px" }} src={subjects_image} alt="" />
-                        No Subjects Added
+                        <p style={{fontWeight:"600"}}>No Subjects Added</p>
                         <button className="add-button" onClick={handleAddClick}>
                             <AddIcon />Add Subject
                         </button>
@@ -192,17 +192,17 @@ function Body() {
                     })
                 )}
                 <Dialog fullWidth={true} open={showPopup} onClose={handleClose} sx={{"& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}>
-                    <DialogTitle sx={{backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogTitle sx={{backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)" }}>
                         {editSubjectId ? "Edit Subject Name" : "Enter Subject Name"}
                     </DialogTitle>
                     <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
-                        <TextField autoFocus margin="dense" id="name" label="Subject Name" type="text" fullWidth variant="standard" value={newSubject} onChange={(e) => setNewSubject(e.target.value)} InputProps={{ style: { color: "var(--text)" }, disableUnderline: false, sx: { "&:before": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" }, "&:after": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" } } }} InputLabelProps={{ style: { color: "var(--text)" } }} />
+                        <TextField autoFocus margin="dense" id="name" label="Subject Name" type="text" fullWidth variant="standard" value={newSubject} onChange={(e) => setNewSubject(e.target.value)} InputProps={{ style: { color: "var(--text)" }, disableUnderline: false, sx: { "&:before": { borderBottomColor: "#179be7", borderBottomWidth: "2px" }, "&:after": { borderBottomColor: "#179be7", borderBottomWidth: "2px" } } }} InputLabelProps={{ style: { color: "#179be7" } }} />
                     </DialogContent>
                     <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
-                        <Button onClick={handleClose} sx={{ color: "#446bd4" }}>
+                        <Button onClick={handleClose} sx={{ color: "#179be7" }}>
                             Cancel
                         </Button>
-                        <Button onClick={() => { handleCreateSubject(); handleShowEditDelete(); }} sx={{ color: "#446bd4" }}>
+                        <Button onClick={() => { handleCreateSubject(); handleShowEditDelete(); }} sx={{ color: "#179be7" }}>
                             {editSubjectId ? "Update Subject" : "Create Subject"}
                         </Button>
                     </DialogActions>

@@ -322,7 +322,7 @@ exports.findMissingFolders = async (req, res) => {
         FROM folders 
         WHERE level = ? 
         AND work_type = ? 
-        AND (status = "1"||status = "2")
+        AND (status = "1" OR status = "2")
         ORDER BY s_day
     `;
 
@@ -331,8 +331,10 @@ exports.findMissingFolders = async (req, res) => {
             console.error('Error fetching folders:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
+
+        // If no results are found, return [1] as the missing days
         if (results.length === 0) {
-            return res.json({ missingDays: [] });
+            return res.json({ missingDays: [1] });
         }
 
         const days = results.map(row => row.s_day);
@@ -347,8 +349,52 @@ exports.findMissingFolders = async (req, res) => {
             previousDay = day;
         });
 
+        // Add the next day after the last existing day
         missingDays.push(previousDay + 1);
 
         return res.json({ missingDays });
     });
 };
+
+
+
+// exports.findMissingFolders = async (req, res) => {
+//     const { level, work_type } = req.query;
+//     console.log(level, work_type);
+
+//     // Query to select only s_day
+//     const query = `
+//         SELECT s_day 
+//         FROM folders 
+//         WHERE level = ? 
+//         AND work_type = ? 
+//         AND (status = "1"||status = "2")
+//         ORDER BY s_day
+//     `;
+
+//     db.query(query, [level, work_type], (err, results) => {
+//         if (err) {
+//             console.error('Error fetching folders:', err);
+//             return res.status(500).json({ error: 'Internal server error' });
+//         }
+//         if (results.length === 0) {
+//             return res.json({ missingDays: [] });
+//         }
+
+//         const days = results.map(row => row.s_day);
+//         const missingDays = [];
+
+//         let previousDay = 0;
+
+//         days.forEach(day => {
+//             for (let i = previousDay + 1; i < day; i++) {
+//                 missingDays.push(i);
+//             }
+//             previousDay = day;
+//         });
+
+//         missingDays.push(previousDay + 1);
+
+//         return res.json({ missingDays });
+//     });
+// };

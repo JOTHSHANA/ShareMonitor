@@ -98,9 +98,22 @@ function Body() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [loading, setLoading] = useState(true); // New loading state
     const [isLoading, setIsLoading] = useState(true);
+    const [anchorElSecond, setAnchorElSecond] = React.useState(null);
+    const openSecondMenu = Boolean(anchorElSecond);
+    
+
+const handleCloseSecondMenu = () => {
+    setAnchorElSecond(null);
+};
+
+const handleSecondMenuClick = (event) => {
+    setAnchorElSecond(event.currentTarget);
+};
+
 
 
     const handleShowEditDelete = (e) => {
+        handleCloseSecondMenu();
         e.stopPropagation();
         setShowEditDelete(prevState => !prevState);
     };
@@ -126,6 +139,7 @@ function Body() {
         setAnchorEl(null);
     };
 
+
     const toggleSelectMode = () => {
         setIsSelecting(!isSelecting);
         setIsUnmerging(false); // Disable unmerging mode if selecting
@@ -139,15 +153,29 @@ function Body() {
         setUnmergeFolderId(null);
     };
 
+    // const handleCheckboxChangeForMerge = (folderId) => {
+    //     if (!startMergeFolderId) {
+    //         setStartMergeFolderId(folderId);
+    //     } else if (!endMergeFolderId) {
+    //         if (folderId !== startMergeFolderId) {
+    //             setEndMergeFolderId(folderId);
+    //         } else {
+    //             toast.error("You cannot select the same folder twice.");
+    //         }
+    //     } else {
+    //         toast.error("You can only select 2 folders.");
+    //     }
+    // };
     const handleCheckboxChangeForMerge = (folderId) => {
-        if (!startMergeFolderId) {
+        if (folderId === startMergeFolderId) {
+            setStartMergeFolderId(endMergeFolderId);
+            setEndMergeFolderId(null);
+        } else if (folderId === endMergeFolderId) {
+            setEndMergeFolderId(null);
+        } else if (!startMergeFolderId) {
             setStartMergeFolderId(folderId);
         } else if (!endMergeFolderId) {
-            if (folderId !== startMergeFolderId) {
-                setEndMergeFolderId(folderId);
-            } else {
-                toast.error("You cannot select the same folder twice.");
-            }
+            setEndMergeFolderId(folderId);
         } else {
             toast.error("You can only select 2 folders.");
         }
@@ -793,7 +821,7 @@ function Body() {
         <div className='levels-page'>
             <ToastContainer />
             <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
+               
                 {/* <div style={{ display: "flex" }}>
                     <button className="add-button" onClick={handleShowEditDelete}>
                         <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
@@ -810,7 +838,7 @@ function Body() {
             <div className='levels-with-documents'>
                 <div className="container1">
                     <div className='card1-fake' style={{ display: "flex" }}>
-                        <button style={{ flex: "1" }} className="add-button" onClick={handleShowEditDelete}>
+                        {/* <button style={{ flex: "1" }} className="add-button" onClick={handleShowEditDelete}>
                             <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
                         </button>
                         <button style={{ flex: "1" }} className="add-button" onClick={handleWholeShareClick}>
@@ -818,14 +846,52 @@ function Body() {
                         </button>
                         <button style={{ flex: "1" }} className="add-button" onClick={handleAddFirstLevelClick}>
                             <AddIcon /><span>Add Level</span>
-                        </button>
+                        </button> */}
+                         <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
+                        <div>
+                            <Button
+                                id="second-button"
+                                aria-controls={openSecondMenu ? 'second-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={openSecondMenu ? 'true' : undefined}
+                                onClick={handleSecondMenuClick}
+                            >
+                                <MenuIcon sx={{ color: "var(--text)" }} />
+                            </Button>
+                            <Menu
+                                id="second-menu"
+                                anchorEl={anchorElSecond}
+                                open={openSecondMenu}
+                                onClose={handleCloseSecondMenu}
+                                MenuListProps={{
+                                    'aria-labelledby': 'second-button',
+                                    style: { backgroundColor: "var(--background-1)", color: "var(--text)" }
+                                }}
+                            >
+                                <MenuItem onClick={handleCloseSecondMenu}>
+                                    <div className='menu-icons-align' onClick={handleShowEditDelete}>
+                                        <AutoFixHighIcon style={{ color: "#ff9800", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} /><span>Modify</span>
+                                    </div>
+                                </MenuItem>
+                                {/* <MenuItem onClick={handleCloseSecondMenu}>
+                                    <div className='menu-icons-align' onClick={handleWholeShareClick}>
+                                        <RuleIcon style={{ color: "#fbc02d", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} /><span>Select</span>
+                                    </div>
+                                </MenuItem> */}
+                                <MenuItem onClick={handleCloseSecondMenu}>
+                                    <div className='menu-icons-align' onClick={handleAddFirstLevelClick}>
+                                        <AddIcon style={{ color: "#4caf50", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} /><span>Add Level</span>
+                                    </div>
+                                </MenuItem>
+                            </Menu>
+                        </div>
                     </div>
                     {loading ? (
                         <div style={{ height: "73vh", width: "100%", backgroundColor: "var(--background-1)", borderRadius: "5px", display: "flex", alignItems: "center", justifyContent: "center" }}><span class="loader"></span></div>
                     ) : levels.length === 0 ? (
                         <div className="no-levels-text" style={{ height: "73vh", backgroundColor: "var(--background-1)", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                             <img style={{ height: "120px" }} src={levels_img} alt="" />
-                            No levels added
+                            <p style={{ fontWeight: "600" }}>No levels added</p>
                             <button className="add-button" onClick={handleAddFirstLevelClick}>
                                 <AddIcon /><span>Add Level</span>
                             </button>
@@ -982,26 +1048,28 @@ function Body() {
                                                 onClose={handleCloseMui}
                                                 MenuListProps={{
                                                     'aria-labelledby': 'basic-button',
+                                                    style: { backgroundColor: "var(--background-1)", color: "var(--text)" }
                                                 }}
+
                                             >
                                                 <MenuItem onClick={handleCloseMui}>
                                                     <div className='menu-icons-align' onClick={handleShowFolderEditDelete}>
-                                                        <DeleteForeverSharpIcon /><span>Delete</span>
+                                                        <DeleteForeverSharpIcon style={{ color: "#e74c3c", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} /><span>Delete</span>
                                                     </div>
                                                 </MenuItem>
                                                 <MenuItem onClick={handleCloseMui}>
                                                     <div className='menu-icons-align' onClick={handleNewFolderPopupOpen}>
-                                                        <AddIcon /><span>AddFolders</span>
+                                                        <AddIcon style={{ color: "#13a245", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} /><span>AddFolders</span>
                                                     </div>
                                                 </MenuItem>
                                                 <MenuItem onClick={handleCloseMui}>
                                                     <div className='menu-icons-align' onClick={toggleSelectMode}>
-                                                        <MergeTypeIcon />{isSelecting ? 'Cancel merge' : 'Merge'}
+                                                        <MergeTypeIcon style={{ color: "#0079c5", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} />{isSelecting ? 'Cancel merge' : 'Merge'}
                                                     </div>
                                                 </MenuItem>
                                                 <MenuItem onClick={handleCloseMui}>
                                                     <div className='menu-icons-align' onClick={toggleUnmergeMode}>
-                                                        <CallSplitIcon />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
+                                                        <CallSplitIcon style={{ color: "#b861c8", marginRight: "5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px", fontSize: "18px" }} />{isUnmerging ? 'Cancel Unmerge' : 'Unmerge'}
                                                     </div>
                                                 </MenuItem>
                                             </Menu>
@@ -1011,9 +1079,9 @@ function Body() {
 
                                     {isLoading ? (
                                         <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px"}}>
-                                                <img style={{ height: "120px"}} src={empty_folder} alt="No Folders" />
-                                                <p>No folders added</p>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
+                                                <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
+                                                <p style={{ fontWeight: "600" }}>No folders added</p>
                                             </div>
                                         </div>
                                     ) : folders.length > 0 ? (
@@ -1115,7 +1183,7 @@ function Body() {
                                         <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
                                                 <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
-                                                <p>No documents added</p>
+                                                <p style={{ fontWeight: "600" }}>No documents added</p>
                                                 <button className='add-button' onClick={handleDocumentPopupOpen}>
                                                     <AddIcon /><span>Add Document</span>
                                                 </button>
@@ -1196,7 +1264,7 @@ function Body() {
                                         <div className="no-subjects-text" style={{ height: "80%", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0px" }}>
                                                 <img style={{ height: "120px" }} src={empty_folder} alt="No Folders" />
-                                                <p>No documents added</p>
+                                                <p style={{ fontWeight: "600" }}>No documents added</p>
                                                 <button className='add-button' onClick={handleDocumentPopupOpen}>
                                                     <AddIcon /><span>Add Document</span>
                                                 </button>
@@ -1248,7 +1316,8 @@ function Body() {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)" // Optional: Border color for the title
+                        borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom:"10px" // Optional: Border color for the title
+                        
                     }}
                 >
                     Add New Level
@@ -1277,15 +1346,16 @@ function Body() {
                         value={levelNum + 1}
                         onChange={(e) => setLevelNum(e.target.value)}
                         disabled
+                        InputLabelProps={{ style: { color: "#179be7" } }}
                         sx={{
                             "& .MuiInputBase-input": {
                                 color: "var(--text)" // Text color for the input
                             },
                             "& .MuiInput-underline:before": {
-                                borderBottomColor: "#446bd4", // Border color before focus
+                                borderBottomColor: "#179be7", // Border color before focus
                             },
                             "& .MuiInput-underline:after": {
-                                borderBottomColor: "#446bd4" // Border color after focus
+                                borderBottomColor: "#179be7" // Border color after focus
                             }
                         }}
                     />
@@ -1299,15 +1369,16 @@ function Body() {
                         variant="standard"
                         value={newLevel}
                         onChange={(e) => setNewLevel(e.target.value)}
+                        InputLabelProps={{ style: { color: "#179be7" } }}
                         sx={{
                             "& .MuiInputBase-input": {
                                 color: "var(--text)" // Text color for the input
                             },
                             "& .MuiInput-underline:before": {
-                                borderBottomColor: "#446bd4", // Border color before focus
+                                borderBottomColor: "#179be7", // Border color before focus
                             },
                             "& .MuiInput-underline:after": {
-                                borderBottomColor: "#446bd4" // Border color after focus
+                                borderBottomColor: "#179be7" // Border color after focus
                             }
                         }}
                     />
@@ -1320,7 +1391,7 @@ function Body() {
                     <Button
                         onClick={handleClose}
                         sx={{
-                            color: "#446bd4" // Color for the cancel button
+                            color: "#179be7" // Color for the cancel button
                         }}
                     >
                         Cancel
@@ -1328,7 +1399,7 @@ function Body() {
                     <Button
                         onClick={handleCreateLevel}
                         sx={{
-                            color: "#446bd4" // Color for the create button
+                            color: "#179be7" // Color for the create button
                         }}
                     >
                         Create
@@ -1343,7 +1414,7 @@ function Body() {
                 onClose={handleFirstLevelClose}
                 sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)",  borderBottom: "1px solid var(--border-color)" , width: 'auto', marginBottom:"10px"}}>
                     Add New Level
                 </DialogTitle>
                 <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
@@ -1364,11 +1435,11 @@ function Body() {
                             style: { color: "var(--text)" },
                             disableUnderline: false,
                             sx: {
-                                "&:before": { borderBottomColor: "#446bd4", borderBottomWidth: "1px" },
-                                "&:after": { borderBottomColor: "#446bd4", borderBottomWidth: "1px" },
+                                "&:before": { borderBottomColor: "#179be7", borderBottomWidth: "1px" },
+                                "&:after": { borderBottomColor: "#179be7", borderBottomWidth: "1px" },
                             }
                         }}
-                        InputLabelProps={{ style: { color: "var(--text)" } }}
+                        InputLabelProps={{ style: { color: "#179be7" } }}
                     />
                     <TextField
                         autoFocus
@@ -1384,18 +1455,18 @@ function Body() {
                             style: { color: "var(--text)" },
                             disableUnderline: false,
                             sx: {
-                                "&:before": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" },
-                                "&:after": { borderBottomColor: "#446bd4", borderBottomWidth: "2px" }
+                                "&:before": { borderBottomColor: "#179be7", borderBottomWidth: "2px" },
+                                "&:after": { borderBottomColor: "#179be7", borderBottomWidth: "2px" }
                             }
                         }}
-                        InputLabelProps={{ style: { color: "var(--text)" } }}
+                        InputLabelProps={{ style: { color: "#179be7" } }}
                     />
                 </DialogContent>
                 <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
-                    <Button onClick={handleFirstLevelClose} sx={{ color: "#446bd4" }}>
+                    <Button onClick={handleFirstLevelClose} sx={{ color: "#179be7" }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleCreateLevel} sx={{ color: "#446bd4" }}>
+                    <Button onClick={handleCreateLevel} sx={{ color: "#179be7" }}>
                         Create
                     </Button>
                 </DialogActions>
@@ -1416,6 +1487,8 @@ function Body() {
                     backgroundColor: "var(--background-1)", // Background color for the title
                     color: "var(--text)", // Text color for the title
                     fontWeight: "bold", // Bold font for the title
+                     borderBottom: "1px solid var(--border-color)",marginBottom:"10px"
+                     
                 }}>
                     Edit Level Name
                 </DialogTitle>
@@ -1438,17 +1511,17 @@ function Body() {
                             disableUnderline: false,
                             sx: {
                                 "&:before": {
-                                    borderBottomColor: "#446bd4", // Bottom border color before interaction
+                                    borderBottomColor: "#179be7", // Bottom border color before interaction
                                     borderBottomWidth: "2px", // Bottom border width before interaction
                                 },
                                 "&:after": {
-                                    borderBottomColor: "#446bd4", // Bottom border color after interaction
+                                    borderBottomColor: "#179be7", // Bottom border color after interaction
                                     borderBottomWidth: "2px", // Bottom border width after interaction
                                 },
                             },
                         }}
                         InputLabelProps={{
-                            style: { color: "var(--text)" }, // Text color for the label
+                            style: { color: "#179be7" }, // Text color for the label
                         }}
                     />
                 </DialogContent>
@@ -1456,7 +1529,7 @@ function Body() {
                     <Button
                         onClick={handleEditClose}
                         sx={{
-                            color: "#446bd4", // Button text color
+                            color: "#179be7", // Button text color
                             "&:hover": {
                                 backgroundColor: "rgba(68, 107, 212, 0.1)", // Button hover effect
                             },
@@ -1467,7 +1540,7 @@ function Body() {
                     <Button
                         onClick={handleEditSubmit}
                         sx={{
-                            color: "#446bd4", // Button text color
+                            color: "#179be7", // Button text color
                             "&:hover": {
                                 backgroundColor: "rgba(68, 107, 212, 0.1)", // Button hover effect
                             },
@@ -1496,7 +1569,7 @@ function Body() {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)" // Optional: Border bottom for the title
+                        borderBottom: "1px solid var(--border-color)", marginBottom:"10px" // Optional: Border bottom for the title
                     }}
                 >
                     Add Folder
@@ -1515,7 +1588,7 @@ function Body() {
                             width: '100%',
                             padding: '8px',
                             borderRadius: '4px',
-                            border: '1px solid #446bd4', // Border color
+                            border: '1px solid #179be7', // Border color
                             backgroundColor: 'var(--input-background)', // Replace with your input background color
                             color: 'var(--text)' // Text color
                         }}
@@ -1536,7 +1609,7 @@ function Body() {
                     <Button
                         onClick={handleNewFolderPopupClose}
                         sx={{
-                            color: "#446bd4" // Color for the cancel button
+                            color: "#179be7" // Color for the cancel button
                         }}
                     >
                         Cancel
@@ -1544,7 +1617,7 @@ function Body() {
                     <Button
                         onClick={handleCreateFolder}
                         sx={{
-                            color: "#446bd4" // Color for the create button
+                            color: "#179be7" // Color for the create button
                         }}
                     >
                         Create
@@ -1601,7 +1674,7 @@ function Body() {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)" // Optional: Border bottom for the title
+                        borderBottom: "1px solid var(--border-color)", marginBottom:"10px" // Optional: Border bottom for the title
                     }}
                 >
                     Add New Document
@@ -1635,7 +1708,7 @@ function Body() {
                                     width: '100%',
                                     padding: '8px',
                                     borderRadius: '4px',
-                                    border: '1px solid #446bd4', // Border color
+                                    border: '1px solid #179be7', // Border color
                                     backgroundColor: 'var(--input-background)', // Replace with your input background color
                                     color: 'var(--text)' // Text color
                                 }}
@@ -1682,12 +1755,13 @@ function Body() {
                                         color: "var(--text)" // Text color for the input
                                     },
                                     "& .MuiInput-underline:before": {
-                                        borderBottomColor: "#446bd4", // Border color before focus
+                                        borderBottomColor: "#179be7", // Border color before focus
                                     },
                                     "& .MuiInput-underline:after": {
-                                        borderBottomColor: "#446bd4" // Border color after focus
+                                        borderBottomColor: "#179be7" // Border color after focus
                                     }
                                 }}
+                                InputLabelProps={{ style: { color: "#179be7" } }}
                             />
                         )}
 
@@ -1728,7 +1802,7 @@ function Body() {
                             <Button
                                 onClick={handleDocumentPopupClose}
                                 sx={{
-                                    color: "#446bd4" // Color for the cancel button
+                                    color: "#179be7" // Color for the cancel button
                                 }}
                             >
                                 Cancel
@@ -1736,7 +1810,7 @@ function Body() {
                             <Button
                                 type="submit"
                                 sx={{
-                                    color: "#446bd4" // Color for the upload button
+                                    color: "#179be7" // Color for the upload button
                                 }}
                             >
                                 Upload

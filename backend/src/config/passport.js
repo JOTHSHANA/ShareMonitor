@@ -27,9 +27,15 @@ passport.use(new GoogleStrategy({
                 user.role_id = user.role_id
                 user.name = user.name
                 user.id = user.id
+                user.gmail = user.gmail
+                user.profilePhoto = profile.photos[0]?.value; // Add profile photo URL
+
                 console.log(user.name)
                 console.log(user.role_id)
                 console.log(user.id)
+                console.log(user.gmail)
+                console.log(user.profilePhoto); // Log the profile photo
+
 
                 return done(null, user);
             } else {

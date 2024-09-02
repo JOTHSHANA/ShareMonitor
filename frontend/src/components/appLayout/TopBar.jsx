@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from '@mui/icons-material/Menu';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CustomizedSwitches from "./toggleTheme";
 import Cookies from "js-cookie";
 import Menu from '@mui/material/Menu';
@@ -13,9 +12,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import { Typography, Avatar, Box } from '@mui/material';
+import { Cookie } from "@mui/icons-material";
 
 function TopBar(props) {
     const name = Cookies.get("name");
+    const profile = Cookies.get("profilePhoto")
+    const gmail = Cookies.get("gmail")
     const navigate = useNavigate()
     const capitalizedName = name ? name.toUpperCase() : "";
 
@@ -99,18 +102,32 @@ function TopBar(props) {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            padding: "3px 10px 3px 7px",
+                            padding: "5px 10px 5px 7px",
                             border: "1px solid var(--border-color)",
                             cursor: "pointer",
-                            margin:"0px 5px"
+                            margin: "0px 5px",
+                            fontWeight:"var(--f-weight)"
                         }}
                         onClick={handleClick}
                     >
-                        <AccountCircleIcon sx={{ marginRight: "3px", color: "#6c7293", fontSize: "35px" }} />
+                        {profile ? (
+                            <img
+                                src={profile}
+                                alt="Profile"
+                                style={{
+                                    width: "30px",
+                                    height: "30px",
+                                    borderRadius: "50%",
+                                    marginRight: "5px"
+                                }}
+                            />
+                        ) : (
+                            <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
+                        )}
                         {capitalizedName}
                     </div>
+                    
                     <Menu
-
                         anchorEl={anchorEl}
                         open={openMenu}
                         onClose={handleCloseMenu}
@@ -125,25 +142,42 @@ function TopBar(props) {
                         sx={{
                             "& .MuiPaper-root": {
                                 backgroundColor: "var(--background-1)", // Background color for the menu
-                                borderWidth: "2px",
-                                borderColor:"var(--border-color)",
-                                width: "11%"
+                                border: "2px solid var(--border-color)", // Border color
+                                width: "250px", // Adjusted width
+                                padding: "5px", // Padding inside the menu
                             }
                         }}
                     >
-                        <MenuItem
-                            onClick={handleLogoutClick}
-                            sx={{
-                                backgroundColor: "var(--background-1)", // Background color for the menu item
-                                color: "var(--text)",
-                                "&:hover": {
-                                    backgroundColor: "", // Background color on hover
-                                }
-                            }}
-                        >
-                            <ExitToAppIcon sx={{ marginRight: "5px", color:"#e74c3c" }} />
-                            Logout
-                        </MenuItem>
+                        <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
+                            <Typography variant="p" sx={{ color: "var(--text)", margin: "5px",marginTop:"0px", position:"absolute", top:"0px", backgroundColor:"var(--document)", width:"100%", padding:"10px 0px 50px 0px", display:"flex", justifyContent:"center", zIndex:"2", borderRadius:"3px" }}>
+                                {name}
+                            </Typography>
+                            {profile ? (
+                                <img
+                                    src={profile}
+                                    style={{
+                                        width: "80px",
+                                        height: "80px",
+                                        borderRadius: "50%",
+                                        marginRight: "5px",
+                                        margin:"10px",
+                                        zIndex:"3",
+                                        marginTop:"30px",
+                                        backgroundColor:"white"
+                                    }}
+                                />
+                            ) : (
+                                <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
+                            )}
+
+                            <Typography variant="body2" sx={{ color: "var(--text)" }}>
+                                {name}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: "var(--text)", marginBottom:"10px" }}>
+                                {gmail}
+                            </Typography>
+                        </Box>
+                        <button className="logout-button" onClick={handleLogoutClick}>LOGOUT</button>
                     </Menu>
                 </div>
             </div>
@@ -155,11 +189,11 @@ function TopBar(props) {
                 onClose={handleCloseDialog}
                 aria-labelledby="logout-dialog-title"
                 aria-describedby="logout-dialog-description"
-                sx={{"& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" }}}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle sx={{backgroundColor: "var(--background-1)", color: "var(--text)" , borderBottom: "1px solid var(--border-color)", marginBottom:"10px"}} id="logout-dialog-title">{"Logout Confirmation"}</DialogTitle>
-                <DialogContent  sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
-                    <DialogContentText id="logout-dialog-description"  sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", marginBottom: "10px" }} id="logout-dialog-title">{"Logout Confirmation"}</DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="logout-dialog-description" sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
                         Are you sure you want to logout?
                     </DialogContentText>
                 </DialogContent>

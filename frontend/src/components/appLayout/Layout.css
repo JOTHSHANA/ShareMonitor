@@ -40,7 +40,7 @@
     font-size: 25px;
     letter-spacing: 1px;
     font-family: "Varela Round", sans-serif;
-    font-weight: 900;
+    font-weight: var(--f-weight);
 }
 
 .app-body {
@@ -128,7 +128,7 @@ p {
 .link {
     text-decoration: none;
     color: #6c7293;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -176,4 +176,24 @@ p {
     border-radius: 50%;
     background-color: var(--icons-bg);
     color: #e86232;
+}
+
+.logout-button{
+    width: 100%;
+    padding: 7px 0px;
+    font-size: 14px;
+    font-weight: var(--f-weight);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    border: none;
+    background-color: rgb(227, 92, 92);
+    color: white;
+    cursor: pointer;
+}
+
+.logout-button:hover{
+    background-color: rgb(232, 63, 63);
+    color: rgb(47, 211, 198)                    ;
 }

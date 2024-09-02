@@ -125,7 +125,7 @@
     padding: 5px 7px;
     border-radius: 5px;
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 14px;
     display: flex;
     align-items: center;
@@ -141,7 +141,7 @@
     padding: 5px 7px;
     border-radius: 5px;
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 14px;
     display: flex;
     align-items: center;
@@ -156,7 +156,7 @@
     padding: 5px 5px;
     border-radius: 5px;
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 14px;
     display: flex;
     align-items: center;
@@ -170,19 +170,19 @@
 
     padding: 0px 5px;
     border-radius: 5px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
 }
 
 .trash-details .counts.clr2 p:last-child {
     padding: 0px 5px;
     border-radius: 5px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
 }
 
 .trash-details .counts.clr3 p:last-child {
     padding: 0px 5px;
     border-radius: 5px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
 
 }
 
@@ -194,7 +194,7 @@
     padding: 5px 7px;
     border-radius: 5px;
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 14px;
     display: flex;
     align-items: flex-end;
@@ -208,7 +208,7 @@
     padding: 5px 7px;
     border-radius: 5px;
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 14px;
     display: flex;
     align-items: center;
@@ -227,7 +227,7 @@
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     letter-spacing: 0px;
 
 }
@@ -254,7 +254,7 @@
 
 .card1.active .level-num {
     color: white;
-    font-weight: 700;
+    font-weight: var(--f-weight);
 }
 
 .card1-fake {
@@ -265,13 +265,13 @@
     border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     box-shadow: var(--shadow);
 }
 
 .level-num {
     font-size: small;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     color: rgb(92, 92, 92);
 }
 
@@ -345,7 +345,7 @@ hr {
     justify-content: center;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 700
+    font-weight: var(--f-weight);
 }
 
 .tabs-list {
@@ -454,7 +454,7 @@ hr {
 .drop-title {
     color: var(--text);
     font-size: 20px;
-    font-weight: bold;
+    font-weight: var(--f-weight);
     text-align: center;
     transition: color .2s ease-in-out;
 }
@@ -566,7 +566,7 @@ input[type=file]::file-selector-button:hover {
 .trash-document-item a {
     color: var(--text);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: var(--f-weight);
     width: 100%;
 }
 
@@ -614,7 +614,7 @@ img {
     padding: 2px 7px;
     background-color: rgb(10, 87, 97);
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     color: white;
 }
 
@@ -695,7 +695,7 @@ input[type=checkbox]:checked {
 }
 
 label {
-    font-weight: bold;
+    font-weight: var(--f-weight);
     margin-bottom: 8px;
     display: block;
 }
@@ -742,7 +742,7 @@ label {
 .document-type-select label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: var(--f-weight);
 }
 
 .document-type-select select {
@@ -848,7 +848,7 @@ label {
     /* background-color: rgb(225, 231, 241);*/
     border-bottom: 3px solid #179be7;
     color: #179be7;
-    font-weight: bold;
+    font-weight: var(--f-weight);
 }
 
 
@@ -964,7 +964,7 @@ label {
     color: rgb(17, 94, 203);
     border: none;
     padding: 7px 13px;
-    font-weight: 700;
+    font-weight: var(--f-weight);
     font-size: 16px;
     cursor: pointer;
     border-radius: 5px;
@@ -992,6 +992,8 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-weight: var(--f-weight);
 }
 
 .missing-day-select:focus {
@@ -1014,11 +1016,13 @@ label {
 .no-subjects-text {
     font-size: 16px;
     color: var(--text);
+    font-weight: var(--f-weight);
 }
 
 .no-levels-text {
     font-size: 16px;
     color: var(--text);
+    font-weight: var(--f-weight);
 }
 
 .no-subjects-text img, .no-levels-text img{
