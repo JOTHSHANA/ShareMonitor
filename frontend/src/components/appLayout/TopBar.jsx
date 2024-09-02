@@ -149,7 +149,7 @@ function TopBar(props) {
                         }}
                     >
                         <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-                            <Typography variant="p" sx={{ color: "var(--text)", margin: "5px",marginTop:"0px", position:"absolute", top:"0px", backgroundColor:"var(--document)", width:"100%", padding:"10px 0px 50px 0px", display:"flex", justifyContent:"center", zIndex:"2", borderRadius:"3px" }}>
+                            <Typography variant="p" sx={{ color: "var(--text)", margin: "5px",marginTop:"0px", position:"absolute", top:"0px", backgroundColor:"var(--document)", width:"100%", padding:"10px 0px 50px 0px", display:"flex", justifyContent:"center", zIndex:"2", borderRadius:"3px", fontWeight:"var(--f-weight)" }}>
                                 {name}
                             </Typography>
                             {profile ? (
@@ -170,7 +170,7 @@ function TopBar(props) {
                                 <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
                             )}
 
-                            <Typography variant="body2" sx={{ color: "var(--text)" }}>
+                            <Typography variant="body2" sx={{ color: "var(--text)", fontWeight:"var(--f-weight)" }}>
                                 {name}
                             </Typography>
                             <Typography variant="caption" sx={{ color: "var(--text)", marginBottom:"10px" }}>

@@ -100,15 +100,19 @@ function Body() {
     const [isLoading, setIsLoading] = useState(true);
     const [anchorElSecond, setAnchorElSecond] = React.useState(null);
     const openSecondMenu = Boolean(anchorElSecond);
-    
+    const containerRef = useRef(null);
+    const hoverEditDeleteRef = useRef(null);
 
-const handleCloseSecondMenu = () => {
-    setAnchorElSecond(null);
-};
 
-const handleSecondMenuClick = (event) => {
-    setAnchorElSecond(event.currentTarget);
-};
+
+
+    const handleCloseSecondMenu = () => {
+        setAnchorElSecond(null);
+    };
+
+    const handleSecondMenuClick = (event) => {
+        setAnchorElSecond(event.currentTarget);
+    };
 
 
 
@@ -817,11 +821,50 @@ const handleSecondMenuClick = (event) => {
         setEnd_day(selectedDay);
     };
 
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if ((isSelecting || isUnmerging) && containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsSelecting(false);
+                setIsUnmerging(false);
+            }
+        };
+
+        if (isSelecting || isUnmerging) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSelecting, isUnmerging]);
+
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (hoverEditDeleteRef.current && !hoverEditDeleteRef.current.contains(event.target)) {
+                setShowFolderEditDelete(false);
+            }
+        };
+
+        if (showFolderEditDelete) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showFolderEditDelete]);
+
     return (
         <div className='levels-page'>
             <ToastContainer />
             <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-               
+
                 {/* <div style={{ display: "flex" }}>
                     <button className="add-button" onClick={handleShowEditDelete}>
                         <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />Modify
@@ -847,7 +890,7 @@ const handleSecondMenuClick = (event) => {
                         <button style={{ flex: "1" }} className="add-button" onClick={handleAddFirstLevelClick}>
                             <AddIcon /><span>Add Level</span>
                         </button> */}
-                         <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
+                        <p className='subject-name'><ArrowForwardIosIcon sx={{ fontSize: "14px", margin: "0px" }} />{subjectName}</p>
                         <div>
                             <Button
                                 id="second-button"
@@ -991,16 +1034,16 @@ const handleSecondMenuClick = (event) => {
                                 >
                                     <span className="tab-icon">
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            {tab === "ClassWorks" && <LibraryBooksIcon sx={{ fontSize: "20px", color: "#0079c5", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                            {tab === "ClassWorks" && <LibraryBooksIcon sx={{ fontSize: "20px", color: "#0079c5", margin: "0px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            {tab === "HomeWorks" && <HomeWorkIcon sx={{ fontSize: "20px", color: "#1b6b5f", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                            {tab === "HomeWorks" && <HomeWorkIcon sx={{ fontSize: "20px", color: "#1b6b5f", margin: "0px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            {tab === "Assessment" && <Assignment sx={{ fontSize: "20px", color: "#c7566b", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                            {tab === "Assessment" && <Assignment sx={{ fontSize: "20px", color: "#c7566b", margin: "0px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            {tab === "Others" && <MenuOpenIcon sx={{ fontSize: "20px", color: "#b04dc2", margin: "0px 5px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
+                                            {tab === "Others" && <MenuOpenIcon sx={{ fontSize: "20px", color: "#b04dc2", margin: "0px", padding: "3px", backgroundColor: "var(--document)", borderRadius: "5px" }} />}
                                         </div>
                                     </span>
                                     <span className="full-tab-name">{tab}</span>
@@ -1020,8 +1063,8 @@ const handleSecondMenuClick = (event) => {
                         <div className='sticky-add-button'>
                             <div style={{ display: "flex" }}>
                             </div>
-                            <div className='documents-container'>
-                                <div className='folders-div'>
+                            <div ref={hoverEditDeleteRef} className='documents-container'>
+                                <div ref={containerRef} className='folders-div'>
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                         <div>
                                             {isSelecting && (
@@ -1104,6 +1147,7 @@ const handleSecondMenuClick = (event) => {
                                             return acc;
                                         }, []).map((folder, index) => (
                                             <div
+
                                                 key={index}
                                                 className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`}
                                                 onClick={() => fetchDocuments(folder.id)}
@@ -1112,6 +1156,7 @@ const handleSecondMenuClick = (event) => {
                                                     <div style={{ display: "flex" }}>
                                                         {(isSelecting || isUnmerging) && (
                                                             <input
+
                                                                 type="checkbox"
                                                                 checked={isSelecting
                                                                     ? (folder.id === startMergeFolderId || folder.id === endMergeFolderId)
@@ -1137,10 +1182,14 @@ const handleSecondMenuClick = (event) => {
                                                         <ArrowForwardIosRoundedIcon />
                                                     </div>
                                                     <div
+
                                                         className="hover-edit-delete-folders"
+
                                                         style={{ display: showFolderEditDelete ? 'flex' : 'none' }}
+
                                                     >
                                                         <div
+
                                                             className="delete-icon"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -1316,8 +1365,8 @@ const handleSecondMenuClick = (event) => {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom:"10px" // Optional: Border color for the title
-                        
+                        borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" // Optional: Border color for the title
+
                     }}
                 >
                     Add New Level
@@ -1414,7 +1463,7 @@ const handleSecondMenuClick = (event) => {
                 onClose={handleFirstLevelClose}
                 sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)",  borderBottom: "1px solid var(--border-color)" , width: 'auto', marginBottom:"10px"}}>
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" }}>
                     Add New Level
                 </DialogTitle>
                 <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
@@ -1487,8 +1536,8 @@ const handleSecondMenuClick = (event) => {
                     backgroundColor: "var(--background-1)", // Background color for the title
                     color: "var(--text)", // Text color for the title
                     fontWeight: "bold", // Bold font for the title
-                     borderBottom: "1px solid var(--border-color)",marginBottom:"10px"
-                     
+                    borderBottom: "1px solid var(--border-color)", marginBottom: "10px"
+
                 }}>
                     Edit Level Name
                 </DialogTitle>
@@ -1569,7 +1618,7 @@ const handleSecondMenuClick = (event) => {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)", marginBottom:"10px" // Optional: Border bottom for the title
+                        borderBottom: "1px solid var(--border-color)", marginBottom: "10px" // Optional: Border bottom for the title
                     }}
                 >
                     Add Folder
@@ -1674,7 +1723,7 @@ const handleSecondMenuClick = (event) => {
                     sx={{
                         backgroundColor: "var(--background-2)", // Background color for the title
                         color: "var(--text)", // Text color for the title
-                        borderBottom: "1px solid var(--border-color)", marginBottom:"10px" // Optional: Border bottom for the title
+                        borderBottom: "1px solid var(--border-color)", marginBottom: "10px" // Optional: Border bottom for the title
                     }}
                 >
                     Add New Document

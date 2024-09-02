@@ -14,6 +14,7 @@
 .menu-names {
     display: none;
     transition: all 10s ease-in;
+    font-weight: var(--f-weight);
 }
 
 .app-sidebar:hover {
@@ -195,5 +196,4 @@ p {
 
 .logout-button:hover{
     background-color: rgb(232, 63, 63);
-    color: rgb(47, 211, 198)                    ;
 }
