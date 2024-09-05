@@ -14,6 +14,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { Typography, Avatar, Box } from '@mui/material';
 import { Cookie } from "@mui/icons-material";
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 function TopBar(props) {
     const name = Cookies.get("name");
@@ -91,7 +92,7 @@ function TopBar(props) {
                 <div onClick={props.sidebar} className="sidebar-menu">
                     <MenuIcon />
                 </div>
-                <div className="app-name gradient-text"><b>ShareManager</b></div>
+                <div className="app-name"><b>ShareManager</b></div>
                 <div className="top-bar-menus">
                     <CustomizedSwitches />
                     <div
@@ -125,6 +126,7 @@ function TopBar(props) {
                             <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
                         )}
                         {capitalizedName}
+                        <KeyboardArrowDownRoundedIcon />
                     </div>
                     
                     <Menu

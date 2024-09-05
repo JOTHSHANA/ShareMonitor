@@ -102,8 +102,20 @@ function Body() {
     const openSecondMenu = Boolean(anchorElSecond);
     const containerRef = useRef(null);
     const hoverEditDeleteRef = useRef(null);
+    const documentEditDeleteRef = useRef(null);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (documentEditDeleteRef.current && !documentEditDeleteRef.current.contains(event.target)) {
+                setShowDocumentEditDelete(false);
+            }
+        };
 
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
 
     const handleCloseSecondMenu = () => {
@@ -604,10 +616,13 @@ function Body() {
     };
 
     const handleDocumentDelete = async (id) => {
+        setShowDocumentEditDelete(prevState => !prevState);
+        setActiveFolderId(folders[0].id);
 
         const confirmDelete = window.confirm("Are you sure, You want to delete this document?");
         if (confirmDelete) {
             setDocUndo(id);
+            setActiveFolderId(folders[0].id);
             fetchFolders(activeFolderId);
             try {
                 fetchFolders(activeFolderId);
@@ -1013,7 +1028,7 @@ function Body() {
                             <>
                                 <div>
                                     {/* <p className='level-num'>Level {selectedLevel.level}</p> */}
-                                    <p>{selectedLevel.lvl_name}</p>
+                                    <p style={{ fontWeight: "var(--f-weight)" }}>{selectedLevel.lvl_name}</p>
                                 </div>
                             </>
                         ) : (
@@ -1217,7 +1232,7 @@ function Body() {
 
 
                                 </div>
-                                <div className='documents-div'>
+                                <div ref={documentEditDeleteRef} className='documents-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
                                         <button className="add-button" onClick={handleShowDocumentEditDelete}>
                                             <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
@@ -1291,6 +1306,7 @@ function Body() {
                                                             <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
                                                         </button>
                                                         <div
+
                                                             className="hover-edit-delete-documents"
                                                             style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
                                                         >

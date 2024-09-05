@@ -344,7 +344,7 @@ hr {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: var(--f-weight);
 }
 
@@ -443,7 +443,7 @@ hr {
 .drop-container:hover,
 .drop-container.drag-active {
     background: var(--document);
-    
+
 }
 
 .drop-container:hover .drop-title,
@@ -1025,6 +1025,7 @@ label {
     font-weight: var(--f-weight);
 }
 
-.no-subjects-text img, .no-levels-text img{
+.no-subjects-text img,
+.no-levels-text img {
     margin-right: 0px;
 }

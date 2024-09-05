@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #121212;
+    background-color: var(--document);
 }
 
 .login-card {
@@ -11,7 +11,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #1e1e1e;
+    background: var(--background-1);
     border-radius: 10px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     padding: 30px;
@@ -36,7 +36,7 @@
     object-fit: cover;
     opacity: 0.9;
     /* Slight transparency to blend with the dark theme */
-    mix-blend-mode: difference;
+    /* mix-blend-mode: difference; */
 }
 
 .signin-button {
@@ -63,6 +63,7 @@
 .google-logo {
     margin-right: 10px;
 }
+
 /* 
 @media (max-width: 768px) {
     .login-card {
@@ -76,3 +77,32 @@
     .google-logo {
     }
 } */
+
+
+
+
+
+/* error page */
+
+.error-page {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--document);
+}
+
+
+.error-card {
+    width: 500px;
+    height: 400px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-1);
+    border-radius: 5px;
+    box-shadow: var(--shadow);
+}

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import CustomizedSwitches from "../../components/appLayout/toggleTheme";
 
 const Welcome = () => {
   const [searchParams] = useSearchParams();
@@ -11,13 +12,13 @@ const Welcome = () => {
 
     if (dataParam) {
       const data = JSON.parse(decodeURIComponent(dataParam));
-      const { token, name, role, id,gmail, profilePhoto } = data;
+      const { token, name, role, id, gmail, profilePhoto } = data;
 
       Cookies.set("token", token, { expires: 1 });
       Cookies.set("name", name);
       Cookies.set("role", role);
       Cookies.set("id", id);
-      Cookies.set("gmail",gmail)
+      Cookies.set("gmail", gmail)
       Cookies.set('profilePhoto', profilePhoto)
 
       const savedData = {
@@ -25,8 +26,8 @@ const Welcome = () => {
         name: Cookies.get("name"),
         role: Cookies.get("role"),
         id: Cookies.get("id"),
-        gmail:Cookies.get("gmail"),
-        profilePhoto:Cookies.get("profilePhoto")
+        gmail: Cookies.get("gmail"),
+        profilePhoto: Cookies.get("profilePhoto")
       };
       console.log("Saved JSON data:", savedData);
       if (role === 1) {
@@ -40,7 +41,8 @@ const Welcome = () => {
 
   return (
     <div>
-      <div style={{ height: "80vh", width: "88vw", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ display: "none" }}><CustomizedSwitches /></div>
+      <div style={{ height: "100vh", width: "100vw", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--document)" }}>
         <span class="loader"></span>
       </div>
     </div>

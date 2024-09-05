@@ -100,6 +100,13 @@ function Subjects() {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [subjectClick, setSubjectClick] = useState(null)
     const navigate = useNavigate()
+    const [role, setRole] = useState(null); // Add role as a state
+
+    // Fetch role when the component mounts
+    useEffect(() => {
+        const userRole = Cookies.get("role");
+        setRole(userRole); // Set role in state
+    }, []);
 
 
     const fetchSubjects = async () => {
@@ -297,6 +304,14 @@ function Levels() {
     const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openEmptyDialog, setOpenEmptyDialog] = useState(false); // State for the empty dialog
+    const [role, setRole] = useState(null); // Add role as a state
+
+    // Fetch role when the component mounts
+    useEffect(() => {
+        const userRole = Cookies.get("role");
+        setRole(userRole); // Set role in state
+    }, []);
+
 
     const fetchLevels = async () => {
         setLoading(true);
@@ -509,6 +524,14 @@ function Folders() {
     const [selectedFolder, setSelectedFolder] = useState(null);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
+    const [role, setRole] = useState(null); // Add role as a state
+
+    // Fetch role when the component mounts
+    useEffect(() => {
+        const userRole = Cookies.get("role");
+        setRole(userRole); // Set role in state
+    }, []);
+
 
 
 
@@ -659,16 +682,7 @@ function Folders() {
                                         }} />
                                         Restore
                                     </button>
-                                    {/* <button className="button" onClick={() => handleDeleteClick(folder)} disabled={role !== "1"}>
-                                        <DeleteForeverIcon sx={{
-                                            padding: "2px",
-                                            backgroundColor: "var(--background-1)",
-                                            borderRadius: "5px",
-                                            marginRight: "5px",
-                                            color: role === "1" ? "red" : "grey",
-                                            fontSize: "20px"
-                                        }} /> Delete
-                                        </button> */}
+
                                     {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(folder)}
@@ -745,6 +759,14 @@ function Documents() {
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
+    const [role, setRole] = useState(null); // Add role as a state
+
+    // Fetch role when the component mounts
+    useEffect(() => {
+        const userRole = Cookies.get("role");
+        setRole(userRole); // Set role in state
+    }, []);
+
 
     const fetchDocuments = async () => {
         setLoading(true);

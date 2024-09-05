@@ -7,6 +7,7 @@ import Trash from "./pages/Trash";
 import Login from "./pages/Login/Login";
 import Welcome from "./pages/Welcome/welcome";
 import { useState, useEffect } from 'react';
+import Error from "./pages/error";
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate()
@@ -39,6 +40,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
         <Route path="/welcome" element={<Welcome />} />
+        <Route path="*" element={<Error />} />
 
         {/* Protected Routes */}
         <Route
