@@ -8,6 +8,17 @@ import Login from "./pages/Login/Login";
 import Welcome from "./pages/Welcome/welcome";
 import { useState, useEffect } from 'react';
 import Error from "./pages/error";
+import CryptoJS from "crypto-js";
+
+const secretKey = "your-secret-key";
+
+const decryptData = (encryptedData) => {
+  if (!encryptedData) return null;
+  const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
+
+
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate()
@@ -15,7 +26,8 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const check = async () => {
-      if (Cookies.get('token')) {
+      if (decryptData(Cookies.get('token'))) {
+        // console.log("token:"+typeof(decryptData(Cookies.get('token'))))
         setIsLogin(true)
       } else {
         navigate('/login')

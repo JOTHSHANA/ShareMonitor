@@ -103,19 +103,26 @@ function Body() {
     const containerRef = useRef(null);
     const hoverEditDeleteRef = useRef(null);
     const documentEditDeleteRef = useRef(null);
+    const docDivId = 'hoverEditDeleteDocuments'; // Assign a unique ID for the document div
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (documentEditDeleteRef.current && !documentEditDeleteRef.current.contains(event.target)) {
+            const clickedElement = event.target;
+            const documentDiv = document.querySelector(`#${docDivId}`);
+
+            // If the clicked element is not inside the document div, hide the div
+            if (documentDiv && !documentDiv.contains(clickedElement)) {
                 setShowDocumentEditDelete(false);
             }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
+
+        // Clean up the event listener on component unmount
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [setShowDocumentEditDelete]);
 
 
     const handleCloseSecondMenu = () => {
@@ -857,23 +864,21 @@ function Body() {
     }, [isSelecting, isUnmerging]);
 
 
+    const divId = 'hoverEditDelete'; // Set a unique ID
+
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (hoverEditDeleteRef.current && !hoverEditDeleteRef.current.contains(event.target)) {
+            const clickedElement = event.target;
+            const folderDiv = document.querySelector(`#${divId}`);
+            if (folderDiv && !folderDiv.contains(clickedElement)) {
                 setShowFolderEditDelete(false);
             }
         };
-
-        if (showFolderEditDelete) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
+        document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showFolderEditDelete]);
+    }, [setShowFolderEditDelete]);
 
     return (
         <div className='levels-page'>
@@ -1078,7 +1083,7 @@ function Body() {
                         <div className='sticky-add-button'>
                             <div style={{ display: "flex" }}>
                             </div>
-                            <div ref={hoverEditDeleteRef} className='documents-container'>
+                            <div className='documents-container'>
                                 <div ref={containerRef} className='folders-div'>
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                         <div>
@@ -1167,11 +1172,20 @@ function Body() {
                                                 className={`document-item ${activeFolderId === folder.id ? 'active' : ''}`}
                                                 onClick={() => fetchDocuments(folder.id)}
                                             >
-                                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}>
+                                                <div
+                                                    className="dummy"
+                                                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", width: "100%" }}
+                                                    onClick={() => {
+                                                        if (isSelecting) {
+                                                            handleCheckboxChangeForMerge(folder.id);
+                                                        } else if (isUnmerging) {
+                                                            handleCheckboxChangeForUnmerge(folder.id);
+                                                        }
+                                                    }}
+                                                >
                                                     <div style={{ display: "flex" }}>
                                                         {(isSelecting || isUnmerging) && (
                                                             <input
-
                                                                 type="checkbox"
                                                                 checked={isSelecting
                                                                     ? (folder.id === startMergeFolderId || folder.id === endMergeFolderId)
@@ -1197,14 +1211,11 @@ function Body() {
                                                         <ArrowForwardIosRoundedIcon />
                                                     </div>
                                                     <div
-
+                                                        id={divId}
                                                         className="hover-edit-delete-folders"
-
                                                         style={{ display: showFolderEditDelete ? 'flex' : 'none' }}
-
                                                     >
                                                         <div
-
                                                             className="delete-icon"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -1306,7 +1317,7 @@ function Body() {
                                                             <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
                                                         </button>
                                                         <div
-
+                                                            id={docDivId}
                                                             className="hover-edit-delete-documents"
                                                             style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
                                                         >

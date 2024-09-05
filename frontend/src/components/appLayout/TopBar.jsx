@@ -15,12 +15,27 @@ import Button from '@mui/material/Button';
 import { Typography, Avatar, Box } from '@mui/material';
 import { Cookie } from "@mui/icons-material";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import CryptoJS from "crypto-js";
+
+const secretKey = "your-secret-key";
+
+const decryptData = (encryptedData) => {
+    if (!encryptedData) return null;
+    const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+};
 
 function TopBar(props) {
-    const name = Cookies.get("name");
-    const profile = Cookies.get("profilePhoto")
-    const gmail = Cookies.get("gmail")
-    const navigate = useNavigate()
+    const encryptedName = Cookies.get("name");
+    const encryptedProfile = Cookies.get("profilePhoto");
+    const encryptedGmail = Cookies.get("gmail");
+
+    // Decrypt the cookies before using them
+    const name = decryptData(encryptedName);
+    const profile = decryptData(encryptedProfile);
+    const gmail = decryptData(encryptedGmail);
+
+    const navigate = useNavigate();
     const capitalizedName = name ? name.toUpperCase() : "";
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -51,6 +66,8 @@ function TopBar(props) {
             Cookies.remove('name')
             Cookies.remove('id')
             Cookies.remove('role')
+            Cookies.remove('profilePhoto')
+            Cookies.remove('gmail')
 
 
             navigate('/login')
@@ -107,7 +124,7 @@ function TopBar(props) {
                             border: "1px solid var(--border-color)",
                             cursor: "pointer",
                             margin: "0px 5px",
-                            fontWeight:"var(--f-weight)"
+                            fontWeight: "var(--f-weight)"
                         }}
                         onClick={handleClick}
                     >
@@ -128,7 +145,7 @@ function TopBar(props) {
                         {capitalizedName}
                         <KeyboardArrowDownRoundedIcon />
                     </div>
-                    
+
                     <Menu
                         anchorEl={anchorEl}
                         open={openMenu}
@@ -151,7 +168,7 @@ function TopBar(props) {
                         }}
                     >
                         <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column">
-                            <Typography variant="p" sx={{ color: "var(--text)", margin: "5px",marginTop:"0px", position:"absolute", top:"0px", backgroundColor:"var(--document)", width:"100%", padding:"10px 0px 50px 0px", display:"flex", justifyContent:"center", zIndex:"2", borderRadius:"3px", fontWeight:"var(--f-weight)" }}>
+                            <Typography variant="p" sx={{ color: "var(--text)", margin: "5px", marginTop: "0px", position: "absolute", top: "0px", backgroundColor: "var(--document)", width: "100%", padding: "10px 0px 50px 0px", display: "flex", justifyContent: "center", zIndex: "2", borderRadius: "3px", fontWeight: "var(--f-weight)" }}>
                                 {name}
                             </Typography>
                             {profile ? (
@@ -162,20 +179,20 @@ function TopBar(props) {
                                         height: "80px",
                                         borderRadius: "50%",
                                         marginRight: "5px",
-                                        margin:"10px",
-                                        zIndex:"3",
-                                        marginTop:"30px",
-                                        backgroundColor:"white"
+                                        margin: "10px",
+                                        zIndex: "3",
+                                        marginTop: "30px",
+                                        backgroundColor: "white"
                                     }}
                                 />
                             ) : (
                                 <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
                             )}
 
-                            <Typography variant="body2" sx={{ color: "var(--text)", fontWeight:"var(--f-weight)" }}>
+                            <Typography variant="body2" sx={{ color: "var(--text)", fontWeight: "var(--f-weight)" }}>
                                 {name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: "var(--text)", marginBottom:"10px" }}>
+                            <Typography variant="caption" sx={{ color: "var(--text)", marginBottom: "10px" }}>
                                 {gmail}
                             </Typography>
                         </Box>

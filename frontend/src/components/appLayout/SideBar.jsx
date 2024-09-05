@@ -7,6 +7,17 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import RecyclingSharpIcon from '@mui/icons-material/RecyclingSharp';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import axios from "axios";
+import CryptoJS from "crypto-js";
+import {encryptData, decryptData} from '../../pages/Welcome/welcome'
+
+const secretKey = "your-secret-key";
+
+// const decryptData = (encryptedData) => {
+//     if (!encryptedData) return null;
+//     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+//     return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+// };
+
 
 function getIconComponent(iconPath) {
     switch (iconPath) {
@@ -29,7 +40,8 @@ function SideBar(props) {
     useEffect(() => {
         const fetchSidebarItems = async () => {
             try {
-                const role = Cookies.get('role');
+                const encryptedRole = Cookies.get('role');
+                const role = decryptData(encryptedRole);
                 const response = await axios.get(`${apiHost}/api/resources?role=${role}`);
                 if (response.status === 200) {
                     setSidebarItems(response.data);

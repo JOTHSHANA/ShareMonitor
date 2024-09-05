@@ -26,8 +26,21 @@ import general_doc_img from '../assets/general_doc_img.png';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import CryptoJS from "crypto-js";
+import { encryptData, decryptData } from '../pages/Welcome/welcome'
 
-const role = Cookies.get("role")
+const secretKey = "your-secret-key";
+
+// const decryptData = (encryptedData) => {
+//     if (!encryptedData) return null;
+//     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
+//     return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+// };
+
+
+const Encryptedrole = Cookies.get("role")
+const role = decryptData(Encryptedrole);
+console.log(typeof (role))
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -104,10 +117,10 @@ function Subjects() {
 
     // Fetch role when the component mounts
     useEffect(() => {
-        const userRole = Cookies.get("role");
+        const EncryptedRole = Cookies.get("role");
+        const userRole = decryptData(EncryptedRole);
         setRole(userRole); // Set role in state
     }, []);
-
 
     const fetchSubjects = async () => {
         setLoading(true);
@@ -131,7 +144,7 @@ function Subjects() {
     };
 
     const handleDeleteClick = (subject) => {
-        if (role !== "1") {
+        if (role !== 1) {
             toast.warning("Only admin can delete");
         } else {
             setSelectedSubject(subject);
@@ -226,12 +239,12 @@ function Subjects() {
                                         }} />
                                         Restore
                                     </button>
-                                    {role === "1" && <button
+                                    {role === 1 && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(subject)}
                                         style={{
-                                            color: role !== "1" ? "grey" : "var(--text)",
-                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                            color: "var(--text)",
+                                            cursor: "pointer",
                                         }}
                                     >
                                         <DeleteForeverIcon
@@ -240,7 +253,7 @@ function Subjects() {
                                                 backgroundColor: "var(--background-1)",
                                                 borderRadius: "5px",
                                                 marginRight: "5px",
-                                                color: role === "1" ? "red" : "grey",
+                                                color: "red",
                                                 fontSize: "20px",
                                             }}
                                         />
@@ -254,26 +267,34 @@ function Subjects() {
                 </div>
             )}
 
-            {/* Restore Dialog */}
             <Dialog
                 open={openRestoreDialog}
                 TransitionComponent={Transition}
                 keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"Restore this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
-                        Are you sure you want to restore the subject "{selectedSubject?.name}" ?
-                        {selectedSubject?.levelCount} levels, {selectedSubject?.folderCount} folders and {selectedSubject?.documentCount} documents will be restored.
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" }}>
+                    Restore this subject?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
+                        Are you sure you want to restore the subject "{selectedSubject?.name}"?
+                        {selectedSubject?.levelCount} levels, {selectedSubject?.folderCount} folders, and {selectedSubject?.documentCount} documents will be restored.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleRestore}>Yes</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleRestore} sx={{ color: "#2ecc71" }}>
+                        Restore
+                    </Button>
                 </DialogActions>
             </Dialog>
+
 
             {/* Delete Dialog */}
             <Dialog
@@ -282,18 +303,27 @@ function Subjects() {
                 keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"Delete this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" }}>
+                    Delete this subject?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
                         Are you sure you want to delete the subject "{selectedSubject?.name}"? This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleDelete}>Delete</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDelete} sx={{ color: "#d12830" }}>
+                        Delete
+                    </Button>
                 </DialogActions>
             </Dialog>
+
         </div>
     );
 }
@@ -308,7 +338,8 @@ function Levels() {
 
     // Fetch role when the component mounts
     useEffect(() => {
-        const userRole = Cookies.get("role");
+        const EncryptedRole = Cookies.get("role");
+        const userRole = decryptData(EncryptedRole);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -335,7 +366,7 @@ function Levels() {
     };
 
     const handleDeleteClick = (level) => {
-        if (role !== "1") {
+        if (role !== 1) {
             toast.warning("Only admin can delete");
         } else {
             setSelectedLevel(level);
@@ -429,12 +460,12 @@ function Levels() {
                                         }} />
                                         Restore
                                     </button>
-                                    {role === "1" && <button
+                                    {role === 1 && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(level)}
                                         style={{
-                                            color: role !== "1" ? "grey" : "var(--text)",
-                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                            color: "var(--text)",
+                                            cursor: "pointer",
                                         }}
                                     >
                                         <DeleteForeverIcon
@@ -443,7 +474,7 @@ function Levels() {
                                                 backgroundColor: "var(--background-1)",
                                                 borderRadius: "5px",
                                                 marginRight: "5px",
-                                                color: role === "1" ? "red" : "grey",
+                                                color: "red",
                                                 fontSize: "20px",
                                             }}
                                         />
@@ -463,17 +494,24 @@ function Levels() {
                 keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"Restore this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
-                        Are you sure you want to restore the level "{selectedLevel?.lvl_name}"?
-                        {selectedLevel?.folderCount} folders and {selectedLevel?.documentCount} documents will be restored.
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" }}>
+                    Restore this level?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
+                        Are you sure you want to restore the level "{selectedLevel?.lvl_name}"? {selectedLevel?.folderCount} folders and {selectedLevel?.documentCount} documents will be restored.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleRestore}>Yes</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleRestore} sx={{ color: "#2ecc71" }}>
+                        Restore
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -484,21 +522,30 @@ function Levels() {
                 keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"⚠️Delete this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
+                <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)", width: 'auto', marginBottom: "10px" }}>
+                    ⚠️ Delete this level?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
                         Are you sure you want to delete the level "{selectedLevel?.lvl_name}" permanently? This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleDelete}>Delete</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDelete} sx={{ color: "#d12830" }}>
+                        Delete
+                    </Button>
                 </DialogActions>
             </Dialog>
 
+
             {/* Empty Dialog */}
-            <Dialog
+            {/* <Dialog
                 open={openEmptyDialog}
                 TransitionComponent={Transition}
                 keepMounted
@@ -508,13 +555,12 @@ function Levels() {
                 <DialogTitle>{"Empty Popup"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
-                        {/* You can add content here if needed */}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Close</Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 }
@@ -528,10 +574,10 @@ function Folders() {
 
     // Fetch role when the component mounts
     useEffect(() => {
-        const userRole = Cookies.get("role");
+        const EncryptedRole = Cookies.get("role");
+        const userRole = decryptData(EncryptedRole);
         setRole(userRole); // Set role in state
     }, []);
-
 
 
 
@@ -559,7 +605,7 @@ function Folders() {
     };
 
     const handleDeleteClick = (folder) => {
-        if (role !== "1") {
+        if (role !== 1) {
             toast.warning("Only admin can delete");
         } else {
             setSelectedFolder(folder);
@@ -683,12 +729,12 @@ function Folders() {
                                         Restore
                                     </button>
 
-                                    {role === "1" && <button
+                                    {role === 1 && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(folder)}
                                         style={{
-                                            color: role !== "1" ? "grey" : "var(--text)",
-                                            cursor: role !== "1" ? "not-allowed" : "pointer",
+                                            color: "var(--text)",
+                                            cursor: "pointer",
                                         }}
                                     >
                                         <DeleteForeverIcon
@@ -697,7 +743,7 @@ function Folders() {
                                                 backgroundColor: "var(--background-1)",
                                                 borderRadius: "5px",
                                                 marginRight: "5px",
-                                                color: role === "1" ? "red" : "grey",
+                                                color: "red",
                                                 fontSize: "20px",
                                             }}
                                         />
@@ -715,20 +761,36 @@ function Folders() {
                 TransitionComponent={Transition}
                 keepMounted
                 onClose={handleClose}
-                aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"Restore this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
-                        Are you sure you want to restore this folder ?
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "var(--background-1)",
+                        color: "var(--text)",
+                        borderBottom: "1px solid var(--border-color)",
+                        width: 'auto',
+                        marginBottom: "10px"
+                    }}
+                >
+                    Restore this folder?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
+                        Are you sure you want to restore this folder? <br />
                         {selectedFolder?.documentCount} documents will be restored.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleRestore}>Yes</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleRestore} sx={{ color: "#2ecc71" }}>
+                        Restore
+                    </Button>
                 </DialogActions>
             </Dialog>
+
 
             {/* Delete Dialog */}
             <Dialog
@@ -736,19 +798,35 @@ function Folders() {
                 TransitionComponent={Transition}
                 keepMounted
                 onClose={handleClose}
-                aria-describedby="alert-dialog-slide-description"
+                fullWidth={true}
+                sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
             >
-                <DialogTitle>{"⚠️Delete this subject?"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
+                <DialogTitle
+                    sx={{
+                        backgroundColor: "var(--background-1)",
+                        color: "var(--text)",
+                        borderBottom: "1px solid var(--border-color)",
+                        width: 'auto',
+                        marginBottom: "10px"
+                    }}
+                >
+                    ⚠️ Delete this folder?
+                </DialogTitle>
+                <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                    <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
                         Are you sure you want to delete this folder permanently? This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleDelete}>Delete</Button>
+                <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                    <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDelete} sx={{ color: "#e74c3c" }}>
+                        Delete
+                    </Button>
                 </DialogActions>
             </Dialog>
+
         </div>
     );
 }
@@ -763,7 +841,8 @@ function Documents() {
 
     // Fetch role when the component mounts
     useEffect(() => {
-        const userRole = Cookies.get("role");
+        const EncryptedRole = Cookies.get("role");
+        const userRole = decryptData(EncryptedRole);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -790,7 +869,7 @@ function Documents() {
     };
 
     const handleDeleteClick = (document) => {
-        if (role !== "1") {
+        if (role !== 1) {
             toast.warning("Only admin can delete");
         } else {
             setSelectedDocument(document);
@@ -923,12 +1002,12 @@ function Documents() {
                                     }} />
                                     Restore
                                 </button>
-                                {role === "1" && <button
+                                {role === 1 && <button
                                     className="button"
                                     onClick={() => handleDeleteClick(document)}
                                     style={{
-                                        color: role !== "1" ? "grey" : "var(--text)",
-                                        cursor: role !== "1" ? "not-allowed" : "pointer",
+                                        color: "var(--text)",
+                                        cursor: "pointer",
                                     }}
                                 >
                                     <DeleteForeverIcon
@@ -937,7 +1016,7 @@ function Documents() {
                                             backgroundColor: "var(--background-1)",
                                             borderRadius: "5px",
                                             marginRight: "5px",
-                                            color: role === "1" ? "red" : "grey",
+                                            color: "red",
                                             fontSize: "20px",
                                         }}
                                     />
@@ -952,17 +1031,32 @@ function Documents() {
                         TransitionComponent={Transition}
                         keepMounted
                         onClose={handleClose}
-                        aria-describedby="alert-dialog-slide-description"
+                        fullWidth={true}
+                        sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
                     >
-                        <DialogTitle>{"Restore this subject?"}</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-slide-description">
-                                Are you sure you want to restore this file ?
+                        <DialogTitle
+                            sx={{
+                                backgroundColor: "var(--background-1)",
+                                color: "var(--text)",
+                                borderBottom: "1px solid var(--border-color)",
+                                width: 'auto',
+                                marginBottom: "10px"
+                            }}
+                        >
+                            Restore this file?
+                        </DialogTitle>
+                        <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                            <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
+                                Are you sure you want to restore this file?
                             </DialogContentText>
                         </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button onClick={handleRestore}>Yes</Button>
+                        <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                            <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleRestore} sx={{ color: "#2ecc71" }}>
+                                Restore
+                            </Button>
                         </DialogActions>
                     </Dialog>
 
@@ -972,19 +1066,35 @@ function Documents() {
                         TransitionComponent={Transition}
                         keepMounted
                         onClose={handleClose}
-                        aria-describedby="alert-dialog-slide-description"
+                        fullWidth={true}
+                        sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}
                     >
-                        <DialogTitle>{"⚠️Delete this subject?"}</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-slide-description">
+                        <DialogTitle
+                            sx={{
+                                backgroundColor: "var(--background-1)",
+                                color: "var(--text)",
+                                borderBottom: "1px solid var(--border-color)",
+                                width: 'auto',
+                                marginBottom: "10px"
+                            }}
+                        >
+                            ⚠️ Delete this file?
+                        </DialogTitle>
+                        <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
+                            <DialogContentText id="alert-dialog-slide-description" sx={{ color: "var(--text)" }}>
                                 Are you sure you want to delete this file permanently? This action cannot be undone.
                             </DialogContentText>
                         </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button onClick={handleDelete}>Delete</Button>
+                        <DialogActions sx={{ backgroundColor: "var(--background-1)" }}>
+                            <Button onClick={handleClose} sx={{ color: "#179be7" }}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleDelete} sx={{ color: "#d12830" }}>
+                                Delete
+                            </Button>
                         </DialogActions>
                     </Dialog>
+
                 </div>
             )}
         </div>

@@ -81,10 +81,12 @@ function Body() {
                 }
                 setNewSubject("");
                 setShowPopup(false);
+                handleShowEditDelete();
             } catch (error) {
                 console.error('Error saving subject:', error);
             }
         }
+
     };
 
 
@@ -137,7 +139,7 @@ function Body() {
                 ) : subjects.length === 0 ? (
                     <div className="no-subjects-text" style={{ height: "80vh", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                         <img style={{ height: "160px" }} src={subjects_image} alt="" />
-                        <p style={{fontWeight:"600"}}>No Subjects Added</p>
+                        <p style={{ fontWeight: "600" }}>No Subjects Added</p>
                         <button className="add-button" onClick={handleAddClick}>
                             <AddIcon />Add Subject
                         </button>
@@ -191,8 +193,8 @@ function Body() {
                         );
                     })
                 )}
-                <Dialog fullWidth={true} open={showPopup} onClose={handleClose} sx={{"& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}>
-                    <DialogTitle sx={{backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)" }}>
+                <Dialog fullWidth={true} open={showPopup} onClose={handleClose} sx={{ "& .MuiDialog-paper": { backgroundColor: "var(--background-1)", color: "var(--text)" } }}>
+                    <DialogTitle sx={{ backgroundColor: "var(--background-1)", color: "var(--text)", borderBottom: "1px solid var(--border-color)" }}>
                         {editSubjectId ? "Edit Subject Name" : "Enter Subject Name"}
                     </DialogTitle>
                     <DialogContent sx={{ backgroundColor: "var(--background-1)", color: "var(--text)" }}>
