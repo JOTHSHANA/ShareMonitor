@@ -67,6 +67,10 @@ CREATE TABLE `resources` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+INSERT INTO `resources` (`id`, `name`, `icon_path`, `path`, `order_by`, `status`) VALUES
+(1,	'Subjects',	'AutoStoriesIcon',	'/subjects',	1,	'1'),
+(2,	'Trash',	'RecyclingSharpIcon',	'/trash',	2,	'1'),
+(3,	'History',	'ScheduleSendIcon',	'/history',	3,	'1');
 
 DROP TABLE IF EXISTS `role_resources`;
 CREATE TABLE `role_resources` (
@@ -81,6 +85,12 @@ CREATE TABLE `role_resources` (
   CONSTRAINT `role_resources_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+INSERT INTO `role_resources` (`id`, `role_id`, `resource_id`, `status`) VALUES
+(1,	1,	1,	'1'),
+(2,	1,	2,	'1'),
+(3,	2,	1,	'1'),
+(4,	2,	2,	'1'),
+(5,	1,	3,	'1');
 
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
@@ -90,6 +100,9 @@ CREATE TABLE `roles` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+INSERT INTO `roles` (`id`, `name`, `status`) VALUES
+(1,	'Admin',	'1'),
+(2,	'user',	'1');
 
 DROP TABLE IF EXISTS `subjects`;
 CREATE TABLE `subjects` (
@@ -123,4 +136,4 @@ CREATE TABLE `work_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2024-09-10 11:41:15
+-- 2024-09-10 16:58:20
