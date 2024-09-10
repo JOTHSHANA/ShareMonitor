@@ -12,3 +12,5 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=root
 DB_NAME=share_manager
+API=/share
+CALL_BACK=/share/auth/google/callback
