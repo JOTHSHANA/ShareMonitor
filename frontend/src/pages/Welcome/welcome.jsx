@@ -1,70 +1,87 @@
 import React, { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import CryptoJS from "crypto-js";  // Import CryptoJS
+import CryptoJS from "crypto-js";
 import CustomizedSwitches from "../../components/appLayout/toggleTheme";
+
 const secretKey = "your-secret-key";
-
-export const encryptData = (data) => {
-  return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
-};
-
-// Function to decrypt data
-export const decryptData = (encryptedData) => {
-  if (!encryptedData) return null;
-  const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
 
 const Welcome = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Secret key for encryption and decryption
-  // Use a secure key
-
-  // Function to encrypt data
-
-
   useEffect(() => {
-    const dataParam = searchParams.get("data");
+    const fetchRoutes = async () => {
+      const dataParam = searchParams.get("data");
 
-    if (dataParam) {
-      const data = JSON.parse(decodeURIComponent(dataParam));
-      const { token, name, role, id, gmail, profilePhoto } = data;
-
-      // Encrypt and set the cookie values
-      Cookies.set("token", encryptData(token), { expires: 1 });
-      Cookies.set("name", encryptData(name));
-      Cookies.set("role", encryptData(role));
-      Cookies.set("id", encryptData(id));
-      Cookies.set("gmail", encryptData(gmail));
-      Cookies.set("profilePhoto", encryptData(profilePhoto));
-
-      // Decrypt and log the saved data for verification
-      const savedData = {
-        token: decryptData(Cookies.get("token")),
-        name: decryptData(Cookies.get("name")),
-        role: decryptData(Cookies.get("role")),
-        id: decryptData(Cookies.get("id")),
-        gmail: decryptData(Cookies.get("gmail")),
-        profilePhoto: decryptData(Cookies.get("profilePhoto")),
+      const getDecryptedCookie = (cookieName) => {
+        const encryptedCookie = Cookies.get(cookieName);
+        if (encryptedCookie) {
+          const bytes = CryptoJS.AES.decrypt(encryptedCookie, secretKey);
+          return bytes.toString(CryptoJS.enc.Utf8);
+        }
+        return null;
       };
 
-      console.log("Saved JSON data:", savedData);
+      if (dataParam) {
+        try {
+          const decodedData = decodeURIComponent(dataParam);
+          const parsedData = JSON.parse(decodedData);
+          const { token, name, role, id, gmail, profilePhoto, subId, subName } = parsedData;
 
-      if (role) {
-        navigate("/subjects");
+          // Set cookies for the parsed data
+          Cookies.set("token", CryptoJS.AES.encrypt(token, secretKey).toString(), { expires: 1 });
+          Cookies.set("name", CryptoJS.AES.encrypt(name, secretKey).toString(), { expires: 1 });
+          Cookies.set("role", CryptoJS.AES.encrypt(role.toString(), secretKey).toString(), { expires: 1 });
+          Cookies.set("id", CryptoJS.AES.encrypt(id.toString(), secretKey).toString(), { expires: 1 });
+          Cookies.set("gmail", CryptoJS.AES.encrypt(gmail, secretKey).toString(), { expires: 1 });
+          Cookies.set("profilePhoto", CryptoJS.AES.encrypt(profilePhoto, secretKey).toString(), { expires: 1 });
+          Cookies.set("subId", CryptoJS.AES.encrypt(subId, secretKey).toString(), { expires: 1 });
+          Cookies.set("subName", CryptoJS.AES.encrypt(subName, secretKey).toString(), { expires: 1 });
+
+          const routes = [`/levels/${subId}/${subName}`, "/trash", "/subjects"];
+          Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
+
+          const redirectPath = routes.length > 0 ? routes[0] : "/error";
+
+          setTimeout(() => {
+            navigate(redirectPath);
+          }, 200);
+
+        } catch (error) {
+          console.error("Error processing data:", error);
+
+          const cookiesToRemove = ["token", "name", "role", "id", "gmail", "profilePhoto", "subId", "subName", "allowedRoutes"];
+          cookiesToRemove.forEach((key) => Cookies.remove(key));
+
+          navigate("/error");
+        }
       } else {
-        // Remove all cookies if the role is invalid or missing
-        Cookies.remove("token");
-        Cookies.remove("name");
-        Cookies.remove("id");
-        Cookies.remove("role");
-        Cookies.remove("profilePhoto");
-        Cookies.remove("gmail");
+        // Check if cookies are already set (in case of a refresh)
+        const token = getDecryptedCookie("token");
+        const name = getDecryptedCookie("name");
+        const role = getDecryptedCookie("role");
+        const id = getDecryptedCookie("id");
+        const gmail = getDecryptedCookie("gmail");
+        const profilePhoto = getDecryptedCookie("profilePhoto");
+        const subId = getDecryptedCookie("subId");
+        const subName = getDecryptedCookie("subName");
+
+        if (token && name && role && id && gmail && profilePhoto && subId && subName) {
+          const allowedRoutes = JSON.parse(CryptoJS.AES.decrypt(Cookies.get("allowedRoutes"), secretKey).toString(CryptoJS.enc.Utf8));
+          const redirectPath = allowedRoutes.length > 0 ? allowedRoutes[0] : `/levels/${subId}/${subName}`;
+
+          setTimeout(() => {
+            navigate(redirectPath);
+          }, 200);
+        } else {
+          // If cookies are missing, redirect to error page
+          navigate("/error");
+        }
       }
-    }
+    };
+
+    fetchRoutes();
   }, [searchParams, navigate]);
 
   return (

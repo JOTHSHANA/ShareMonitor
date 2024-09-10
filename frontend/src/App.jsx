@@ -10,39 +10,53 @@ import { useState, useEffect } from 'react';
 import Error from "./pages/error";
 import CryptoJS from "crypto-js";
 import AppLayout from "./components/appLayout/Layout";
-const secretKey = "your-secret-key";
-
-const decryptData = (encryptedData) => {
-  if (!encryptedData) return null;
-  const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
-
-
 
 const ProtectedRoute = ({ children }) => {
-  const navigate = useNavigate()
-  const [isLogin, setIsLogin] = useState(false)
+  const secretKey = "your-secret-key";
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const check = async () => {
-      if (decryptData(Cookies.get('token'))) {
-        // console.log("token:"+typeof(decryptData(Cookies.get('token'))))
-        setIsLogin(true)
+    const checkAuth = () => {
+      const detoken = Cookies.get("token");
+      const allowedRoutes = Cookies.get("allowedRoutes");
+
+      if (detoken && allowedRoutes) {
+        try {
+          const token = CryptoJS.AES.decrypt(detoken, secretKey).toString(CryptoJS.enc.Utf8);
+          const routes = JSON.parse(CryptoJS.AES.decrypt(allowedRoutes, secretKey).toString(CryptoJS.enc.Utf8));
+          const currentPath = window.location.pathname;
+
+          if (token && routes.includes(currentPath)) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          console.error('Token or route decryption error:', error);
+          setIsAuthenticated(false);
+        }
       } else {
-        navigate('/login')
-        setIsLogin(false)
+        setIsAuthenticated(false);
       }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [secretKey]);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/error'); 
     }
-    check();
-  }, [navigate])
+  }, [isLoading, isAuthenticated, navigate]);
 
-  if (isLogin) {
-    return children;
-
+  if (isLoading) {
+    return <div className="loader"></div>; 
   }
-  return null;
 
+  return isAuthenticated ? children : null;
 };
 
 function App() {
@@ -73,7 +87,8 @@ function App() {
               <Route
                 path="/trash"
                 element={<ProtectedRoute><Trash /></ProtectedRoute>}
-              /></Routes>} />
+              />
+              </Routes>} />
           }
         />
       </Routes>

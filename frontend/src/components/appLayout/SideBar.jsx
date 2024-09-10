@@ -8,7 +8,6 @@ import RecyclingSharpIcon from '@mui/icons-material/RecyclingSharp';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import { encryptData, decryptData } from '../../pages/Welcome/welcome'
 
 const secretKey = "your-secret-key";
 
@@ -35,8 +34,9 @@ function SideBar(props) {
         const fetchSidebarItems = async () => {
             try {
                 const encryptedRole = Cookies.get('role');
-                const role = decryptData(encryptedRole);
-                const response = await axios.get(`${apiHost}/api/resources?role=${role}`);
+                const bytes = CryptoJS.AES.decrypt(encryptedRole, "your-secret-key");
+                const decryptedRole = bytes.toString(CryptoJS.enc.Utf8);
+                const response = await axios.get(`${apiHost}/api/resources?role=${decryptedRole}`);
                 if (response.status === 200) {
                     setSidebarItems(response.data);
                 } else {

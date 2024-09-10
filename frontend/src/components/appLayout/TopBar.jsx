@@ -19,22 +19,23 @@ import CryptoJS from "crypto-js";
 
 const secretKey = "your-secret-key";
 
-const decryptData = (encryptedData) => {
-    if (!encryptedData) return null;
-    const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-};
 
 function TopBar(props) {
-    const encryptedName = Cookies.get("name");
-    const encryptedProfile = Cookies.get("profilePhoto");
-    const encryptedGmail = Cookies.get("gmail");
+    const dename = Cookies.get("name") || "";
+  const deprofile = Cookies.get("profilePhoto") || "";
+  const degmail = Cookies.get("gmail") || "";
+  const decrypt = (data) => {
+    try {
+      return CryptoJS.AES.decrypt(data, secretKey).toString(CryptoJS.enc.Utf8);
+    } catch (e) {
+      console.error("Decryption failed", e);
+      return "";
+    }
+  };
 
-    // Decrypt the cookies before using them
-    const name = decryptData(encryptedName);
-    const profile = decryptData(encryptedProfile);
-    const gmail = decryptData(encryptedGmail);
-
+  const name = decrypt(dename);
+  const profile = decrypt(deprofile);
+  const gmail = decrypt(degmail);
     const navigate = useNavigate();
     const capitalizedName = name ? name.toUpperCase() : "";
 

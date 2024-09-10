@@ -25,15 +25,19 @@ import empty_doc from '../assets/empty_doc.png'
 import general_doc_img from '../assets/general_doc_img.png';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import CryptoJS from "crypto-js";
-import { encryptData, decryptData } from '../pages/Welcome/welcome'
 
 const secretKey = "your-secret-key";
 
-const Encryptedrole = Cookies.get("role")
-const role = decryptData(Encryptedrole);
-console.log(typeof (role))
+const Encryptedrole = Cookies.get("role");
+console.log("Encryptedrole:", Encryptedrole); // Log the encrypted role
+if (!Encryptedrole) {
+  console.error("No encrypted role found in cookies");
+} else {
+  const bytes = CryptoJS.AES.decrypt(Encryptedrole, secretKey);
+  const role = bytes.toString(CryptoJS.enc.Utf8);
+  console.log("Decrypted role:", role);
+}
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -111,7 +115,8 @@ function Subjects() {
     // Fetch role when the component mounts
     useEffect(() => {
         const EncryptedRole = Cookies.get("role");
-        const userRole = decryptData(EncryptedRole);
+        const bytes = CryptoJS.AES.decrypt(EncryptedRole, "your-secret-key");
+        const userRole = bytes.toString(CryptoJS.enc.Utf8);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -137,7 +142,7 @@ function Subjects() {
     };
 
     const handleDeleteClick = (subject) => {
-        if (role !== 1) {
+        if (role !== "1") {
             toast.warning("Only admin can delete");
         } else {
             setSelectedSubject(subject);
@@ -232,7 +237,7 @@ function Subjects() {
                                         }} />
                                         Restore
                                     </button>
-                                    {role === 1 && <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(subject)}
                                         style={{
@@ -332,7 +337,8 @@ function Levels() {
     // Fetch role when the component mounts
     useEffect(() => {
         const EncryptedRole = Cookies.get("role");
-        const userRole = decryptData(EncryptedRole);
+        const bytes = CryptoJS.AES.decrypt(EncryptedRole, "your-secret-key");
+        const userRole = bytes.toString(CryptoJS.enc.Utf8);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -359,7 +365,7 @@ function Levels() {
     };
 
     const handleDeleteClick = (level) => {
-        if (role !== 1) {
+        if (role !== "1") {
             toast.warning("Only admin can delete");
         } else {
             setSelectedLevel(level);
@@ -453,7 +459,7 @@ function Levels() {
                                         }} />
                                         Restore
                                     </button>
-                                    {role === 1 && <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(level)}
                                         style={{
@@ -568,7 +574,8 @@ function Folders() {
     // Fetch role when the component mounts
     useEffect(() => {
         const EncryptedRole = Cookies.get("role");
-        const userRole = decryptData(EncryptedRole);
+        const bytes = CryptoJS.AES.decrypt(EncryptedRole, "your-secret-key");
+        const userRole = bytes.toString(CryptoJS.enc.Utf8);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -598,7 +605,7 @@ function Folders() {
     };
 
     const handleDeleteClick = (folder) => {
-        if (role !== 1) {
+        if (role !== "1") {
             toast.warning("Only admin can delete");
         } else {
             setSelectedFolder(folder);
@@ -722,7 +729,7 @@ function Folders() {
                                         Restore
                                     </button>
 
-                                    {role === 1 && <button
+                                    {role === "1" && <button
                                         className="button"
                                         onClick={() => handleDeleteClick(folder)}
                                         style={{
@@ -835,7 +842,8 @@ function Documents() {
     // Fetch role when the component mounts
     useEffect(() => {
         const EncryptedRole = Cookies.get("role");
-        const userRole = decryptData(EncryptedRole);
+        const bytes = CryptoJS.AES.decrypt(EncryptedRole, "your-secret-key");
+        const userRole = bytes.toString(CryptoJS.enc.Utf8);
         setRole(userRole); // Set role in state
     }, []);
 
@@ -862,7 +870,7 @@ function Documents() {
     };
 
     const handleDeleteClick = (document) => {
-        if (role !== 1) {
+        if (role !== "1") {
             toast.warning("Only admin can delete");
         } else {
             setSelectedDocument(document);
@@ -995,7 +1003,7 @@ function Documents() {
                                     }} />
                                     Restore
                                 </button>
-                                {role === 1 && <button
+                                {role === "1" && <button
                                     className="button"
                                     onClick={() => handleDeleteClick(document)}
                                     style={{
