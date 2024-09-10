@@ -36,15 +36,16 @@ app.use(cors(cors_config));
 app.use(express.json());
 app.use(bodyParser.json());
 
+console.log(process.env.API)
 
-app.use("/api", resources);
-app.use("/auth", auth);
-app.use('/api', subjectRoutes);
-app.use('/api', levelRoutes);
-app.use('/api', documentRoutes);
-app.use('/api', folderRoutes);
-app.use('/api', trashRoutes);
-app.use('/api', loginRoutes);
+app.use(`${process.env.API}/api`, resources);
+app.use(`${process.env.API}/auth`, auth);
+app.use(`${process.env.API}/api`, subjectRoutes);
+app.use(`${process.env.API}/api`, levelRoutes);
+app.use(`${process.env.API}/api`, documentRoutes);
+app.use(`${process.env.API}/api`, folderRoutes);
+app.use(`${process.env.API}/api`, trashRoutes);
+app.use(`${process.env.API}/api`, loginRoutes);
 
 
 app.use('/uploads', express.static('uploads'));

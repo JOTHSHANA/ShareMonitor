@@ -3,13 +3,13 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const jwt = require('jsonwebtoken');
 const connection = require("./db"); // Ensure this points to your database connection
 const path = require('path');
-require('dotenv').config({path:path.resolve(__dirname,'../../.env')});
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 // Configure the Google Strategy for Passport.js
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
+    callbackURL: process.env.CALL_BACK,
     scope: ["profile", "email"]
 }, async (accessToken, refreshToken, profile, done) => {
     try {

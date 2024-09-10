@@ -39,6 +39,8 @@ const Welcome = () => {
           Cookies.set("subId", CryptoJS.AES.encrypt(subId, secretKey).toString(), { expires: 1 });
           Cookies.set("subName", CryptoJS.AES.encrypt(subName, secretKey).toString(), { expires: 1 });
 
+          // const response = await axios.get(`/api/resources?role=${role}`);
+          // const routes = response.data.map(route => route.path);
           const routes = ["/subjects", `/levels/${subId}/${subName}`, "/trash",];
           Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
 
