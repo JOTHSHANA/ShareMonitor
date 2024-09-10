@@ -156,7 +156,7 @@ function Subjects() {
     };
 
     const handleSubClick = (subjectId, subName) => {
-        navigate(`/levels/${subjectId}/${subName}`)
+        navigate(`/materials/levels/${subjectId}/${subName}`)
     }
 
     const handleRestore = async () => {

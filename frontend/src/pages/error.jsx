@@ -21,8 +21,8 @@ function Error() {
         >
           OOPS! PAGE NOT FOUND
         </p>
-        <Link style={{ fontWeight: "700" }} to="/subjects">
-          BACK TO DASHBOARD
+        <Link style={{ fontWeight: "700" }} to="/materials/subjects">
+          BACK TO SUBJECTS
         </Link>
       </div>
     </div>

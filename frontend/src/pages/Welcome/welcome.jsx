@@ -41,10 +41,10 @@ const Welcome = () => {
 
           // const response = await axios.get(`/api/resources?role=${role}`);
           // const routes = response.data.map(route => route.path);
-          const routes = ["/subjects", `/levels/${subId}/${subName}`, "/trash",];
+          const routes = ["/materials/subjects", `/materials/levels/${subId}/${subName}`, "/materials/trash",];
           Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
 
-          const redirectPath = routes.length > 0 ? routes[0] : "/error";
+          const redirectPath = routes.length > 0 ? routes[0] : "/materials/error";
 
           setTimeout(() => {
             navigate(redirectPath);
@@ -56,7 +56,7 @@ const Welcome = () => {
           const cookiesToRemove = ["token", "name", "role", "id", "gmail", "profilePhoto", "subId", "subName", "allowedRoutes"];
           cookiesToRemove.forEach((key) => Cookies.remove(key));
 
-          navigate("/error");
+          navigate("/materials/error");
         }
       } else {
         // Check if cookies are already set (in case of a refresh)
@@ -71,14 +71,14 @@ const Welcome = () => {
 
         if (token && name && role && id && gmail && profilePhoto && subId && subName) {
           const allowedRoutes = JSON.parse(CryptoJS.AES.decrypt(Cookies.get("allowedRoutes"), secretKey).toString(CryptoJS.enc.Utf8));
-          const redirectPath = allowedRoutes.length > 0 ? allowedRoutes[0] : `/levels/${subId}/${subName}`;
+          const redirectPath = allowedRoutes.length > 0 ? allowedRoutes[0] : `/materials/levels/${subId}/${subName}`;
 
           setTimeout(() => {
             navigate(redirectPath);
           }, 200);
         } else {
           // If cookies are missing, redirect to error page
-          navigate("/error");
+          navigate("/materials/error");
         }
       }
     };

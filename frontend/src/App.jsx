@@ -48,12 +48,12 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate('/error'); 
+      navigate('/materials/error');
     }
   }, [isLoading, isAuthenticated, navigate]);
 
   if (isLoading) {
-    return <div className="loader"></div>; 
+    return <div className="loader"></div>;
   }
 
   return isAuthenticated ? children : null;
@@ -63,32 +63,32 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/error" element={<Error />} />
+        <Route path="/materials/login" element={<Login />} />
+        <Route path="/materials" element={<Login />} />
+        <Route path="/materials/welcome" element={<Welcome />} />
+        <Route path="/materials/error" element={<Error />} />
 
         {/* Protected Routes */}
         <Route path="/*"
           element={
             <AppLayout body={<Routes>
               <Route
-                path="/subjects"
+                path="/materials/subjects"
                 element={<ProtectedRoute><Subjects /></ProtectedRoute>}
               />
               <Route
-                path="/levels/:subjectId/:subjectName"
+                path="/materials/levels/:subjectId/:subjectName"
                 element={<ProtectedRoute><Levels /></ProtectedRoute>}
               />
               <Route
-                path="/history"
+                path="/materials/history"
                 element={<ProtectedRoute><History /></ProtectedRoute>}
               />
               <Route
-                path="/trash"
+                path="/materials/trash"
                 element={<ProtectedRoute><Trash /></ProtectedRoute>}
               />
-              </Routes>} />
+            </Routes>} />
           }
         />
       </Routes>

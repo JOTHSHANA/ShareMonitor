@@ -54,7 +54,7 @@ function SideBar(props) {
         const pathname = location.pathname;
 
         // Check if the current path is for `/subjects` or `/levels`
-        if (pathname.startsWith("/levels")) {
+        if (pathname.startsWith("/materials/levels")) {
             setActiveItem("Subjects"); // Set "Subjects" as active when the path starts with `/levels`
         } else {
             const activeItem = sidebarItems.find(item => item.path === pathname);
@@ -86,7 +86,7 @@ function SideBar(props) {
                 {sidebarItems.map(item => (
                     <li
                         key={item.path}
-                        className={`list-items ${location.pathname.startsWith(item.path) || (item.path === "/subjects" && location.pathname.startsWith("/levels")) ? "active" : ""}`}
+                        className={`list-items ${location.pathname.startsWith(item.path) || (item.path === "/materials/subjects" && location.pathname.startsWith("/materials/levels")) ? "active" : ""}`}
                         onClick={() => { setActiveItem(item.name); props.handleSideBar(); }}
 
                     >

@@ -93,7 +93,7 @@ function Body() {
 
     const handleSubjectClick = (id, name) => {
         console.log(name, id)
-        navigate(`/levels/${id}/${name}`);
+        navigate(`/materials/levels/${id}/${name}`);
     };
 
     const handleEdit = (subjectId, subjectName) => {

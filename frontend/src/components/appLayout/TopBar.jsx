@@ -71,7 +71,7 @@ function TopBar(props) {
             Cookies.remove('gmail')
             Cookies.remove('allowedRoutes')
 
-            navigate('/login')
+            navigate('/materials/login')
             console.log(token)
         }
         catch (err) {
