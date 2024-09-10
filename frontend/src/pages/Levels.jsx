@@ -722,6 +722,7 @@ function Body() {
         const confirmDelete = window.confirm("Are you sure, you want to delete this document?");
         if (confirmDelete) {
             setFolderUndo(id);
+            setShowFolderEditDelete(false);
             try {
                 await axios.put(`${apiHost}/api/folder/${id}`, {
                 });
@@ -733,6 +734,8 @@ function Body() {
             } catch (error) {
                 console.error('Error deleting level:', error);
             }
+        } else {
+            setShowFolderEditDelete(false);
         }
         fetchFolders();
     };

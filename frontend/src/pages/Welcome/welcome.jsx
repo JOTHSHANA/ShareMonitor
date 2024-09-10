@@ -39,7 +39,7 @@ const Welcome = () => {
           Cookies.set("subId", CryptoJS.AES.encrypt(subId, secretKey).toString(), { expires: 1 });
           Cookies.set("subName", CryptoJS.AES.encrypt(subName, secretKey).toString(), { expires: 1 });
 
-          const routes = [`/levels/${subId}/${subName}`, "/trash", "/subjects"];
+          const routes = ["/subjects", `/levels/${subId}/${subName}`, "/trash",];
           Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
 
           const redirectPath = routes.length > 0 ? routes[0] : "/error";
