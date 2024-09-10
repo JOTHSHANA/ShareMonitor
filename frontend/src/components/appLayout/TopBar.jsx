@@ -106,10 +106,12 @@ function TopBar(props) {
                     width: "100%"
                 }}
             >
-                <div onClick={props.sidebar} className="sidebar-menu">
-                    <MenuIcon />
+                <div style={{ display: "flex" }}>
+                    <div onClick={props.sidebar} className="sidebar-menu">
+                        <MenuIcon style={{ color: "#7e57c2", margin: "0px 5px" }} />
+                    </div>
+                    <div className="app-name"><b>ShareManager</b></div>
                 </div>
-                <div className="app-name"><b>ShareManager</b></div>
                 <div className="top-bar-menus">
                     <CustomizedSwitches />
                     <div
@@ -142,7 +144,7 @@ function TopBar(props) {
                         ) : (
                             <div style={{ width: "35px", height: "35px", backgroundColor: "#ccc", borderRadius: "50%", marginRight: "5px" }} />
                         )}
-                        {capitalizedName}
+                        <div className="topbar-name">{capitalizedName}</div>
                         <KeyboardArrowDownRoundedIcon />
                     </div>
 

@@ -19,7 +19,7 @@ import Stack from '@mui/material/Stack';
 import './styles.css';
 
 function Subjects() {
-    return <Layout rId={2} body={<Body />} />;
+    return <Body />
 }
 
 function Body() {

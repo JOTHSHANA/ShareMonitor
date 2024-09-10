@@ -31,13 +31,6 @@ import { encryptData, decryptData } from '../pages/Welcome/welcome'
 
 const secretKey = "your-secret-key";
 
-// const decryptData = (encryptedData) => {
-//     if (!encryptedData) return null;
-//     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-//     return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-// };
-
-
 const Encryptedrole = Cookies.get("role")
 const role = decryptData(Encryptedrole);
 console.log(typeof (role))
@@ -47,7 +40,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 function Trash() {
-    return <Layout rId={2} body={<Body />} />;
+    return<Body />;
 }
 
 function Body() {
@@ -206,11 +199,11 @@ function Subjects() {
                         <div className="trash-box" key={subject.id} >
                             <b style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <p> {subject.name}</p>
-                                <p>
+                                {/* <p>
                                     <button className="button" onClick={() => handleSubClick(subject.id, subject.name)}>
                                         <UnfoldMoreIcon style={{ transform: 'rotate(45deg)' }} />
                                     </button>
-                                </p>
+                                </p> */}
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">
@@ -429,11 +422,11 @@ function Levels() {
                         <div className="trash-box" key={level.id}>
                             <b style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <p>{level.lvl_name}</p>
-                                <p>
+                                {/* <p>
                                     <button className="button" onClick={() => handleLvlClick(level.id, level.work_type)}>
                                         <UnfoldMoreIcon style={{ transform: 'rotate(45deg)' }} />
                                     </button>
-                                </p>
+                                </p> */}
                             </b>
                             <hr style={{ width: "100%" }} />
                             <div className="trash-details">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Layout.css";
 import { Link, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -8,16 +8,9 @@ import RecyclingSharpIcon from '@mui/icons-material/RecyclingSharp';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import {encryptData, decryptData} from '../../pages/Welcome/welcome'
+import { encryptData, decryptData } from '../../pages/Welcome/welcome'
 
 const secretKey = "your-secret-key";
-
-// const decryptData = (encryptedData) => {
-//     if (!encryptedData) return null;
-//     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-//     return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-// };
-
 
 function getIconComponent(iconPath) {
     switch (iconPath) {
@@ -36,6 +29,7 @@ function SideBar(props) {
     const [activeItem, setActiveItem] = useState("");
     const [sidebarItems, setSidebarItems] = useState([]);
     const location = useLocation();
+    const sidebarRef = useRef(null);
 
     useEffect(() => {
         const fetchSidebarItems = async () => {
@@ -70,14 +64,31 @@ function SideBar(props) {
         }
     }, [location, sidebarItems]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+                props.handleSideBar(); // Close the sidebar if clicked outside
+            }
+        };
+
+        if (props.open) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [props.open]);
+
     return (
-        <div className={props.open ? "app-sidebar sidebar-open" : "app-sidebar"}>
+        <div ref={sidebarRef} className={props.open ? "app-sidebar sidebar-open" : "app-sidebar"}>
             <ul className="list-div">
                 {sidebarItems.map(item => (
                     <li
                         key={item.path}
                         className={`list-items ${location.pathname.startsWith(item.path) || (item.path === "/subjects" && location.pathname.startsWith("/levels")) ? "active" : ""}`}
-                        onClick={() => setActiveItem(item.name)}
+                        onClick={() => { setActiveItem(item.name); props.handleSideBar(); }}
+
                     >
                         <Link className="link" to={item.path}>
                             {getIconComponent(item.icon_path)}

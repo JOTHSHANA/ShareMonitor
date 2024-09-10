@@ -40,6 +40,7 @@
 .app-name {
     font-size: 24px;
     font-weight: 900;
+    margin: 0px 5px;
 }
 
 .app-body {
@@ -57,6 +58,7 @@
 p {
     margin: 0;
 }
+
 
 @media (max-width: 1371px) {
     .app-sidebar {
@@ -91,9 +93,17 @@ p {
         background-color: rgba(128, 128, 128, 0.196);
     }
 
+    .topbar-name {
+        display: none;
+    }
+
     .app-body {
         padding: 7px;
         margin-bottom: 60px;
+    }
+
+    .app-name {
+        font-size: 18px;
     }
 
 }
@@ -168,7 +178,7 @@ p {
     color: #179be7;
 }
 
-.custom-sidebar-icon2{
+.custom-sidebar-icon2 {
     margin-right: 10px;
     font-size: 20px;
     padding: 5px;
@@ -177,7 +187,7 @@ p {
     color: #e86232;
 }
 
-.logout-button{
+.logout-button {
     width: 100%;
     padding: 7px 0px;
     font-size: 14px;
@@ -192,6 +202,6 @@ p {
     cursor: pointer;
 }
 
-.logout-button:hover{
+.logout-button:hover {
     background-color: rgb(232, 63, 63);
 }

@@ -9,7 +9,7 @@ import Welcome from "./pages/Welcome/welcome";
 import { useState, useEffect } from 'react';
 import Error from "./pages/error";
 import CryptoJS from "crypto-js";
-
+import AppLayout from "./components/appLayout/Layout";
 const secretKey = "your-secret-key";
 
 const decryptData = (encryptedData) => {
@@ -52,24 +52,29 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
         <Route path="/welcome" element={<Welcome />} />
-        <Route path="*" element={<Error />} />
+        <Route path="/error" element={<Error />} />
 
         {/* Protected Routes */}
-        <Route
-          path="/subjects"
-          element={<ProtectedRoute><Subjects /></ProtectedRoute>}
-        />
-        <Route
-          path="/levels/:subjectId/:subjectName"
-          element={<ProtectedRoute><Levels /></ProtectedRoute>}
-        />
-        <Route
-          path="/history"
-          element={<ProtectedRoute><History /></ProtectedRoute>}
-        />
-        <Route
-          path="/trash"
-          element={<ProtectedRoute><Trash /></ProtectedRoute>}
+        <Route path="/*"
+          element={
+            <AppLayout body={<Routes>
+              <Route
+                path="/subjects"
+                element={<ProtectedRoute><Subjects /></ProtectedRoute>}
+              />
+              <Route
+                path="/levels/:subjectId/:subjectName"
+                element={<ProtectedRoute><Levels /></ProtectedRoute>}
+              />
+              <Route
+                path="/history"
+                element={<ProtectedRoute><History /></ProtectedRoute>}
+              />
+              <Route
+                path="/trash"
+                element={<ProtectedRoute><Trash /></ProtectedRoute>}
+              /></Routes>} />
+          }
         />
       </Routes>
     </BrowserRouter>

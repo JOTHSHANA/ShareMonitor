@@ -43,7 +43,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './styles.css';
 
 function Levels() {
-    return <Layout rId={2} body={<Body />} />;
+    return <Body />;
 }
 
 function Body() {

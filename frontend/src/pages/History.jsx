@@ -21,11 +21,9 @@ function HistoryPage() {
     };
 
     return (
-        <Layout rId={3} body={
-            <div className="history-container">
-                UNDER DEVELOPMENT...
-            </div>
-        } />
+        <div className="history-container">
+            UNDER DEVELOPMENT...
+        </div>
     );
 }
 
