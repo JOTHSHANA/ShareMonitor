@@ -48,7 +48,7 @@ app.use(`${process.env.API}/api`, trashRoutes);
 app.use(`${process.env.API}/api`, loginRoutes);
 
 
-app.use('/uploads', express.static('uploads'));
+app.use(`${process.env.API}/uploads`, express.static('uploads'));
 
 
 const PORT = process.env.PORT || 5000;
