@@ -21,7 +21,7 @@ function Login() {
     };
     return (
         <div className='total-login'>
-            <div style={{display:"none"}}>
+            <div style={{ display: "none" }}>
                 <CustomizedSwitches />
             </div>
             <div className='login-card'>
