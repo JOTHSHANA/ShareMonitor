@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import CryptoJS from "crypto-js";
 import CustomizedSwitches from "../../components/appLayout/toggleTheme";
 
-const secretKey = "your-secret-key";
+  const secretKey = "your-secret-key";
 
 const Welcome = () => {
   const [searchParams] = useSearchParams();
@@ -29,19 +29,22 @@ const Welcome = () => {
           const parsedData = JSON.parse(decodedData);
           const { token, name, role, id, gmail, profilePhoto, subId, subName } = parsedData;
 
-          // Set cookies for the parsed data
+          // Set cookies for the parsed data, encrypting only sensitive information
           Cookies.set("token", CryptoJS.AES.encrypt(token, secretKey).toString(), { expires: 1 });
           Cookies.set("name", CryptoJS.AES.encrypt(name, secretKey).toString(), { expires: 1 });
           Cookies.set("role", CryptoJS.AES.encrypt(role.toString(), secretKey).toString(), { expires: 1 });
           Cookies.set("id", CryptoJS.AES.encrypt(id.toString(), secretKey).toString(), { expires: 1 });
           Cookies.set("gmail", CryptoJS.AES.encrypt(gmail, secretKey).toString(), { expires: 1 });
           Cookies.set("profilePhoto", CryptoJS.AES.encrypt(profilePhoto, secretKey).toString(), { expires: 1 });
-          Cookies.set("subId", CryptoJS.AES.encrypt(subId, secretKey).toString(), { expires: 1 });
-          Cookies.set("subName", CryptoJS.AES.encrypt(subName, secretKey).toString(), { expires: 1 });
 
-          // const response = await axios.get(`/api/resources?role=${role}`);
-          // const routes = response.data.map(route => route.path);
-          const routes = ["/materials/subjects", `/materials/levels/${subId}/${subName}`, "/materials/trash",];
+          // Set cookies for subId and subName without encryption
+          Cookies.set("subId", subId, { expires: 1 });
+          Cookies.set("subName", subName, { expires: 1 });
+
+          // Encrypt and update allowedRoutes
+          const routes = ["/materials/subjects", `/materials/levels/${subId}/${subName}`, "/materials/trash"];
+          console.log("Updated routes:", routes); // Log the updated routes array
+
           Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
 
           const redirectPath = routes.length > 0 ? routes[0] : "/materials/error";
@@ -66,11 +69,15 @@ const Welcome = () => {
         const id = getDecryptedCookie("id");
         const gmail = getDecryptedCookie("gmail");
         const profilePhoto = getDecryptedCookie("profilePhoto");
-        const subId = getDecryptedCookie("subId");
-        const subName = getDecryptedCookie("subName");
+        const subId = Cookies.get("subId");
+        const subName = Cookies.get("subName");
 
         if (token && name && role && id && gmail && profilePhoto && subId && subName) {
           const allowedRoutes = JSON.parse(CryptoJS.AES.decrypt(Cookies.get("allowedRoutes"), secretKey).toString(CryptoJS.enc.Utf8));
+
+          // Log the existing allowed routes
+          console.log("Existing routes from cookies:", allowedRoutes);
+
           const redirectPath = allowedRoutes.length > 0 ? allowedRoutes[0] : `/materials/levels/${subId}/${subName}`;
 
           setTimeout(() => {

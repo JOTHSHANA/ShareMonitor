@@ -70,6 +70,8 @@ function TopBar(props) {
             Cookies.remove('profilePhoto')
             Cookies.remove('gmail')
             Cookies.remove('allowedRoutes')
+            Cookies.remove('subId')
+            Cookies.remove('subName')
 
             navigate('/materials/login')
             console.log(token)

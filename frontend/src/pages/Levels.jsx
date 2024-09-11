@@ -316,6 +316,8 @@ function Body() {
     }, [selectedFolder]);
 
     const fetchLevels = async () => {
+       
+
         setLoading(true)
         try {
             const response = await axios.get(`${apiHost}/api/levels`, {

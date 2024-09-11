@@ -16,7 +16,11 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import Skeleton from '@mui/material/Skeleton';
 import subjects_image from '../assets/subjects.png'
 import Stack from '@mui/material/Stack';
+import Cookies from 'js-cookie';
+import CryptoJS from "crypto-js";
 import './styles.css';
+
+const secretKey = "your-secret-key";
 
 function Subjects() {
     return <Body />
@@ -88,13 +92,43 @@ function Body() {
         }
 
     };
+    const getDecryptedCookie = (cookieName) => {
+        const encryptedCookie = Cookies.get(cookieName);
+        if (encryptedCookie) {
+            const bytes = CryptoJS.AES.decrypt(encryptedCookie, secretKey);
+            return bytes.toString(CryptoJS.enc.Utf8);
+        }
+        return null;
+    };
 
 
+    const secretKey = "your-secret-key";
 
     const handleSubjectClick = (id, name) => {
-        console.log(name, id)
+        console.log(name, id);
+        Cookies.set('subId', id, { expires: 1 });
+        Cookies.set('subName', name, { expires: 1 });
+
+        const encryptedRoutes = Cookies.get('allowedRoutes');
+        if (encryptedRoutes) {
+            const decryptedRoutes = JSON.parse(CryptoJS.AES.decrypt(encryptedRoutes, secretKey).toString(CryptoJS.enc.Utf8));
+
+            const updatedRoutes = decryptedRoutes.map(route => {
+                if (route.includes('/materials/levels')) {
+                    return `/materials/levels/${id}/${name}`;
+                }
+                return route;
+            });
+
+            // console.log("Updated routes:", updatedRoutes);
+
+            const encryptedUpdatedRoutes = CryptoJS.AES.encrypt(JSON.stringify(updatedRoutes), secretKey).toString();
+            Cookies.set('allowedRoutes', encryptedUpdatedRoutes, { expires: 1 });
+        }
+
         navigate(`/materials/levels/${id}/${name}`);
     };
+
 
     const handleEdit = (subjectId, subjectName) => {
         setEditSubjectId(subjectId);
