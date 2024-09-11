@@ -39,7 +39,7 @@ app.use(bodyParser.json());
 console.log(process.env.API)
 
 app.use(`${process.env.API}/api`, resources);
-app.use(`${process.env.API}/auth`, auth);
+app.use(`${process.env.API}/api/auth`, auth);
 app.use(`${process.env.API}/api`, subjectRoutes);
 app.use(`${process.env.API}/api`, levelRoutes);
 app.use(`${process.env.API}/api`, documentRoutes);
