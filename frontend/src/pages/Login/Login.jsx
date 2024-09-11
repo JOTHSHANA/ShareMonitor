@@ -17,7 +17,7 @@ function Login() {
 
     const handleGoogleLogin = () => {
         console.log("asdjbdhjbd")
-        window.location.href = `${apiHost}/auth/google`;
+        window.location.href = `${apiHost}/api/auth/google`;
     };
     return (
         <div className='total-login'>
