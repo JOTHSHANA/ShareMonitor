@@ -51,7 +51,7 @@ app.use(`${process.env.API}/api`, loginRoutes);
 app.use(`${process.env.API}/uploads`, express.static('uploads'));
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
