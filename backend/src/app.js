@@ -39,7 +39,7 @@ app.use(bodyParser.json());
 console.log(process.env.API)
 
 app.use(`${process.env.API}/api`, resources);
-app.use(`${process.env.API}/auth`, auth);
+app.use(`${process.env.API}/api/auth`, auth);
 app.use(`${process.env.API}/api`, subjectRoutes);
 app.use(`${process.env.API}/api`, levelRoutes);
 app.use(`${process.env.API}/api`, documentRoutes);
@@ -51,7 +51,7 @@ app.use(`${process.env.API}/api`, loginRoutes);
 app.use(`${process.env.API}/uploads`, express.static('uploads'));
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
