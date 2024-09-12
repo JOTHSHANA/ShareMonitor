@@ -14,7 +14,8 @@ const folderRoutes = require('./routes/folderroutes');
 const trashRoutes = require('./routes/trashRoutes');
 const loginRoutes = require('./routes/loginRoutes');
 const auth = require('./routes/auth/auth')
-const resources = require('./routes/auth/res_route')
+const resources = require('./routes/auth/res_route');
+const authenticateGoogleJWT = require('./middleware/authenticate')
 
 
 app.use(
@@ -40,12 +41,12 @@ console.log(process.env.API)
 
 app.use(`${process.env.API}/api`, resources);
 app.use(`${process.env.API}/api/auth`, auth);
-app.use(`${process.env.API}/api`, subjectRoutes);
-app.use(`${process.env.API}/api`, levelRoutes);
-app.use(`${process.env.API}/api`, documentRoutes);
-app.use(`${process.env.API}/api`, folderRoutes);
-app.use(`${process.env.API}/api`, trashRoutes);
-app.use(`${process.env.API}/api`, loginRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, subjectRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, levelRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, documentRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, folderRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, trashRoutes);
+app.use(`${process.env.API}/api`, authenticateGoogleJWT, loginRoutes);
 
 
 app.use(`${process.env.API}/uploads`, express.static('uploads'));

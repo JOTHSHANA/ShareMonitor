@@ -19,6 +19,7 @@ import Stack from '@mui/material/Stack';
 import Cookies from 'js-cookie';
 import CryptoJS from "crypto-js";
 import './styles.css';
+import requestApi from "../components/utils/axios";
 
 const secretKey = "your-secret-key";
 
@@ -43,7 +44,7 @@ function Body() {
     const fetchSubjects = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/subjects`);
+            const response = await requestApi("GET",`/api/subjects`);
             setSubjects(response.data);
             console.log(response.data);
             setTimeout(() => {
@@ -74,13 +75,13 @@ function Body() {
             try {
                 if (editSubjectId) {
                     // Update existing subject
-                    await axios.put(`${apiHost}/api/subjects/${editSubjectId}`, { newName: formattedSubject });
+                    await requestApi("PUT", `/api/subjects/${editSubjectId}`, { newName: formattedSubject });
                     setSubjects(subjects.map(subject =>
                         subject.id === editSubjectId ? { ...subject, name: formattedSubject } : subject
                     ));
                 } else {
                     // Create new subject
-                    const response = await axios.post(`${apiHost}/api/subjects`, { name: formattedSubject });
+                    const response = await requestApi("POST", `/api/subjects`, { name: formattedSubject });
                     setSubjects([...subjects, response.data]);
                 }
                 setNewSubject("");
@@ -141,7 +142,7 @@ function Body() {
         handleShowEditDelete();
         if (confirmDelete) {
             try {
-                await axios.delete(`${apiHost}/api/subjects/${subjectId}`);
+                await requestApi("DELETE", `/api/subjects/${subjectId}`);
                 setSubjects(subjects.filter(subject => subject.id !== subjectId));
             } catch (error) {
                 console.error('Error deleting subject:', error);

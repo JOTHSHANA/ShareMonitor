@@ -377,7 +377,7 @@ exports.restoreLevel = (req, res) => {
         console.log(restoredLevelValue);
         console.log(subjectId);
 
-        const incrementLevelsQuery = 'UPDATE levels SET level = level + 1 WHERE subject = ? AND level >= ?';
+        const incrementLevelsQuery = 'UPDATE levels SET level = level + 1 WHERE subject = ? AND level > ?';
 
         db.query(incrementLevelsQuery, [subjectId, restoredLevelValue], (err, result) => {
             if (err) {
@@ -387,7 +387,7 @@ exports.restoreLevel = (req, res) => {
 
             const restoreLevelQuery = 'UPDATE levels SET level = ?, status = "1" WHERE id = ?';
 
-            db.query(restoreLevelQuery, [restoredLevelValue, levelId], (err, result) => {
+            db.query(restoreLevelQuery, [restoredLevelValue + 1, levelId], (err, result) => {
                 if (err) {
                     console.error('Error restoring level:', err);
                     return res.status(500).json({ error: 'An error occurred while restoring the level' });

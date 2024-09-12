@@ -18,14 +18,12 @@ exports.getFolders = async (req, res) => {
             return res.status(500).json({ error: 'Internal server error' });
         }
         res.json(results);
-        console.log(results);
     });
 };
 
 
 exports.createFolder = (req, res) => {
     const { s_day, e_day, level_id, work_type } = req.body;
-    console.log(s_day,e_day, level_id, work_type)
     if (!s_day || !e_day || !level_id || !work_type) {
         return res.status(400).json({ error: 'All fields are required' });
     }
@@ -44,7 +42,6 @@ exports.createFolder = (req, res) => {
 
                 if (results.length > 0) {
                     const folderId = results[0].id;
-                    console.log(`dssdds: ${folderId}`)
                     db.query(
                         'UPDATE folders SET status = "1", e_day = ? WHERE id = ?',
                         [e_day, folderId],
@@ -97,7 +94,6 @@ exports.editFolder = (req, res) => {
     const { id } = req.params;
     const { s_day, e_day } = req.body;
 
-    console.log(id, s_day, e_day);
 
     const query = 'UPDATE folders SET s_day = ?, e_day = ? WHERE id = ?';
 
@@ -113,7 +109,6 @@ exports.editFolder = (req, res) => {
 
 exports.deleteFolder = (req, res) => {
     const { id } = req.params;
-    console.log(id);
 
     const query = 'UPDATE folders SET status = "0" WHERE id = ?';
     const query1 = 'UPDATE documents SET status = "3" WHERE folder = ?'
@@ -314,7 +309,6 @@ exports.unmergeFolder = (req, res) => {
 
 exports.findMissingFolders = async (req, res) => {
     const { level, work_type } = req.query;
-    console.log(level, work_type);
 
     // Query to select only s_day
     const query = `

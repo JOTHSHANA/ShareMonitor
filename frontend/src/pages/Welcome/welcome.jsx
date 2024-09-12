@@ -4,11 +4,18 @@ import Cookies from "js-cookie";
 import CryptoJS from "crypto-js";
 import CustomizedSwitches from "../../components/appLayout/toggleTheme";
 
-  const secretKey = "your-secret-key";
+const secretKey = "your-secret-key";
 
 const Welcome = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Helper function to navigate to login
+  const redirectToLogin = () => {
+    console.log("Token expired, redirecting to login...");
+    Cookies.remove("token");  // Remove token cookie
+    navigate("/materials/login");  // Navigate to login
+  };
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -30,28 +37,34 @@ const Welcome = () => {
           const { token, name, role, id, gmail, profilePhoto, subId, subName } = parsedData;
 
           // Set cookies for the parsed data, encrypting only sensitive information
-          Cookies.set("token", CryptoJS.AES.encrypt(token, secretKey).toString(), { expires: 1 });
-          Cookies.set("name", CryptoJS.AES.encrypt(name, secretKey).toString(), { expires: 1 });
-          Cookies.set("role", CryptoJS.AES.encrypt(role.toString(), secretKey).toString(), { expires: 1 });
-          Cookies.set("id", CryptoJS.AES.encrypt(id.toString(), secretKey).toString(), { expires: 1 });
-          Cookies.set("gmail", CryptoJS.AES.encrypt(gmail, secretKey).toString(), { expires: 1 });
-          Cookies.set("profilePhoto", CryptoJS.AES.encrypt(profilePhoto, secretKey).toString(), { expires: 1 });
+          Cookies.set("token", CryptoJS.AES.encrypt(token, secretKey).toString(), { expires: 5 });
+          Cookies.set("name", CryptoJS.AES.encrypt(name, secretKey).toString(), { expires: 5 });
+          Cookies.set("role", CryptoJS.AES.encrypt(role.toString(), secretKey).toString(), { expires: 5 });
+          Cookies.set("id", CryptoJS.AES.encrypt(id.toString(), secretKey).toString(), { expires: 5 });
+          Cookies.set("gmail", CryptoJS.AES.encrypt(gmail, secretKey).toString(), { expires: 5 });
+          Cookies.set("profilePhoto", CryptoJS.AES.encrypt(profilePhoto, secretKey).toString(), { expires: 5 });
 
           // Set cookies for subId and subName without encryption
-          Cookies.set("subId", subId, { expires: 1 });
-          Cookies.set("subName", subName, { expires: 1 });
+          Cookies.set("subId", subId, { expires: 5 });
+          Cookies.set("subName", subName, { expires: 5 });
 
           // Encrypt and update allowedRoutes
           const routes = ["/materials/subjects", `/materials/levels/${subId}/${subName}`, "/materials/trash"];
-          console.log("Updated routes:", routes); // Log the updated routes array
+          console.log("Updated routes:", routes);
 
           Cookies.set("allowedRoutes", CryptoJS.AES.encrypt(JSON.stringify(routes), secretKey).toString(), { expires: 1 });
 
           const redirectPath = routes.length > 0 ? routes[0] : "/materials/error";
 
+          // Navigate to the first allowed route
           setTimeout(() => {
             navigate(redirectPath);
           }, 200);
+
+          // Set timeout to redirect to login after 5 hours (18000000 milliseconds)
+          setTimeout(() => {
+            redirectToLogin();
+          }, 5 * 60 * 60 * 1000);  // 5 hours in milliseconds
 
         } catch (error) {
           console.error("Error processing data:", error);
@@ -75,7 +88,6 @@ const Welcome = () => {
         if (token && name && role && id && gmail && profilePhoto && subId && subName) {
           const allowedRoutes = JSON.parse(CryptoJS.AES.decrypt(Cookies.get("allowedRoutes"), secretKey).toString(CryptoJS.enc.Utf8));
 
-          // Log the existing allowed routes
           console.log("Existing routes from cookies:", allowedRoutes);
 
           const redirectPath = allowedRoutes.length > 0 ? allowedRoutes[0] : `/materials/levels/${subId}/${subName}`;
@@ -83,6 +95,20 @@ const Welcome = () => {
           setTimeout(() => {
             navigate(redirectPath);
           }, 200);
+
+          // Check the expiration time of the token and set the timeout accordingly
+          const expirationTime = new Date(Cookies.getJSON().token.expires).getTime();
+          const currentTime = new Date().getTime();
+          const timeRemaining = expirationTime - currentTime;
+
+          if (timeRemaining > 0) {
+            setTimeout(() => {
+              redirectToLogin();
+            }, timeRemaining);
+          } else {
+            redirectToLogin();  // If the token is already expired, redirect immediately
+          }
+
         } else {
           // If cookies are missing, redirect to error page
           navigate("/materials/error");

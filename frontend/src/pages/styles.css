@@ -656,6 +656,28 @@ input[type=checkbox] {
     margin-right: 10px;
 }
 
+.add-butto {
+    margin: 5px;
+    border: none;
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: white;
+    font-weight: var(--f-weight);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.modify-butto {
+    background-color: rgb(19, 162, 69);
+}
+
+.cancel-butto {
+    background-color: rgba(255, 0, 0, 0.623);
+}
+
 input[type=checkbox]:checked {
     background-color: #13a245;
 }

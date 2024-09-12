@@ -26,6 +26,7 @@ import general_doc_img from '../assets/general_doc_img.png';
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
+import requestApi from "../components/utils/axios";
 
 const secretKey = "your-secret-key";
 
@@ -123,7 +124,7 @@ function Subjects() {
     const fetchSubjects = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/trashSubjects`);
+            const response = await requestApi("GET",`/api/trashSubjects`);
             setLoading(false);
             setSubjects(response.data);
         } catch (error) {
@@ -161,7 +162,7 @@ function Subjects() {
 
     const handleRestore = async () => {
         try {
-            await axios.put(`${apiHost}/api/restoreSubject`, { id: selectedSubject.id });
+            await requestApi("PUT",`/api/restoreSubject`, { id: selectedSubject.id });
             handleClose();
             fetchSubjects();
             toast.success(`Restored successfully!`);
@@ -174,7 +175,7 @@ function Subjects() {
     const handleDelete = async () => {
         console.log(selectedSubject.id)
         try {
-            await axios.put(`${apiHost}/api/subjectDelete`, { id: selectedSubject.id });
+            await requestApi("PUT",`/api/subjectDelete`, { id: selectedSubject.id });
             handleClose();
             fetchSubjects();
             toast.success(`Deleted successfully!`);
@@ -346,7 +347,7 @@ function Levels() {
     const fetchLevels = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/trashLevels`);
+            const response = await requestApi("GET",`/api/trashLevels`);
             setLoading(false);
             setLevels(response.data);
         } catch (error) {
@@ -382,7 +383,7 @@ function Levels() {
     const handleRestore = async () => {
         console.log(selectedLevel.id);
         try {
-            await axios.put(`${apiHost}/api/restoreLevel`, { id: selectedLevel.id });
+            await requestApi("PUT",`/api/restoreLevel`, { id: selectedLevel.id });
             handleClose();
             fetchLevels();
             toast.success(`Restored successfully!`);
@@ -395,7 +396,7 @@ function Levels() {
     const handleDelete = async () => {
         console.log(selectedLevel.id);
         try {
-            await axios.put(`${apiHost}/api/levelDelete`, { id: selectedLevel.id });
+            await requestApi("PUT",`}/api/levelDelete`, { id: selectedLevel.id });
             handleClose();
             fetchLevels();
             toast.success(`Deleted successfully!`);
@@ -585,7 +586,7 @@ function Folders() {
 
         setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/trashFolders`);
+            const response = await requestApi("GET",`/api/trashFolders`);
             setLoading(false);
             setFolders(response.data);
             console.log(response.data);
@@ -622,7 +623,7 @@ function Folders() {
     const handleRestore = async () => {
         console.log(selectedFolder.folder)
         try {
-            await axios.put(`${apiHost}/api/restoreFolder`, { id: selectedFolder.folder });
+            await requestApi("PUT",`/api/restoreFolder`, { id: selectedFolder.folder });
             handleClose();
             fetchFolders();
             toast.success(`Restored successfully!`);
@@ -635,7 +636,7 @@ function Folders() {
     const handleDelete = async () => {
         console.log(selectedFolder.folder)
         try {
-            await axios.put(`${apiHost}/api/folderDelete`, { id: selectedFolder.folder });
+            await requestApi("PUT",`/api/folderDelete`, { id: selectedFolder.folder });
             handleClose();
             fetchFolders();
             toast.success(`Deleted successfully!`);
@@ -851,7 +852,7 @@ function Documents() {
     const fetchDocuments = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/trashDocuments`);
+            const response = await requestApi("GET",`/api/trashDocuments`);
             setLoading(false);
             setDocuments(response.data);
         } catch (error) {
@@ -886,7 +887,7 @@ function Documents() {
     const handleRestore = async () => {
         console.log(selectedDocument.id)
         try {
-            await axios.put(`${apiHost}/api/restoreDocument`, { id: selectedDocument.id });
+            await requestApi("PUT",`/api/restoreDocument`, { id: selectedDocument.id });
             handleClose();
             fetchDocuments();
             toast.success(`Restored successfully!`);
@@ -899,7 +900,7 @@ function Documents() {
     const handleDelete = async () => {
         console.log(selectedDocument.id)
         try {
-            await axios.put(`${apiHost}/api/documentDelete`, { id: selectedDocument.id });
+            await requestApi("PUT",`$/api/documentDelete`, { id: selectedDocument.id });
             handleClose();
             fetchDocuments();
             toast.success(`Deleted successfully!`);

@@ -40,6 +40,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import 'react-toastify/dist/ReactToastify.css';
+import CancelIcon from '@mui/icons-material/Cancel';
+import requestApi from '../components/utils/axios';
 import './styles.css';
 
 function Levels() {
@@ -104,6 +106,14 @@ function Body() {
     const hoverEditDeleteRef = useRef(null);
     const documentEditDeleteRef = useRef(null);
     const docDivId = 'hoverEditDeleteDocuments'; // Assign a unique ID for the document div
+
+    const getDecryptedToken = () => {
+        const encryptedToken = Cookies.get('token');
+        if (encryptedToken) {
+            return CryptoJS.AES.decrypt(encryptedToken, secretKey).toString(CryptoJS.enc.Utf8);
+        }
+        return null;
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -252,7 +262,7 @@ function Body() {
             console.warn("No levels selected for sharing.");
             return;
         }
-        axios.post(`${apiHost}/api/shareLevels`, { levels: selectedLevels })
+        requestApi("POST", `/api/shareLevels`, { levels: selectedLevels })
             .then(response => console.log('Levels shared:', response.data))
             .catch(error => console.error('Error sharing levels:', error));
     };
@@ -269,7 +279,7 @@ function Body() {
 
     const handleShareSubmit = async () => {
         try {
-            await axios.post(`${apiHost}/api/share`, {
+            await requestApi("POST", `/api/share`, {
                 documentId: selectedDocument.id,
                 email: email
             });
@@ -316,27 +326,25 @@ function Body() {
     }, [selectedFolder]);
 
     const fetchLevels = async () => {
-       
-
-        setLoading(true)
+        setLoading(true);
         try {
-            const response = await axios.get(`${apiHost}/api/levels`, {
-                params: {
-                    sub_id: subjectId,
-                    sub_name: subjectName
-                }
+            // Pass null as the second argument for data (since it's a GET request)
+            // and pass the params separately as the third argument.
+            const response = await requestApi("GET", `/api/levels`, null, {
+                sub_id: subjectId,
+                sub_name: subjectName
             });
-            setLevels(response.data);
-            setSelectedLevel(levels[0]);
-            setLevelNum(response.data[0].level)
 
+            setLevels(response.data);
+            setSelectedLevel(response.data[0]);
+            setLevelNum(response.data[0].level);
         } catch (error) {
             console.error('Error fetching levels:', error);
-        }
-        finally {
+        } finally {
             setLoading(false); // Set loading to false after fetching
         }
     };
+
 
     useEffect(() => {
         if (selectedFolder && selectedFolder.id !== undefined) {
@@ -350,7 +358,7 @@ function Body() {
         // setSelectedFolder(folderId)
         // console.log("Fetching documents for folder ID:", folderId);
         try {
-            const response = await axios.get(`${apiHost}/api/getDocument/${folderId}`, {});
+            const response = await requestApi("GET", `/api/getDocument/${folderId}`, {});
             setDocuments(response.data);
             setActiveFolderId(folderId);
             // console.log(response.data)
@@ -362,15 +370,17 @@ function Body() {
     const fetchFolders = async () => {
         try {
             setIsLoading(true); // Start loading
-            const response = await axios.get(`${apiHost}/api/getfolders`, {
-                params: {
-                    work_type: documentCategoryMapping[activeTab],
-                    level: selectedLevel.id
-                }
+
+            // Pass null for data and provide params as the third argument
+            const response = await requestApi("GET", `/api/getfolders`, null, {
+                work_type: documentCategoryMapping[activeTab],
+                level: selectedLevel.id
             });
+
             const folders = response.data;
             setFolders(folders);
-            console.log(folders)
+            console.log(folders);
+
             if (folders.length > 0) {
                 setActiveFolderId(folders[0].id);
                 fetchDocuments(folders[0].id);
@@ -385,13 +395,14 @@ function Body() {
         }
     };
 
+
     const findMissing = async () => {
         try {
-            const response = await axios.get(`${apiHost}/api/findMissing`, {
-                params: {
-                    work_type: documentCategoryMapping[activeTab],
-                    level: selectedLevel.id
-                }
+            const response = await requestApi("GET", `/api/findMissing`, null, {
+
+                work_type: documentCategoryMapping[activeTab],
+                level: selectedLevel.id
+
             });
             setMissingDays(response.data.missingDays);
 
@@ -424,7 +435,7 @@ function Body() {
         if (newLevel.trim() !== "") {
             const formattedLevel = newLevel.charAt(0).toUpperCase() + newLevel.slice(1);
             try {
-                const response = await axios.post(`${apiHost}/api/levels`, { name: formattedLevel, subjectId: subjectId, levelNum: levelNum + 1 });
+                const response = await requestApi("POST", `/api/levels`, { name: formattedLevel, subjectId: subjectId, levelNum: levelNum + 1 });
                 setLevels([...levels, response.data]);
                 setNewLevel("");
                 setShowPopup(false);
@@ -453,7 +464,7 @@ function Body() {
         try {
             const adjustedEndDay = end_day === undefined ? start_day : end_day;
 
-            const response = await axios.post(`${apiHost}/api/folders`, {
+            const response = await requestApi("POST", `/api/folders`, {
                 s_day: start_day,
                 e_day: adjustedEndDay,
                 level_id: selectedLevel.id,
@@ -473,7 +484,7 @@ function Body() {
 
     const handleEditFolder = async () => {
         try {
-            const response = await axios.put(`${apiHost}/api/folders/${selectedFolder.id}`, {
+            const response = await requestApi("PUT", `/api/folders/${selectedFolder.id}`, {
                 s_day: start_day,
                 e_day: end_day
             });
@@ -581,7 +592,7 @@ function Body() {
         }
 
         try {
-            const response = await axios.post(`${apiHost}/api/uploadDocument`, formData, {
+            const response = await requestApi("POST", `/api/uploadDocument`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -635,7 +646,7 @@ function Body() {
             fetchFolders(activeFolderId);
             try {
                 fetchFolders(activeFolderId);
-                await axios.delete(`${apiHost}/api/deletedocument/${id}`, {
+                await requestApi("DELETE", `/api/deletedocument/${id}`, {
                 });
                 // console.log(id);
                 setShowDocUndoAlert(true);
@@ -652,7 +663,7 @@ function Body() {
 
     const handleDocUndo = async () => {
         try {
-            await axios.put(`${apiHost}/api/restoreDocument`, { id: docUndo });
+            await requestApi("PUT", `/api/restoreDocument`, { id: docUndo });
             setShowDocUndoAlert(false);
             fetchDocuments();
             fetchFolders(activeFolderId);
@@ -668,7 +679,7 @@ function Body() {
     const handleEditSubmit = async () => {
         if (editLevel.trim() !== "") {
             try {
-                const response = await axios.put(`${apiHost}/api/levels/${selectedLevel.id}`, {
+                const response = await requestApi("PUT", `/api/levels/${selectedLevel.id}`, {
                     lvl_name: editLevel,
                     subjectId: subjectId,
                     level: selectedLevel.level,
@@ -692,9 +703,7 @@ function Body() {
         if (confirmDelete) {
             try {
                 setLevelUndo(id);
-                await axios.delete(`${apiHost}/api/levels/${id}`, {
-                    data: { subjectId, level }
-                });
+                await requestApi("DELETE", `/api/levels?id=${id}&subjectId=${subjectId}&level=${level}`);
                 setLevels(levels.filter((level) => level.id !== id));
 
                 // Show undo alert
@@ -712,7 +721,7 @@ function Body() {
     };
     const handleLevelUndo = async () => {
         try {
-            await axios.put(`${apiHost}/api/restoreLevel`, { id: levelUndo });
+            await requestApi("PUT", `/api/restoreLevel`, { id: levelUndo });
             setShowUndoAlert(false);
             fetchLevels();
         } catch (error) {
@@ -726,7 +735,7 @@ function Body() {
             setFolderUndo(id);
             setShowFolderEditDelete(false);
             try {
-                await axios.put(`${apiHost}/api/folder/${id}`, {
+                await requestApi("PUT", `/api/folder/${id}`, {
                 });
                 // console.log(id);
                 setShowFolderUndoAlert(true);
@@ -744,7 +753,7 @@ function Body() {
 
     const handleFolderUndo = async () => {
         try {
-            await axios.put(`${apiHost}/api/restoreFolder`, { id: folderUndo });
+            await requestApi("PUT", `/api/restoreFolder`, { id: folderUndo });
             setShowFolderUndoAlert(false);
             fetchFolders();
         } catch (error) {
@@ -787,7 +796,7 @@ function Body() {
     const changeOrder = async (in1, in2, currI, adjI) => {
         // console.log(in1, in2);
         try {
-            await axios.put(`${apiHost}/api/documentOrder/`, {
+            await requestApi("PUT", `/api/documentOrder/`, {
                 in1,
                 in2
             });
@@ -807,7 +816,7 @@ function Body() {
         console.log(`Hello ${startMergeFolderId}`);
         console.log(`Hello ${endMergeFolderId}`);
         try {
-            const response = await axios.post(`${apiHost}/api/mergeFolders`, {
+            const response = await requestApi("POST", `/api/mergeFolders`, {
                 startFolderId: startMergeFolderId,
                 endFolderId: endMergeFolderId,
                 level: selectedLevel.id,
@@ -828,7 +837,7 @@ function Body() {
 
     const handleUnmergeFolder = async () => {
         try {
-            const response = await axios.post(`${apiHost}/api/unmergeFolder`, {
+            const response = await requestApi("POST", `/api/unmergeFolder`, {
                 folderId: unmergeFolderId,  // ID of the merged folder to unmerge
             });
             fetchFolders()
@@ -1250,9 +1259,18 @@ function Body() {
                                 </div>
                                 <div ref={documentEditDeleteRef} className='documents-div'>
                                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                        <button className="add-button" onClick={handleShowDocumentEditDelete}>
-                                            <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} /><span>Modify</span>
+                                        <button
+                                            className={`add-butto ${showDocumentEditDelete ? "cancel-butto" : "modify-butto"}`}
+                                            onClick={handleShowDocumentEditDelete}
+                                        >
+                                            {showDocumentEditDelete ? (
+                                                <CancelIcon sx={{ marginRight: "5px", fontSize: "20px" }} />
+                                            ) : (
+                                                <AutoFixHighIcon sx={{ marginRight: "5px", fontSize: "20px" }} />
+                                            )}
+                                            <span>{showDocumentEditDelete ? "Cancel" : "Modify"}</span>
                                         </button>
+
                                         <button className='add-button' onClick={handleDocumentPopupOpen}>
                                             <AddIcon /><span>Add Document</span>
                                         </button>
@@ -1322,7 +1340,6 @@ function Body() {
                                                             <KeyboardDoubleArrowDownIcon sx={{ color: "var(--text)" }} />
                                                         </button>
                                                         <div
-                                                            id={docDivId}
                                                             className="hover-edit-delete-documents"
                                                             style={{ display: showDocumentEditDelete ? 'flex' : 'none' }}
                                                         >

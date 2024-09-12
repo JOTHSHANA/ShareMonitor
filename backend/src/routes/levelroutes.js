@@ -5,6 +5,6 @@ const { getLevels, createLevels, updateLevels, deleteLevels } = require('../cont
 router.get('/levels', getLevels);
 router.post('/levels', createLevels);
 router.put('/levels/:id', updateLevels);
-router.delete('/levels/:id', deleteLevels);
+router.delete('/levels', deleteLevels);
 
 module.exports = router;

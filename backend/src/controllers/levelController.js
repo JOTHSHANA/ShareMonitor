@@ -140,9 +140,7 @@ exports.updateLevels = (req, res) => {
 };
 
 exports.deleteLevels = (req, res) => {
-    const { id } = req.params;
-    const { subjectId, level } = req.body;
-    console.log(id, subjectId, level);
+    const { id ,subjectId, level} = req.query;
 
     // Mark the level as deleted by updating the status
     const updateStatusQuery = 'UPDATE levels SET status = "0" WHERE id = ?';
@@ -154,7 +152,7 @@ exports.deleteLevels = (req, res) => {
 
         // Decrement levels greater than the deleted level
         const decrementQuery = 'UPDATE levels SET level = level - 1 WHERE subject = ? AND level > ?';
-        db.query(decrementQuery, [subjectId, level + 1], (err, result) => {
+        db.query(decrementQuery, [subjectId, level], (err, result) => {
             if (err) {
                 console.error('Error decrementing levels:', err);
                 return res.status(500).json({ error: 'Failed to decrement levels' });

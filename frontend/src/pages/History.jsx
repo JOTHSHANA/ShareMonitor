@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/appLayout/Layout';
 import './styles.css';
+import requestApi from '../components/utils/axios';
 
 function HistoryPage() {
     const [history, setHistory] = useState([]);
@@ -13,7 +14,7 @@ function HistoryPage() {
 
     const fetchHistory = async () => {
         try {
-            const response = await axios.get(`${apiHost}/api/history`);
+            const response = await requestApi("GET",`/api/history`);
             setHistory(response.data);
         } catch (error) {
             console.error('Error fetching history:', error);

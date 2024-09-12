@@ -8,6 +8,7 @@ import RecyclingSharpIcon from '@mui/icons-material/RecyclingSharp';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import axios from "axios";
 import CryptoJS from "crypto-js";
+import requestApi from "../utils/axios";
 
 const secretKey = "your-secret-key";
 
