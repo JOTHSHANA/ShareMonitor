@@ -30,6 +30,7 @@ function SideBar(props) {
     const [sidebarItems, setSidebarItems] = useState([]);
     const location = useLocation();
     const sidebarRef = useRef(null);
+    
 
     useEffect(() => {
         const fetchSidebarItems = async () => {
